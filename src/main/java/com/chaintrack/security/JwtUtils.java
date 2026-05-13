@@ -1,17 +1,29 @@
 package com.chaintrack.security;
 
-import java.util.List;
+import org.springframework.stereotype.Component;
 
+/**
+ * JWT utility class for token generation and validation.
+ * <p>
+ * This is a stub implementation to be completed once UserDetails and authentication flow are ready.
+ * </p>
+ */
+@Component
 public class JwtUtils {
 
-    public static String generateToken(String username, List<String> roles) {
-        return null;
+    /**
+     * Generates a JWT token for the given user details.
+     * <p>
+     * TODO: Implement JWT creation using JJWT library with claims, expiration, and secret signing.
+     * </p>
+     *
+     * @param userDetails the user details
+     * @return the generated JWT token
+     * @throws UnsupportedOperationException until implemented
+     */
+    public String generateToken(Object userDetails) {
+        throw new UnsupportedOperationException("generateToken not implemented yet");
     }
-
-    public static boolean validateToken(String token) {
-        return false;
-    }
-}
 
     /**
      * Validates the given JWT token.
@@ -25,17 +37,5 @@ public class JwtUtils {
      */
     public boolean validateToken(String token) {
         throw new UnsupportedOperationException("validateToken not implemented yet");
-=======
-import java.util.List;
-
-public class JwtUtils {
-
-    public static String generateToken(String username, List<String> roles) {
-        return null;
-    }
-
-    public static boolean validateToken(String token) {
-        return false;
->>>>>>> 0640cb1e653b2f122bf8393427a9983f2355549a
     }
 }

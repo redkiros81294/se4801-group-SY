@@ -1,4 +1,4 @@
-package com.chaintrack.chaintrack;
+package com.chaintrack;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
