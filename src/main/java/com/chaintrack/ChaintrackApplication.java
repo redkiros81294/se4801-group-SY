@@ -1,4 +1,4 @@
-package com.chaintrack.chaintrack;
+package com.chaintrack;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,5 +9,4 @@ public class ChaintrackApplication {
     public static void main(String[] args) {
         SpringApplication.run(ChaintrackApplication.class, args);
     }
-
 }
