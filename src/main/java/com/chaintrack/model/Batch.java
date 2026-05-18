@@ -55,5 +55,4 @@ public class Batch {
     @Version
     private Long version;
 
-    // TODO: Wire @OneToMany to MovementTransaction once MovementTransaction entity is created
 }

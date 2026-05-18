@@ -43,8 +43,7 @@ public class Product {
     @Column(length = 100)
     private String category;
 
-    // TODO: Wire to User entity once Simon creates it (Day 4)
-    // Currently stored as raw UUID to avoid circular dependency
+    // Stored as raw UUID; wire to User entity (createdBy) once available
     @Column(name = "created_by", nullable = false)
     private UUID createdBy;
 
