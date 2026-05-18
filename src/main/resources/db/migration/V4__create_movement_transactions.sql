@@ -9,7 +9,7 @@ CREATE TABLE movement_transactions (
     to_org_id UUID REFERENCES organizations(id),
     batch_id UUID NOT NULL REFERENCES batches(id),
     signature_hash CHAR(64) NOT NULL,
-    previous_hash CHAR(64) NOT NULL,
+    previous_hash CHAR(64) NULL,
     CONSTRAINT chk_event_type CHECK (event_type IN ('MANUFACTURED', 'SHIPPED', 'IN_TRANSIT', 'RECEIVED'))
 );
 
