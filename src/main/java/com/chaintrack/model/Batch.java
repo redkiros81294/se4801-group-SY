@@ -7,9 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.Instant;
-import java.util.UUID;
 
 /**
  * Represents a batch of products in the supply chain.
@@ -24,11 +24,12 @@ import java.util.UUID;
 public class Batch {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "UUID")
+    @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
+    private String id;
 
-    @Column(name = "batch_number", nullable = false, unique = true, length = 100)
+    @Column(name = "batch_number", nullable = false, unique = true, length = 100, updatable = false)
     private String batchNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -53,4 +54,6 @@ public class Batch {
 
     @Version
     private Long version;
+
+    // TODO: Wire @OneToMany to MovementTransaction once MovementTransaction entity is created
 }
