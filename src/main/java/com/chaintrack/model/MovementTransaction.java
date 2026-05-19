@@ -8,14 +8,13 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
- * Records one supply chain event for a batch.
- * Each transaction stores a SHA-256 signature hash computed from
- *    eventType + timestamp + fromOrgId + toOrgId + previousHash.
- * The previousHash is the signatureHash of the previous transaction
- * (or "GENESIS" for the very first event). This chain is immutable —
- * transactions are never updated or deleted.
+ * Immutable hash-chained record of one supply chain event for a batch.
+ * Each transaction signs SHA-256(eventType + timestamp + fromOrgId + toOrgId + previousHash).
+ * The {@code previousHash} is the {@code signatureHash} of the preceding transaction
+ * (or {@code "GENESIS"} for the first event).  Transactions are never updated or deleted.
  */
 @Entity
 @Table(name = "movement_transactions")
@@ -43,7 +42,22 @@ public class MovementTransaction {
     @Column(name = "to_org_id")
     private String toOrgId;
 
-    @Column(name = "batch_id", nullable = false)
+    /**
+     * The owning batch for this movement.  Maps to the {@code batch_id} FK column.
+     * The owning side of the relationship — JPA manages the FK, not this class.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "batch_id", nullable = false)
+    private Batch batch;
+
+    /**
+     * Read-only serialization of the batch ID as a String.
+     * Stored at write time via lifecycle callback so the field never drifts from
+     * the FK column, while keeping {@link #batch} as the JPA-owning association.
+     * Not persisted directly — populated from {@link #batch#getId()} before insert.
+     */
+    @Transient
+    @Column(name = "batch_id", insertable = false, updatable = false)
     private String batchId;
 
     @Column(name = "signature_hash", nullable = false, length = 64)
@@ -55,6 +69,17 @@ public class MovementTransaction {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
+
+    /**
+     * Lifecycle hook — populates the transient {@code batchId} before insert
+     * so that JSON serializers see a non-null value without persisting it twice.
+     */
+    @PrePersist
+    void prePersist() {
+        if (batch != null && batchId == null) {
+            this.batchId = batch.getId();
+        }
+    }
 
     public enum EventType {
         MANUFACTURED,
