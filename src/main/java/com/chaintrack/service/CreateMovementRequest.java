@@ -1,7 +1,5 @@
 package com.chaintrack.service;
 
-import com.chaintrack.model.MovementTransaction;
-
 /**
  * Stub for CreateMovementRequest — contains only the fields needed by
  * MovementTransactionService.recordMovement and seedGenesis.

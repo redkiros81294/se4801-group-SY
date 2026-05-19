@@ -43,6 +43,7 @@ public class User {
     private Organization org;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean isActive = true;
 
     @CreationTimestamp
