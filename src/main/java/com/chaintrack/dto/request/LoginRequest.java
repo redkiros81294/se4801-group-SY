@@ -2,7 +2,6 @@ package com.chaintrack.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 /**
  * Login request payload — accepts username (email) and raw password.

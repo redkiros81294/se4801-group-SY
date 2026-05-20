@@ -6,7 +6,6 @@ import com.chaintrack.model.Organization;
 import com.chaintrack.model.Product;
 
 import java.time.Instant;
-import java.util.UUID;
 
 /**
  * Read-only DTO returned by the batch detail and history endpoints.
