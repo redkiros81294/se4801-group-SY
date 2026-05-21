@@ -1,6 +1,7 @@
 package com.chaintrack.service;
 
 import com.chaintrack.dto.request.CreateBatchRequest;
+import com.chaintrack.dto.response.GenerateBatchTokenResponse;
 import com.chaintrack.model.Batch;
 import com.chaintrack.model.BatchStatus;
 import org.springframework.data.domain.Page;
@@ -42,4 +43,12 @@ public interface BatchService {
      * Returns the current stock token list for the batch.
      */
     List<String> getStockTokens(UUID batchId);
+
+    /**
+     * Generates a QR token for a batch.
+     *
+     * @param batchId the batch id
+     * @return GenerateBatchTokenResponse with token and QR image
+     */
+    GenerateBatchTokenResponse generateQR(String batchId);
 }
