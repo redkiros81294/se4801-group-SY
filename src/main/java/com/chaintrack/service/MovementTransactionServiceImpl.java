@@ -1,5 +1,6 @@
 package com.chaintrack.service;
 
+import com.chaintrack.exception.InvalidEventTransitionException;
 import com.chaintrack.exception.ResourceNotFoundException;
 import com.chaintrack.model.*;
 import com.chaintrack.repository.BatchRepository;
@@ -35,15 +36,33 @@ public class MovementTransactionServiceImpl implements MovementTransactionServic
         Batch batch = batchRepository.findById(request.batchId())
             .orElseThrow(() -> new ResourceNotFoundException("Batch", "id", request.batchId()));
 
+        // Resolve the current event type from the request
+        MovementTransaction.EventType currentEventType = MovementTransaction.EventType.valueOf(request.eventType());
+
         // Get the previous transaction to link the hash chain
         String previousHash;
         MovementTransaction previousTx = transactionRepository
             .findTopByBatchOrderByEventTimestampDesc(batch)
             .orElse(null);
 
+        // Validate event type transitions
         if (previousTx == null) {
+            if (currentEventType != MovementTransaction.EventType.MANUFACTURED) {
+                throw new InvalidEventTransitionException(
+                    "No previous transaction: only MANUFACTURED is allowed as the first event type");
+            }
             previousHash = "GENESIS";
         } else {
+            MovementTransaction.EventType previousEventType = previousTx.getEventType();
+            boolean validTransition = switch (previousEventType) {
+                case MANUFACTURED -> currentEventType == MovementTransaction.EventType.SHIPPED;
+                case SHIPPED -> currentEventType == MovementTransaction.EventType.IN_TRANSIT;
+                case IN_TRANSIT -> currentEventType == MovementTransaction.EventType.RECEIVED;
+                default -> false;
+            };
+            if (!validTransition) {
+                throw new InvalidEventTransitionException(previousEventType.name(), currentEventType.name());
+            }
             previousHash = previousTx.getSignatureHash();
         }
 
