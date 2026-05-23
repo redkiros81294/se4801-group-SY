@@ -26,7 +26,7 @@ public record MovementResponse(
             tx.getEventTimestamp(),
             tx.getFromOrgId(),
             tx.getToOrgId(),
-            tx.getBatchId(),
+            tx.getBatch() != null ? tx.getBatch().getId() : tx.getBatchId(),
             tx.getSignatureHash(),
             tx.getPreviousHash()
         );
