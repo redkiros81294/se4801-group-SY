@@ -1,41 +1,97 @@
 package com.chaintrack.security;
 
+import com.chaintrack.service.JwtBlacklistService;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/**
- * JWT utility class for token generation and validation.
- * <p>
- * This is a stub implementation to be completed once UserDetails and authentication flow are ready.
- * </p>
- */
+import java.security.Key;
+import java.util.*;
+import java.util.Date;
+
 @Component
 public class JwtUtils {
 
-    /**
-     * Generates a JWT token for the given user details.
-     * <p>
-     * TODO: Implement JWT creation using JJWT library with claims, expiration, and secret signing.
-     * </p>
-     *
-     * @param userDetails the user details
-     * @return the generated JWT token
-     * @throws UnsupportedOperationException until implemented
-     */
-    public String generateToken(Object userDetails) {
-        throw new UnsupportedOperationException("generateToken not implemented yet");
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.expiration-ms:86400000}")
+    private long jwtExpirationMs;
+
+    private Key key;
+
+    @PostConstruct
+    public void init() {
+        if (secret == null || secret.length() < 32) {
+            throw new IllegalStateException("JWT_SECRET must be at least 32 characters");
+        }
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    /**
-     * Validates the given JWT token.
-     * <p>
-     * TODO: Implement token validation, signature verification, expiration check, and blacklist check.
-     * </p>
-     *
-     * @param token the JWT token to validate
-     * @return true if valid, false otherwise
-     * @throws UnsupportedOperationException until implemented
-     */
-    public boolean validateToken(String token) {
-        throw new UnsupportedOperationException("validateToken not implemented yet");
+    public String generateToken(org.springframework.security.core.userdetails.UserDetails userDetails, 
+                                 String userId, 
+                                 String orgId, 
+                                 String role) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        claims.put("orgId", orgId);
+        claims.put("role", role);
+
+        return Jwts.builder()
+            .setClaims(claims)
+            .setSubject(userDetails.getUsername())
+            .setIssuedAt(now)
+            .setExpiration(expiryDate)
+            .signWith(key, SignatureAlgorithm.HS256)
+            .compact();
+    }
+
+    public String extractUsername(String token) {
+        return extractClaims(token).getSubject();
+    }
+
+    public String extractUserId(String token) {
+        return extractClaims(token).get("userId", String.class);
+    }
+
+    public String extractOrgId(String token) {
+        return extractClaims(token).get("orgId", String.class);
+    }
+
+    public String extractRole(String token) {
+        return extractClaims(token).get("role", String.class);
+    }
+
+    public Date extractExpiration(String token) {
+        return extractClaims(token).getExpiration();
+    }
+
+    public boolean validateToken(String token, JwtBlacklistService blacklistService) {
+        try {
+            Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token);
+            
+            if (blacklistService != null && blacklistService.isBlacklisted(token)) {
+                return false;
+            }
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    private Claims extractClaims(String token) {
+        return Jwts.parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
     }
 }
