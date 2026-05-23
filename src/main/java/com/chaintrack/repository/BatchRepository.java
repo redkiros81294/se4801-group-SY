@@ -14,4 +14,6 @@ public interface BatchRepository extends JpaRepository<Batch, String> {
     List<Batch> findByProductAndStatus(Product product, BatchStatus status);
 
     List<Batch> findByManufacturer(Organization manufacturer);
+
+    long countByStatus(BatchStatus status);
 }

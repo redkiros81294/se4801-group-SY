@@ -47,37 +47,37 @@ public class JwtUtils {
             .setSubject(userDetails.getUsername())
             .setIssuedAt(now)
             .setExpiration(expiryDate)
-            .signWith(key, SignatureAlgorithm.HS256)
+            .signWith(key)
             .compact();
     }
 
     public String extractUsername(String token) {
-        return extractClaims(token).getSubject();
+        return parseToken(token).getSubject();
     }
 
     public String extractUserId(String token) {
-        return extractClaims(token).get("userId", String.class);
+        return parseToken(token).get("userId", String.class);
     }
 
     public String extractOrgId(String token) {
-        return extractClaims(token).get("orgId", String.class);
+        return parseToken(token).get("orgId", String.class);
     }
 
     public String extractRole(String token) {
-        return extractClaims(token).get("role", String.class);
+        return parseToken(token).get("role", String.class);
     }
 
     public Date extractExpiration(String token) {
-        return extractClaims(token).getExpiration();
+        return parseToken(token).getExpiration();
+    }
+
+    public long getExpirationMillis(String token) {
+        return parseToken(token).getExpiration().getTime();
     }
 
     public boolean validateToken(String token, JwtBlacklistService blacklistService) {
         try {
-            Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token);
-            
+            parseToken(token);
             if (blacklistService != null && blacklistService.isBlacklisted(token)) {
                 return false;
             }
@@ -87,11 +87,10 @@ public class JwtUtils {
         }
     }
 
-    private Claims extractClaims(String token) {
-        return Jwts.parserBuilder()
+    private Claims parseToken(String token) {
+        JwtParser parser = Jwts.parserBuilder()
             .setSigningKey(key)
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
+            .build();
+        return parser.parseClaimsJws(token).getBody();
     }
 }
