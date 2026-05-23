@@ -88,7 +88,7 @@ public class JwtUtils {
     }
 
     private Claims parseToken(String token) {
-        JwtParser parser = Jwts.parserBuilder()
+        JwtParser parser = Jwts.parser()
             .setSigningKey(key)
             .build();
         return parser.parseClaimsJws(token).getBody();
