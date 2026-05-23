@@ -16,6 +16,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512m
 
   app:
     build: .
@@ -31,9 +35,10 @@ services:
       SPRING_DATASOURCE_PASSWORD: chaintrack_password
       JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-here}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
-    volumes:
-      - .:/app
-      - /app/target
+    deploy:
+      resources:
+        limits:
+          memory: 512m
 
 volumes:
   postgres-data:
