@@ -35,8 +35,7 @@ class BatchRepositoryTest {
     @Autowired
     private BatchRepository batchRepository;
 
-    @Autowired
-    private EntityManager em;
+    // keep TestEntityManager for DB operations in tests, raw EntityManager not used
 
     private Organization manufacturerOrg;
     private Organization shipperOrg;

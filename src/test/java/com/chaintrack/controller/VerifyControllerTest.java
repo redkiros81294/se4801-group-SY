@@ -1,6 +1,6 @@
 package com.chaintrack.controller;
 
-import com.chaintrack.dto.response.VerifyResult;
+
 import com.chaintrack.model.*;
 import com.chaintrack.repository.QRTokenRepository;
 import com.chaintrack.service.ChainVerificationService;
@@ -19,11 +19,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@SuppressWarnings({"deprecation","removal"})
 @WebMvcTest(VerifyController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class VerifyControllerTest {

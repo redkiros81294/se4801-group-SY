@@ -1,7 +1,6 @@
 package com.chaintrack.controller;
 
 import com.chaintrack.dto.request.CreateBatchRequest;
-import com.chaintrack.dto.response.BatchResponse;
 import com.chaintrack.dto.response.GenerateBatchTokenResponse;
 import com.chaintrack.model.*;
 import com.chaintrack.service.BatchService;
@@ -19,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
@@ -30,6 +28,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@SuppressWarnings({"removal"})
 @WebMvcTest(BatchController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class BatchControllerTest {

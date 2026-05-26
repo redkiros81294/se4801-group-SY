@@ -7,7 +7,7 @@ import com.chaintrack.repository.QRTokenRepository;
 import com.chaintrack.service.ChainVerificationService;
 import com.chaintrack.service.MovementTransactionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
