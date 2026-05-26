@@ -9,15 +9,13 @@ import com.chaintrack.repository.ProductRepository;
 import com.chaintrack.exception.ResourceNotFoundException;
 import com.chaintrack.exception.AccessDeniedException;
 import com.chaintrack.exception.DuplicateSkuException;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
+
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
