@@ -35,7 +35,7 @@ services:
       - key: VITE_API_URL
         value: https://chaintrack-backend.onrender.com/api
     healthCheckPath: /
-    buildCommand: npm install && npm run build
+    buildCommand: npm ci && npm run build
 
   - type: postgresql
     name: chaintrack
