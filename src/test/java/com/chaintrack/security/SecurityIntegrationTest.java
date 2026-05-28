@@ -34,7 +34,7 @@ class SecurityIntegrationTest {
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
         .withDatabaseName("testdb")
         .withUsername("sa")
-        .withPassword("");
+        .withPassword("testpass");
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {

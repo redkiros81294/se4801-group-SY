@@ -1,5 +1,6 @@
 package com.chaintrack.controller;
 
+import com.chaintrack.dto.request.LoginRequest;
 import com.chaintrack.dto.request.RegisterRequest;
 import com.chaintrack.dto.response.UserResponse;
 import com.chaintrack.exception.DuplicateSkuException;
@@ -37,7 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Uses AAA, @DisplayName, section dividers, jsonPath assertions.
  * Covers exactly the cases specified in the 4-week plan (Day 12 B task).
  */
-@SuppressWarnings({"removal"})
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
@@ -66,7 +66,12 @@ class AuthControllerTest {
     @DisplayName("register — returns 201 Created when valid payload")
     void register_returns201Created() throws Exception {
         // Arrange
-
+        RegisterRequest request = new RegisterRequest(
+            "new@user.com",
+            "s3cr3tPass",
+            Role.MANUFACTURER,
+            "11111111-1111-1111-1111-111111111111"
+        );
         UserResponse resp = new UserResponse(
             "u-001",
             "new@user.com",
@@ -100,7 +105,12 @@ class AuthControllerTest {
     @DisplayName("register — returns 409 Conflict when email already registered")
     void register_returns409Conflict_forDuplicateEmail() throws Exception {
         // Arrange
-
+        RegisterRequest request = new RegisterRequest(
+            "dup@user.com",
+            "s3cr3tPass",
+            Role.RETAILER,
+            "22222222-2222-2222-2222-222222222222"
+        );
         when(userService.register(any(RegisterRequest.class)))
             .thenThrow(new DuplicateSkuException("dup@user.com"));
 
@@ -126,7 +136,7 @@ class AuthControllerTest {
     @DisplayName("login — returns 200 OK + LoginResponse when credentials valid")
     void login_returns200Ok_withValidCredentials() throws Exception {
         // Arrange
-
+        LoginRequest request = new LoginRequest("shipper@ex.com", "correct-pass");
         Authentication auth = mock(Authentication.class);
         UserDetails principal = mock(UserDetails.class);
         when(principal.getUsername()).thenReturn("shipper@ex.com");
@@ -169,7 +179,7 @@ class AuthControllerTest {
     @DisplayName("login — returns 401 Unauthorized when credentials invalid")
     void login_returns401Unauthorized_forInvalidCredentials() throws Exception {
         // Arrange
-
+        LoginRequest request = new LoginRequest("bad@ex.com", "wrong");
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
             .thenThrow(new BadCredentialsException("Bad credentials"));
 

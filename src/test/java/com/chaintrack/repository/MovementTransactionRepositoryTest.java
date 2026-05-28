@@ -28,7 +28,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase(replace = Replace.ANY)
 class MovementTransactionRepositoryTest {
 
-    
+    private static final Logger log = LoggerFactory.getLogger(MovementTransactionRepositoryTest.class);
+
     @Autowired
     private TestEntityManager entityManager;
 

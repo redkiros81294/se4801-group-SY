@@ -1,7 +1,7 @@
 package com.chaintrack.service;
 
 import com.chaintrack.dto.response.AdminAnalyticsResponse;
-
+import com.chaintrack.model.BatchStatus;
 import com.chaintrack.repository.BatchRepository;
 import com.chaintrack.repository.MovementTransactionRepository;
 import com.chaintrack.repository.OrganizationRepository;
@@ -23,8 +23,17 @@ class AdminAnalyticsServiceTest {
     @Autowired
     private AdminAnalyticsService adminAnalyticsService;
 
-    // Repositories are intentionally not used directly in this test—service is exercised via the AdminAnalyticsService.
-    // Keeping only the service autowired to validate the aggregator behaviour.
+    @Autowired
+    private OrganizationRepository organizationRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private BatchRepository batchRepository;
+
+    @Autowired
+    private MovementTransactionRepository transactionRepository;
 
     @Test
     @DisplayName("getAnalytics — returns correct counts for empty database")
