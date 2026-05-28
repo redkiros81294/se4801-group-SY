@@ -11,7 +11,6 @@ import java.security.Key;
 import java.util.*;
 import java.util.Date;
 
-@SuppressWarnings("deprecation")
 @Component
 public class JwtUtils {
 
@@ -44,7 +43,7 @@ public class JwtUtils {
         claims.put("role", role);
 
         return Jwts.builder()
-            .addClaims(claims)
+            .setClaims(claims)
             .setSubject(userDetails.getUsername())
             .setIssuedAt(now)
             .setExpiration(expiryDate)

@@ -26,6 +26,17 @@ services:
     healthCheckPath: /actuator/health
     buildCommand: mvn -B -DskipTests package
 
+  - type: web
+    name: chaintrack-frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    envVars:
+      - key: VITE_API_URL
+        value: https://chaintrack-backend.onrender.com/api
+    healthCheckPath: /
+    buildCommand: npm install && npm run build
+
   - type: postgresql
     name: chaintrack
     plan: free
