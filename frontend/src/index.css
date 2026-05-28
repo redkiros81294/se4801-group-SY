@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+}
+
+body {
+  @apply bg-[var(--bg)] text-[var(--text)];
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+}
