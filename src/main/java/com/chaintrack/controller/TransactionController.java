@@ -6,6 +6,11 @@ import com.chaintrack.dto.response.MovementResponse;
 import com.chaintrack.model.MovementTransaction;
 import com.chaintrack.service.CreateMovementRequest;
 import com.chaintrack.service.MovementTransactionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -19,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
+@Tag(name = "Transactions", description = "Supply chain movement transaction APIs")
 public class TransactionController {
 
     private final MovementTransactionService movementService;
@@ -29,6 +35,11 @@ public class TransactionController {
 
     @PostMapping
     @PreAuthorize("hasRole('MANUFACTURER') or hasRole('SHIPPER') or hasRole('RETAILER')")
+    @Operation(summary = "Log movement event", description = "Records a supply chain event")
+    @ApiResponse(responseCode = "201", description = "Event logged successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid request or event transition", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    @ApiResponse(responseCode = "403", description = "Forbidden - invalid role for event type")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
     @ResponseStatus(HttpStatus.CREATED)
     public MovementCreateResponse logEvent(@Valid @RequestBody LogMovementRequest request) {
         CreateMovementRequest createRequest = new CreateMovementRequestImpl(request);
@@ -46,6 +57,10 @@ public class TransactionController {
 
     @GetMapping("/batch/{batchId}")
     @PreAuthorize("hasRole('MANUFACTURER') or hasRole('SHIPPER') or hasRole('RETAILER')")
+    @Operation(summary = "Get transaction history", description = "Returns full provenance chain for a batch")
+    @ApiResponse(responseCode = "200", description = "Transaction history retrieved")
+    @ApiResponse(responseCode = "403", description = "Forbidden - role cannot access this batch")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
     public Page<MovementResponse> getHistory(
             @PathVariable String batchId,
             @PageableDefault(size = 20) Pageable pageable) {
