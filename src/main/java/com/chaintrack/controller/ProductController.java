@@ -51,6 +51,14 @@ public class ProductController {
         return productService.listProducts(pageable);
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Get product by ID", description = "Returns a single product (public)")
+    @ApiResponse(responseCode = "200", description = "Product found")
+    @ApiResponse(responseCode = "404", description = "Product not found", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    public ProductResponse getProductById(@PathVariable String id) {
+        return productService.getProductById(id);
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('MANUFACTURER')")
     @Operation(summary = "Create product", description = "Creates a new product (MANUFACTURER only)")
