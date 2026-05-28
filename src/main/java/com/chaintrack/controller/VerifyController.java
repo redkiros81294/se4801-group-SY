@@ -6,8 +6,12 @@ import com.chaintrack.model.*;
 import com.chaintrack.repository.QRTokenRepository;
 import com.chaintrack.service.ChainVerificationService;
 import com.chaintrack.service.MovementTransactionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +19,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Verification", description = "Public QR code verification")
 public class VerifyController {
 
     private final QRTokenRepository qrTokenRepository;
@@ -30,6 +35,9 @@ public class VerifyController {
     }
 
     @GetMapping("/verify/{token}")
+    @Operation(summary = "Verify batch by QR token", description = "Public endpoint - validates chain and returns provenance")
+    @ApiResponse(responseCode = "200", description = "Verification result returned")
+    @ApiResponse(responseCode = "404", description = "Token not found")
     public ResponseEntity<VerifyResult> verifyByToken(@PathVariable String token) {
         try {
             UUID tokenValue = UUID.fromString(token);

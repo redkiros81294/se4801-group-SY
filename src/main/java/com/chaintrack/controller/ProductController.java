@@ -9,6 +9,11 @@ import com.chaintrack.repository.OrganizationRepository;
 import com.chaintrack.security.JwtUtils;
 import com.chaintrack.service.ProductService;
 import com.chaintrack.exception.ResourceNotFoundException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +30,7 @@ import java.time.ZoneId;
 
 @RestController
 @RequestMapping("/api/products")
+@Tag(name = "Products", description = "Product management APIs")
 public class ProductController {
 
     private final ProductService productService;
@@ -38,6 +44,8 @@ public class ProductController {
     }
 
     @GetMapping
+    @Operation(summary = "List all products", description = "Returns paginated list of products (public)")
+    @ApiResponse(responseCode = "200", description = "Successful retrieval")
     public Page<ProductResponse> listProducts(
             @PageableDefault(size = 20) Pageable pageable) {
         return productService.listProducts(pageable);
@@ -45,6 +53,11 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasRole('MANUFACTURER')")
+    @Operation(summary = "Create product", description = "Creates a new product (MANUFACTURER only)")
+    @ApiResponse(responseCode = "201", description = "Product created successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid request data", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    @ApiResponse(responseCode = "403", description = "Forbidden - MANUFACTURER role required")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponse createProduct(@Valid @RequestBody CreateProductRequest request,
                                          @RequestHeader("Authorization") String authHeader) {
@@ -58,6 +71,12 @@ public class ProductController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('MANUFACTURER')")
+    @Operation(summary = "Update product", description = "Updates product details (MANUFACTURER, own products only)")
+    @ApiResponse(responseCode = "200", description = "Product updated successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid request data", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    @ApiResponse(responseCode = "403", description = "Forbidden - MANUFACTURER role required or not own product")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    @ApiResponse(responseCode = "404", description = "Product not found", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
     public ProductResponse updateProduct(@PathVariable String id,
                                          @Valid @RequestBody UpdateProductRequest request,
                                          @RequestHeader("Authorization") String authHeader) {
@@ -68,6 +87,8 @@ public class ProductController {
     }
 
     @GetMapping("/search")
+    @Operation(summary = "Search products", description = "Multi-parameter search for products (public)")
+    @ApiResponse(responseCode = "200", description = "Successful search")
     public Page<ProductResponse> searchProducts(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String category,
