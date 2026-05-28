@@ -79,7 +79,7 @@ class TransactionControllerTest {
         when(movementService.getChainForBatch("batch-1")).thenReturn(List.of(tx));
         when(movementService.recordMovement(any())).thenReturn(tx);
 
-        mockMvc.perform(get("/api/transactions?batchId=batch-1"))
+        mockMvc.perform(get("/api/transactions/batch/batch-1"))
             .andExpect(status().isOk());
     }
 }
