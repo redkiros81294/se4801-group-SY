@@ -1,6 +1,10 @@
 package com.chaintrack.controller;
 
+import com.chaintrack.dto.request.LogMovementRequest;
+import com.chaintrack.dto.response.MovementCreateResponse;
+import com.chaintrack.dto.response.MovementResponse;
 import com.chaintrack.model.MovementTransaction;
+import com.chaintrack.service.CreateMovementRequest;
 import com.chaintrack.service.MovementTransactionService;
 import com.chaintrack.security.JwtUtils;
 import com.chaintrack.service.JwtBlacklistService;
@@ -10,8 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
@@ -22,7 +29,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SuppressWarnings({"removal"})
 @WebMvcTest(TransactionController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class TransactionControllerTest {
@@ -73,7 +79,7 @@ class TransactionControllerTest {
         when(movementService.getChainForBatch("batch-1")).thenReturn(List.of(tx));
         when(movementService.recordMovement(any())).thenReturn(tx);
 
-        mockMvc.perform(get("/api/transactions/batch/batch-1"))
+        mockMvc.perform(get("/api/transactions?batchId=batch-1"))
             .andExpect(status().isOk());
     }
 }
