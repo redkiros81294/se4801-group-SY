@@ -1,10 +1,6 @@
 package com.chaintrack.controller;
 
-import com.chaintrack.dto.request.LogMovementRequest;
-import com.chaintrack.dto.response.MovementCreateResponse;
-import com.chaintrack.dto.response.MovementResponse;
 import com.chaintrack.model.MovementTransaction;
-import com.chaintrack.service.CreateMovementRequest;
 import com.chaintrack.service.MovementTransactionService;
 import com.chaintrack.security.JwtUtils;
 import com.chaintrack.service.JwtBlacklistService;
@@ -14,11 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;

@@ -30,10 +30,10 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/chaintrack
-      SPRING_DATASOURCE_USERNAME: chaintrack_user
-      SPRING_DATASOURCE_PASSWORD: chaintrack_password
-      JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-here}
+      DB_URL: jdbc:postgresql://db:5432/chaintrack
+      DB_USERNAME: chaintrack_user
+      DB_PASSWORD: chaintrack_password
+      JWT_SECRET: ${JWT_SECRET:-chaintrack-super-secret-key-that-is-long-enough-for-hs512-alg}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
     deploy:
       resources:
