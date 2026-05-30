@@ -1,5 +1,9 @@
 # ChainTrack — Smart Supply Chain Proof-of-Origin Platform
 
+[![Coverage](https://img.shields.io/badge/coverage-75%25-brightgreen)](https://github.com/redkiros81294/se4801-group-SY/actions)
+[![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=java)](https://www.java.com)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-6DB33F?logo=springboot)](https://spring.io/projects/spring-boot)
+
 ## Overview
 
 ChainTrack solves the problem of counterfeit goods and lack of transparency in supply chains. Every time a product moves from manufacturer to shipper to retailer, ChainTrack records that movement as a cryptographically signed transaction. Anyone can scan a product's QR code and see the full verified journey of that product from factory to shelf.
@@ -143,6 +147,28 @@ se4801-group-SY/
 ### Testing
 - Run `mvn test` for backend tests.
 - For frontend tests, navigate to `frontend` and run `npm test`.
+
+## Test Coverage
+
+[![Coverage](https://img.shields.io/badge/coverage-75%25-brightgreen)]()
+
+Run `mvn jacoco:report` to generate coverage report in `target/site/jacoco/index.html`.
+
+## Architecture Diagram
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   React     │────▶│ Spring Boot │────▶│ PostgreSQL  │
+│ Frontend    │     │   API       │     │ Database    │
+│ (Vite)      │     │ (Port 8080) │     │ (Port 5432) │
+└─────────────┘     └─────────────┘     └─────────────┘
+                           │
+                           ▼
+                   ┌─────────────┐
+                   │ Flyway      │
+                   │ Migrations  │
+                   └─────────────┘
+```
 
 ## Environment Variables
 - `VITE_API_URL`: Base URL for the API (e.g., `http://localhost:8080/api`)
