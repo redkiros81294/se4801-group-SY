@@ -12,8 +12,8 @@ The unique feature is a hash-chained ledger — each movement transaction stores
 
 ## Team Members
 
-- **Member A**: [Name] (Backend Developer - Entities, Services, Controllers)
-- **Member B**: Simon Mesfin (Frontend Developer - Security, React Frontend, Deployment)
+- **Member A**: Yared Kiros (Backend Developer - Entities, Services, Controllers)
+- **Member B**: Simon Mesfin (Frontend Developer - React Frontend, Deployment)
 
 ## Tech Stack
 
