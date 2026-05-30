@@ -103,6 +103,9 @@ public class ProductController {
             @RequestParam(required = false) String sku,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @PageableDefault(size = 20) Pageable pageable) {
+        if (pageable.getPageSize() > 100) {
+            throw new IllegalArgumentException("Page size must not exceed 100");
+        }
         Specification<Product> spec = (root, query, cb) -> cb.conjunction();
         if (name != null && !name.isBlank()) {
             String pattern = "%" + name.toLowerCase() + "%";
