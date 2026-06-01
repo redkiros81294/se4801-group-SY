@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { PageShell } from './components/PageShell';
 import { Login } from './pages/Login';
 import { Scan } from './pages/Scan';
 import './index.css';
@@ -13,16 +14,22 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/scan" element={
             <ProtectedRoute>
-              <Scan />
+              <PageShell title="QR Verification">
+                <Scan />
+              </PageShell>
             </ProtectedRoute>
           } />
           <Route path="/" element={
             <ProtectedRoute>
-              <div className="flex items-center justify-center min-h-screen">
-                <h1 className="text-3xl font-bold">ChainTrack Dashboard</h1>
-              </div>
+              <PageShell title="ChainTrack Dashboard">
+                <div className="space-y-6">
+                  <h1 className="text-3xl font-bold">ChainTrack Dashboard</h1>
+                  <p className="text-[var(--t2)]">Welcome to your supply chain provenance platform</p>
+                </div>
+              </PageShell>
             </ProtectedRoute>
           } />
+          {/* Additional routes will be added as pages are created */}
         </Routes>
       </BrowserRouter>
     </AuthProvider>
