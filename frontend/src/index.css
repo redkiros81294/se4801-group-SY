@@ -3,12 +3,30 @@
 @tailwind utilities;
 
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
+  --bg0: #0A0F1E;   /* Main page background */
+  --bg1: #0D1B3E;   /* Sidebar, topbar, card panels */
+  --bg2: #111827;   /* Form inputs, elevated surfaces */
+  --bg3: #1E2A4A;   /* Nav item hover */
+  --cyan:   #06B6D4;   /* Brand accent */
+  --blue:   #2563EB;   /* Buttons */
+  --green:  #10B981;   /* VERIFIED/DELIVERED */
+  --amber:  #F59E0B;   /* IN_TRANSIT */
+  --red:    #EF4444;   /* COMPROMISED */
+  --purple: #8B5CF6;   /* ADMIN */
+  --teal:   #0D9488;   /* MANUFACTURER */
+  --orange: #F97316;   /* SHIPPER */
+  --pink:   #EC4899;   /* RETAILER */
+  --t1: #F1F5F9;   /* Primary text */
+  --t2: #94A3B8;   /* Secondary text */
+  --t3: #475569;   /* Muted text */
+  --border:  #1E3A5F;
+  --border2: #2563EB;
+  --font-head: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 body {
-  @apply bg-[var(--bg)] text-[var(--text)];
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  @apply bg-[var(--bg0)] text-[var(--t1)];
+  font-family: var(--font-body);
 }
