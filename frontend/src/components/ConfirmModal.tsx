@@ -33,35 +33,59 @@ export const ConfirmModal = ({ message, onConfirm, onCancel }: ConfirmModalProps
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--bg0)]/50 backdrop-blur-sm"
+      className={clsx(
+        'fixed inset-0 z-50 flex items-center justify-center',
+        'bg-[var(--bg0)]/50 backdrop-blur-sm'
+      )}
       aria-hidden="false"
       role="dialog"
       aria-modal="true"
     >
-      <div className="relative bg-[var(--bg1)] rounded-xl p-6 w-full max-w-md mx-4">
+      <div className={clsx(
+        'relative bg-[var(--bg1)] rounded-xl p-6 w-full max-w-md mx-4'
+      )}>
         {/* Header */}
-        <div className="flex items-start space-x-4 mb-6">
-          <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-[var(--red)]/20 text-[var(--red)] rounded-lg">
+        <div className={clsx(
+          'flex items-start space-x-4 mb-6'
+        )}>
+          <div className={clsx(
+            'flex-shrink-0 h-10 w-10 flex items-center justify-center',
+            'bg-[var(--red)]/20 text-[var(--red)] rounded-lg'
+          )}>
             <i className="ti ti-alert-triangle" aria-hidden="true" />
           </div>
           <div>
-            <h3 className="text-[var(--t1)] font-semibold mb-2">Confirm Action</h3>
-            <p className="text-[var(--t2)]">{message}</p>
+            <h3 className={clsx(
+              'text-[var(--t1)] font-semibold mb-2'
+            )}>Confirm Action</h3>
+            <p className={clsx(
+              'text-[var(--t2)]'
+            )}>{message}</p>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end space-x-3 pt-4">
+        <div className={clsx(
+          'flex justify-end space-x-3 pt-4'
+        )}>
           <button
             id="confirm-modal-cancel"
             onClick={onCancel}
-            className="flex h-10 px-5 items-center justify-center rounded-lg border border-[var(--border)]/40 bg-[var(--bg2)]/50 text-[var(--t1)] hover:bg-[var(--bg3)]/50 transition-colors duration-200"
+            className={clsx(
+              'flex h-10 px-5 items-center justify-center rounded-lg',
+              'border border-[var(--border)]/40 bg-[var(--bg2)]/50 text-[var(--t1)]',
+              'hover:bg-[var(--bg3)]/50 transition-colors duration-200'
+            )}
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="flex h-10 px-5 items-center justify-center rounded-lg border border-[var(--red)]/40 bg-[var(--red)]/20 text-[var(--red)] hover:bg-[var(--red)]/30 transition-colors duration-200"
+            className={clsx(
+              'flex h-10 px-5 items-center justify-center rounded-lg',
+              'border border-[var(--red)]/40 bg-[var(--red)]/20 text-[var(--red)]',
+              'hover:bg-[var(--red)]/30 transition-colors duration-200'
+            )}
           >
             Confirm
           </button>
