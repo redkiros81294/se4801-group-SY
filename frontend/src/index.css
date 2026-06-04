@@ -160,6 +160,15 @@ body {
   }
 }
 
+@keyframes scan-line {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
 .animate-gradient {
   animation: gradient 4s ease-in-out infinite;
 }
