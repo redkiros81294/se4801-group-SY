@@ -37,7 +37,7 @@ public class TransactionController {
     @PreAuthorize("hasRole('MANUFACTURER') or hasRole('SHIPPER') or hasRole('RETAILER')")
     @Operation(summary = "Log movement event", description = "Records a supply chain event")
     @ApiResponse(responseCode = "201", description = "Event logged successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid request or event transition", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    @ApiResponse(responseCode = "400", description = "Invalid request or event transition")
     @ApiResponse(responseCode = "403", description = "Forbidden - invalid role for event type")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     @ResponseStatus(HttpStatus.CREATED)

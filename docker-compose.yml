@@ -34,7 +34,13 @@ services:
       DB_USERNAME: chaintrack_user
       DB_PASSWORD: chaintrack_password
       JWT_SECRET: ${JWT_SECRET:-chaintrack-super-secret-key-that-is-long-enough-for-hs512-alg}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/verify/health-check"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     deploy:
       resources:
         limits:
