@@ -54,7 +54,7 @@ public class ProductController {
     @GetMapping("/{id}")
     @Operation(summary = "Get product by ID", description = "Returns a single product (public)")
     @ApiResponse(responseCode = "200", description = "Product found")
-    @ApiResponse(responseCode = "404", description = "Product not found", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    @ApiResponse(responseCode = "404", description = "Product not found")
     public ProductResponse getProductById(@PathVariable String id) {
         return productService.getProductById(id);
     }
@@ -63,7 +63,7 @@ public class ProductController {
     @PreAuthorize("hasRole('MANUFACTURER')")
     @Operation(summary = "Create product", description = "Creates a new product (MANUFACTURER only)")
     @ApiResponse(responseCode = "201", description = "Product created successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid request data", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    @ApiResponse(responseCode = "400", description = "Invalid request data")
     @ApiResponse(responseCode = "403", description = "Forbidden - MANUFACTURER role required")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     @ResponseStatus(HttpStatus.CREATED)
@@ -81,10 +81,10 @@ public class ProductController {
     @PreAuthorize("hasRole('MANUFACTURER')")
     @Operation(summary = "Update product", description = "Updates product details (MANUFACTURER, own products only)")
     @ApiResponse(responseCode = "200", description = "Product updated successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid request data", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    @ApiResponse(responseCode = "400", description = "Invalid request data")
     @ApiResponse(responseCode = "403", description = "Forbidden - MANUFACTURER role required or not own product")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
-    @ApiResponse(responseCode = "404", description = "Product not found", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    @ApiResponse(responseCode = "404", description = "Product not found")
     public ProductResponse updateProduct(@PathVariable String id,
                                          @Valid @RequestBody UpdateProductRequest request,
                                          @RequestHeader("Authorization") String authHeader) {

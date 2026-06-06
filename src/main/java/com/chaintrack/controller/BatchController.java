@@ -32,7 +32,7 @@ public class BatchController {
     @PreAuthorize("hasRole('MANUFACTURER')")
     @Operation(summary = "Create batch", description = "Creates a new product batch")
     @ApiResponse(responseCode = "201", description = "Batch created successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid request data", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    @ApiResponse(responseCode = "400", description = "Invalid request data")
     @ApiResponse(responseCode = "403", description = "Forbidden - MANUFACTURER role required")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     public BatchResponse createBatch(@Valid @RequestBody CreateBatchRequest request) {
@@ -43,7 +43,7 @@ public class BatchController {
     @GetMapping("/{batchId}")
     @Operation(summary = "Get batch by ID", description = "Returns batch details")
     @ApiResponse(responseCode = "200", description = "Batch found")
-    @ApiResponse(responseCode = "404", description = "Batch not found", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    @ApiResponse(responseCode = "404", description = "Batch not found")
     public BatchResponse getBatchById(@PathVariable String batchId) {
         Batch batch = batchService.getBatchById(batchId);
         return BatchResponse.fromEntity(batch);
@@ -61,9 +61,9 @@ public class BatchController {
     @PreAuthorize("hasRole('MANUFACTURER')")
     @Operation(summary = "Generate QR code", description = "Generates QR token for batch")
     @ApiResponse(responseCode = "200", description = "QR code generated")
-    @ApiResponse(responseCode = "400", description = "QR already generated", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    @ApiResponse(responseCode = "400", description = "QR already generated")
     @ApiResponse(responseCode = "403", description = "Forbidden - MANUFACTURER role required")
-    @ApiResponse(responseCode = "404", description = "Batch not found", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    @ApiResponse(responseCode = "404", description = "Batch not found")
     public GenerateBatchTokenResponse generateQR(@PathVariable String batchId) {
         return batchService.generateQR(batchId);
     }

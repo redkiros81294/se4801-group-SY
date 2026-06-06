@@ -41,7 +41,7 @@ public class OrganizationController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create organization", description = "Creates a new organization (ADMIN only)")
     @ApiResponse(responseCode = "201", description = "Organization created successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid request data", content = @Content(schema = @Schema(implementation = com.chaintrack.exception.ErrorResponse.class)))
+    @ApiResponse(responseCode = "400", description = "Invalid request data")
     @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     @ResponseStatus(HttpStatus.CREATED)
