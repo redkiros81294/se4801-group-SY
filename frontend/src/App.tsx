@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { PageShell } from './components/PageShell';
 import { Login } from './pages/Login';
 import { Scan } from './pages/Scan';
+import { ProductsList } from './pages/ProductsList';
 import './index.css';
 
 function App() {
@@ -12,6 +13,13 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/products" element={
+            <ProtectedRoute>
+              <PageShell title="Products">
+                <ProductsList />
+              </PageShell>
+            </ProtectedRoute>
+          } />
           <Route path="/scan" element={
             <ProtectedRoute>
               <PageShell title="QR Verification">
