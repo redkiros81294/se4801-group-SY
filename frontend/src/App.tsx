@@ -7,6 +7,7 @@ import { Scan } from './pages/Scan';
 import { ProductsList } from './pages/ProductsList';
 import { CreateProduct } from './pages/CreateProduct';
 import { EditProduct } from './pages/EditProduct';
+import { CreateBatch } from './pages/CreateBatch';
 import './index.css';
 
 function App() {
@@ -33,6 +34,13 @@ function App() {
             <ProtectedRoute>
               <PageShell title="Edit Product">
                 <EditProduct />
+              </PageShell>
+            </ProtectedRoute>
+          } />
+          <Route path="/batches/new" element={
+            <ProtectedRoute>
+              <PageShell title="Create Batch">
+                <CreateBatch />
               </PageShell>
             </ProtectedRoute>
           } />
