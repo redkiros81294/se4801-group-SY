@@ -5,6 +5,8 @@ import { PageShell } from './components/PageShell';
 import { Login } from './pages/Login';
 import { Scan } from './pages/Scan';
 import { ProductsList } from './pages/ProductsList';
+import { CreateProduct } from './pages/CreateProduct';
+import { EditProduct } from './pages/EditProduct';
 import './index.css';
 
 function App() {
@@ -17,6 +19,20 @@ function App() {
             <ProtectedRoute>
               <PageShell title="Products">
                 <ProductsList />
+              </PageShell>
+            </ProtectedRoute>
+          } />
+          <Route path="/products/new" element={
+            <ProtectedRoute>
+              <PageShell title="Create Product">
+                <CreateProduct />
+              </PageShell>
+            </ProtectedRoute>
+          } />
+          <Route path="/products/:id/edit" element={
+            <ProtectedRoute>
+              <PageShell title="Edit Product">
+                <EditProduct />
               </PageShell>
             </ProtectedRoute>
           } />
