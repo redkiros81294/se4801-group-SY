@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface JwtBlacklistRepository extends JpaRepository<JwtBlacklist, UUID> {
     Optional<JwtBlacklist> findByTokenValue(String tokenValue);
     boolean existsByTokenValue(String tokenValue);
-    void deleteByExpiryTimeBefore(java.time.Instant now);
+    void deleteByExpiryTimeBefore(java.time.Instant expiryTime);
 }

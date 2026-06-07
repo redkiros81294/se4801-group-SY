@@ -17,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component
+// @Component  // Temporarily disabled - filter removed from chain
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
@@ -98,6 +98,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return true;
         }
         if ("GET".equals(method) && path.startsWith("/api/verify/")) {
+            return true;
+        }
+        if ("OPTIONS".equals(method)) {
             return true;
         }
         return false;
