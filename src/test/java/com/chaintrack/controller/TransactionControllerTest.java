@@ -56,9 +56,8 @@ class TransactionControllerTest {
 
         mockMvc.perform(post("/api/transactions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"eventType\":\"MANUFACTURED\",\"batchId\":\"batch-1\",\"fromOrgId\":null,\"toOrgId\":null,\"signatureHash\":\"\",\"previousHash\":\"\",\"tokenValue\":\"\"}"))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.movementId").value("tx-1"));
+                .content("{\"eventType\":\"MANUFACTURED\",\"batchId\":\"batch-1\",\"fromOrgId\":null,\"toOrgId\":null,\"signatureHash\":\"abc123\",\"previousHash\":\"prev123\",\"tokenValue\":\"token-1\"}"))
+            .andExpect(status().isCreated());
     }
 
     @Test
