@@ -8,10 +8,27 @@ interface QRDisplayProps {
 
 export const QRDisplay = ({ base64, batchNumber, className = '' }: QRDisplayProps) => {
   const handleDownload = () => {
-    const link = document.createElement('a')
-    link.href = `data:image/png;base64,${base64}`
-    link.download = `batch-${batchNumber}-qrcode.png`
-    link.click()
+    try {
+      // Convert base64 to Blob for reliable download
+      const byteCharacters = atob(base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'image/png' });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `batch-${batchNumber}-qrcode.png`;
+      link.click();
+
+      // Clean up object URL after download
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+    } catch (error) {
+      console.error('Failed to download QR code:', error);
+    }
   }
 
   const handlePrint = () => {
