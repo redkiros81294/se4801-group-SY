@@ -38,7 +38,7 @@ export const useFormValidation = (initialValues: Record<string, any> = {}): UseF
   }, []);
 
   const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name } = e.target;
+    const { name: _name } = e.target;
     // Validation will be handled by calling validateField separately
   }, []);
 
