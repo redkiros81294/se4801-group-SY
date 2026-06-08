@@ -11,6 +11,7 @@ import { EditProduct } from './pages/EditProduct';
 import { CreateBatch } from './pages/CreateBatch';
 import { BatchDetail } from './pages/BatchDetail';
 import { LogMovement } from './pages/LogMovement';
+import { TransactionHistory } from './pages/TransactionHistory';
 import './index.css';
 
 function App() {
@@ -59,6 +60,13 @@ function App() {
             <ProtectedRoute>
               <PageShell title="Batch Detail">
                 <BatchDetail />
+              </PageShell>
+            </ProtectedRoute>
+          } />
+          <Route path="/batches/:id/history" element={
+            <ProtectedRoute>
+              <PageShell title="Transaction History">
+                <TransactionHistory />
               </PageShell>
             </ProtectedRoute>
           } />
