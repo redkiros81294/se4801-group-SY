@@ -24,7 +24,7 @@ The unique feature is a hash-chained ledger - each movement transaction stores a
 - **API Docs**: SpringDoc OpenAPI 2.5.0 (Swagger UI)
 - **Testing**: JUnit 5, Mockito, Testcontainers, JaCoCo
 - **Deployment**: Docker + Docker Compose (Render free tier)
-- **Frontend**: React 18, Vite, Tailwind CSS, jsQR (camera QR scan)
+- **Frontend**: React 19, Vite 8, Tailwind CSS, Recharts, jsQR (camera QR scan)
 
 Base package: `com.chaintrack`
 
@@ -112,9 +112,11 @@ se4801-group-SY/
 │       ├── controller/
 │       ├── repository/
 │       └── security/
-├── frontend/               (React 18 + Vite + Tailwind)
+├── frontend/               (React 19 + Vite + Tailwind + Recharts)
+├── frontend/.env.example
 ├── Dockerfile
 ├── docker-compose.yml
+├── backend-postgresql.conf
 ├── pom.xml
 └── README.md
 ```
@@ -135,8 +137,9 @@ se4801-group-SY/
 
 ### Frontend Setup
 1. Navigate to the `frontend` directory.
-2. Run `npm install` to install dependencies.
-3. Run `npm run dev` to start the development server.
+2. Copy `frontend/.env.example` to `frontend/.env` and update `VITE_API_URL` if needed.
+3. Run `npm install` to install dependencies.
+4. Run `npm run dev` to start the development server.
 
 ### Using Docker
 1. Ensure Docker and Docker Compose are installed.
@@ -146,7 +149,8 @@ se4801-group-SY/
 
 ### Testing
 - Run `mvn test` for backend tests.
-- For frontend tests, navigate to `frontend` and run `npm test`.
+- For frontend type checks/build, navigate to `frontend` and run `npm run build`.
+- Frontend unit tests can be added with Vitest/Jest as needed.
 
 ## Test Coverage
 
@@ -162,12 +166,12 @@ Run `mvn jacoco:report` to generate coverage report in `target/site/jacoco/index
 │ Frontend    │     │   API       │     │ Database    │
 │ (Vite)      │     │ (Port 8080) │     │ (Port 5432) │
 └─────────────┘     └─────────────┘     └─────────────┘
-                           │
-                           ▼
-                   ┌─────────────┐
-                   │ Flyway      │
-                   │ Migrations  │
-                   └─────────────┘
+                            │
+                            ▼
+                    ┌─────────────┐
+                    │ Flyway      │
+                    │ Migrations  │
+                    └─────────────┘
 ```
 
 ## Environment Variables
