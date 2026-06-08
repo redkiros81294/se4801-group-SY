@@ -12,6 +12,7 @@ import { CreateBatch } from './pages/CreateBatch';
 import { BatchDetail } from './pages/BatchDetail';
 import { LogMovement } from './pages/LogMovement';
 import { TransactionHistory } from './pages/TransactionHistory';
+import { DashboardRouter } from './pages/DashboardRouter';
 import './index.css';
 
 function App() {
@@ -74,6 +75,13 @@ function App() {
             <ProtectedRoute>
               <PageShell title="QR Verification">
                 <Scan />
+              </PageShell>
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <PageShell title="Dashboard">
+                <DashboardRouter />
               </PageShell>
             </ProtectedRoute>
           } />
