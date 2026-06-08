@@ -162,10 +162,10 @@ body {
 
 @keyframes scan-line {
   0% {
-    transform: translateY(-100%);
+    top: 0;
   }
   100% {
-    transform: translateY(100%);
+    top: 100%;
   }
 }
 
@@ -242,4 +242,8 @@ body {
   50% {
     background-position: 30px 30px;
   }
+}
+
+.animate-scan-line {
+  animation: scan-line 2.5s ease-in-out infinite;
 }
