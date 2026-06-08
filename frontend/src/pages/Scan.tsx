@@ -23,10 +23,12 @@ export const Scan = () => {
   const [manualToken, setManualToken] = useState('');
   const [cameraError, setCameraError] = useState('');
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
     startCamera();
     return () => {
+      setScanning(false);
       if (stream) {
         stream.getTracks().forEach(t => t.stop());
       }
@@ -37,6 +39,7 @@ export const Scan = () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
       setStream(mediaStream);
+      setScanning(true);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
@@ -92,9 +95,27 @@ export const Scan = () => {
         <div className="bg-yellow-100 p-3 rounded mb-4">{cameraError}</div>
       )}
 
-      <div className="mb-4">
+      <div className="relative mb-4 overflow-hidden rounded-xl">
         <video ref={videoRef} autoPlay playsInline className="w-full rounded" />
         <canvas ref={canvasRef} className="hidden" />
+        
+        {/* Scan frame overlay */}
+        {scanning && !cameraError && (
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Corner brackets */}
+            {/* Top-left */}
+            <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[var(--cyan)]"></div>
+            {/* Top-right */}
+            <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[var(--cyan)]"></div>
+            {/* Bottom-left */}
+            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-[var(--cyan)]"></div>
+            {/* Bottom-right */}
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[var(--cyan)]"></div>
+            
+            {/* Scan line */}
+            <div className="absolute left-0 right-0 h-0.5 bg-[var(--cyan)]/80 shadow-[0_0_8px_rgba(6,182,212,0.8)] animate-scan-line"></div>
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleManualSubmit} className="mb-4">
