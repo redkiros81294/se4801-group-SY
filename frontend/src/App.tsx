@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { PageShell } from './components/PageShell';
 import { Login } from './pages/Login';
+import { Register } from './pages/Register';
 import { Scan } from './pages/Scan';
 import { ProductsList } from './pages/ProductsList';
 import { CreateProduct } from './pages/CreateProduct';
@@ -16,6 +17,7 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/products" element={
             <ProtectedRoute>
