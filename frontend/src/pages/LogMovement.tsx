@@ -5,6 +5,7 @@ import api from '../lib/api';
 import { PageShell } from '../components/PageShell';
 import { Toast } from '../components/Toast';
 import { StatusBadge } from '../components/StatusBadge';
+import { HashDisplay } from '../components/HashDisplay';
 
 const ROLE_EVENT_TYPES: Record<string, string[]> = {
   MANUFACTURER: ['MANUFACTURED', 'SHIPPED'],
@@ -36,6 +37,12 @@ export const LogMovement = () => {
   const [fromLocation, setFromLocation] = useState('');
   const [toLocation, setToLocation] = useState('');
   const [tokenValue, setTokenValue] = useState('');
+
+  const [lastSignatureHash, setLastSignatureHash] = useState('');
+  const [lastPreviousHash, setLastPreviousHash] = useState('');
+  const [lastMovementId, setLastMovementId] = useState('');
+  const [lastBatchId, setLastBatchId] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
 
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -93,7 +100,12 @@ export const LogMovement = () => {
       if (tokenValue) payload.tokenValue = tokenValue;
 
       const { data } = await api.post('/transactions', payload);
-      setSuccess('Movement logged successfully!');
+      setLastSignatureHash(data.signatureHash || '');
+      setLastPreviousHash(data.previousHash || '');
+      setLastMovementId(data.movementId || '');
+      setLastBatchId(data.batchId || '');
+      setShowPreview(true);
+      setSuccess('');
       setBatchId('');
       setEventType('');
       setFromOrgId('');
@@ -101,10 +113,6 @@ export const LogMovement = () => {
       setFromLocation('');
       setToLocation('');
       setTokenValue('');
-
-      setTimeout(() => {
-        navigate(`/batches/${data.batchId ?? batchId}`);
-      }, 1500);
     } catch (err: any) {
       const message = err?.response?.data?.message || 'Failed to log movement';
       setError(typeof message === 'string' ? message : 'Failed to log movement');
@@ -270,6 +278,31 @@ export const LogMovement = () => {
             </div>
           </div>
         </form>
+
+        {showPreview && (
+          <div className="bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--green)]/20 p-6 mt-6">
+            <h3 className="text-lg font-bold text-[var(--green)] mb-4">Chain Entry Recorded</h3>
+            <p className="text-[var(--t2)] text-sm mb-4">Movement ID: <span className="font-mono text-[var(--t1)]">{lastMovementId}</span></p>
+            <div className="space-y-4">
+              <div>
+                <p className="text-[var(--t2)] text-sm mb-1">Previous Hash</p>
+                <HashDisplay hash={lastPreviousHash} />
+              </div>
+              <div>
+                <p className="text-[var(--t2)] text-sm mb-1">Signature Hash</p>
+                <HashDisplay hash={lastSignatureHash} />
+              </div>
+            </div>
+            <div className="mt-6">
+              <button
+                onClick={() => navigate(`/batches/${lastBatchId}`)}
+                className="px-6 py-3 rounded-lg bg-[var(--green)]/20 text-[var(--green)] hover:bg-[var(--green)]/30 transition-colors duration-200"
+              >
+                View Batch Detail
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </PageShell>
   );
