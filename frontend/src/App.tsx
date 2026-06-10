@@ -5,6 +5,7 @@ import { PageShell } from './components/PageShell';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Scan } from './pages/Scan';
+import { ProvenanceViewer } from './pages/ProvenanceViewer';
 import { ProductsList } from './pages/ProductsList';
 import { CreateProduct } from './pages/CreateProduct';
 import { EditProduct } from './pages/EditProduct';
@@ -71,6 +72,7 @@ function App() {
               </PageShell>
             </ProtectedRoute>
           } />
+          <Route path="/verify/:token" element={<ProvenanceViewer />} />
           <Route path="/scan" element={
             <ProtectedRoute>
               <PageShell title="QR Verification">
