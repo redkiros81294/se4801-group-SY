@@ -31,28 +31,28 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/products/new" element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRoles={['MANUFACTURER']}>
               <PageShell title="Create Product">
                 <CreateProduct />
               </PageShell>
             </ProtectedRoute>
           } />
           <Route path="/products/:id/edit" element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRoles={['MANUFACTURER']}>
               <PageShell title="Edit Product">
                 <EditProduct />
               </PageShell>
             </ProtectedRoute>
           } />
           <Route path="/batches/new" element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRoles={['MANUFACTURER']}>
               <PageShell title="Create Batch">
                 <CreateBatch />
               </PageShell>
             </ProtectedRoute>
           } />
           <Route path="/transactions/new" element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRoles={['MANUFACTURER', 'SHIPPER', 'RETAILER']}>
               <PageShell title="Log Movement">
                 <LogMovement />
               </PageShell>
@@ -81,7 +81,7 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/dashboard" element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRoles={['ADMIN', 'MANUFACTURER']}>
               <PageShell title="Dashboard">
                 <DashboardRouter />
               </PageShell>
