@@ -36,8 +36,14 @@ export const Scan = () => {
   }, [stream]);
 
   const requestCameraPermission = async () => {
-    setCameraStatus('requesting');
     setCameraError('');
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (window.location.protocol !== 'https:' && !isLocalhost) {
+      setCameraStatus('denied');
+      setCameraError('Camera access requires a secure connection (HTTPS). Please access this page over HTTPS, or use the manual token entry below to verify your QR code.');
+      return;
+    }
+    setCameraStatus('requesting');
     try {
       // Note: Camera API requires HTTPS or localhost
       const mediaStream = await navigator.mediaDevices.getUserMedia({ 
