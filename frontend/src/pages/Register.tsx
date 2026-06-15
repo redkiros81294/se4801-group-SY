@@ -1,16 +1,8 @@
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFormValidation } from '../hooks/useFormValidation';
 import { clsx } from 'clsx';
 import api from '../lib/api';
-
-// Organization options from seed data
-const ORGANIZATION_OPTIONS = [
-  { value: 'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1', label: 'PharmaCorp Manufacturing' },
-  { value: 'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2', label: 'FastTrack Logistics' },
-  { value: 'c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3', label: 'RetailPlus Inc.' }
-];
 
 // Role options from enum
 const ROLE_OPTIONS = [
@@ -20,15 +12,15 @@ const ROLE_OPTIONS = [
   { value: 'RETAILER', label: 'Retailer' }
 ];
 
+type OrgOption = { id: string; name: string };
+
 export const Register = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { login } = useAuth();
 
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
-
-  // Form state
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const [organizations, setOrganizations] = useState<OrgOption[]>([]);
+  const [orgsLoading, setOrgsLoading] = useState<boolean>(true);
+  const [orgsError, setOrgsError] = useState<string | null>(null);
 
   // Form validation rules
   const validationRules = {
@@ -56,7 +48,6 @@ export const Register = () => {
     errors,
     handleChange,
     handleBlur,
-    setFieldValue,
     setFieldError,
     validateField,
     validateForm
@@ -67,14 +58,53 @@ export const Register = () => {
     orgId: ''
   });
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadOrganizations = async () => {
+      try {
+        setOrgsLoading(true);
+        setOrgsError(null);
+        const response = await api.get('/organizations');
+        const items: OrgOption[] = (response.data?.content ?? response.data ?? []).map((org: any) => ({
+          id: String(org.id),
+          name: String(org.name)
+        }));
+        if (!cancelled && items.length > 0) {
+          setOrganizations(items);
+          return;
+        }
+      } catch (err: any) {
+        const status = err?.response?.status;
+        if (status !== 401 && status !== 403) {
+          const message = err.response?.data?.message || 'Failed to load organizations';
+          if (!cancelled) setOrgsError(message);
+        }
+      } finally {
+        if (!cancelled) {
+          setOrganizations(prev => prev.length > 0 ? prev : [
+            { id: 'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1', name: 'PharmaCorp Manufacturing' },
+            { id: 'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2', name: 'FastTrack Logistics' },
+            { id: 'c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3', name: 'RetailPlus Inc.' }
+          ]);
+          setOrgsLoading(false);
+        }
+      }
+    };
+
+    loadOrganizations();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate all fields
+
     const isValid = validateForm(validationRules);
-    
+
     if (!isValid) {
-      // Trigger validation for all fields to show errors
       Object.keys(validationRules).forEach(field => {
         validateField(field, validationRules[field as keyof typeof validationRules]);
       });
@@ -82,32 +112,29 @@ export const Register = () => {
     }
 
     try {
-      const response = await api.post('/auth/register', {
+      await api.post('/auth/register', {
         email: values.email,
         password: values.password,
         role: values.role,
         orgId: values.orgId
       });
-      
-      // Auto-login after successful registration
-      login(response.data.token);
-      
-      // Set success message and redirect after delay
-      setSuccessMessage('Registration successful! Redirecting...');
-      
+
+      setSuccessMessage('Registration successful! Redirecting to login...');
+
       setTimeout(() => {
-        navigate(from, { replace: true });
+        navigate('/login', {
+          replace: true,
+          state: { message: 'Registration successful! Please login with your new account.' }
+        });
       }, 1500);
     } catch (err: any) {
-      // Handle API errors (like email already exists)
       const errorMessage = err.response?.data?.message || 'Registration failed';
-      setFieldError('email', errorMessage); // Assume it's an email conflict for now
+      setFieldError('email', errorMessage);
     }
   };
 
   return (
     <div className="relative min-h-screen bg-[var(--bg0)] overflow-hidden">
-      {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
         <div className="animate-grid-bg"></div>
       </div>
@@ -129,7 +156,6 @@ export const Register = () => {
             </div>
           )}
 
-          {/* Email Field */}
           <div>
             <label className="block text-sm font-medium mb-2 text-[var(--t2)]">
               Email Address
@@ -137,21 +163,20 @@ export const Register = () => {
             <input
               type="email"
               id="email"
+              name="email"
               value={values.email}
-              onChange={(e) => {
-                handleChange(e);
-                setFieldValue('email', e.target.value);
-              }}
+              onChange={handleChange}
               onBlur={(e) => {
                 handleBlur(e);
                 validateField('email', validationRules.email);
               }}
               className={clsx(
-                'w-full px-4 py-3 border rounded-lg',
-                'bg-[var(--bg2)]/50 text-[var(--t1)] placeholder-[var(--t3)]',
-                'focus:outline-none focus:ring-2 focus:ring-[var(--cyan)]/50',
+                'w-full px-4 py-3 border rounded-lg text-[#F1F5F9]',
+                'bg-[#111827] border-[#1E3A5F]',
+                'placeholder:text-[#475569]',
+                'focus:outline-none focus:ring-2 focus:ring-[#06B6D4]/50',
                 'transition-all duration-200',
-                errors.email ? 'border-[var(--red)]/50' : 'border-[var(--border)]/40'
+                errors.email ? 'border-[#EF4444]/50' : 'border-[#1E3A5F]'
               )}
               required
               placeholder="Enter your email"
@@ -163,7 +188,6 @@ export const Register = () => {
             )}
           </div>
 
-          {/* Password Field */}
           <div>
             <label className="block text-sm font-medium mb-2 text-[var(--t2)]">
               Password
@@ -171,21 +195,20 @@ export const Register = () => {
             <input
               type="password"
               id="password"
+              name="password"
               value={values.password}
-              onChange={(e) => {
-                handleChange(e);
-                setFieldValue('password', e.target.value);
-              }}
+              onChange={handleChange}
               onBlur={(e) => {
                 handleBlur(e);
                 validateField('password', validationRules.password);
               }}
               className={clsx(
-                'w-full px-4 py-3 border rounded-lg',
-                'bg-[var(--bg2)]/50 text-[var(--t1)] placeholder-[var(--t3)]',
-                'focus:outline-none focus:ring-2 focus:ring-[var(--cyan)]/50',
+                'w-full px-4 py-3 border rounded-lg text-[#F1F5F9]',
+                'bg-[#111827] border-[#1E3A5F]',
+                'placeholder:text-[#475569]',
+                'focus:outline-none focus:ring-2 focus:ring-[#06B6D4]/50',
                 'transition-all duration-200',
-                errors.password ? 'border-[var(--red)]/50' : 'border-[var(--border)]/40'
+                errors.password ? 'border-[#EF4444]/50' : 'border-[#1E3A5F]'
               )}
               required
               placeholder="Create a strong password"
@@ -197,28 +220,25 @@ export const Register = () => {
             )}
           </div>
 
-          {/* Role Field */}
           <div>
             <label className="block text-sm font-medium mb-2 text-[var(--t2)]">
               Role
             </label>
             <select
               id="role"
+              name="role"
               value={values.role}
-              onChange={(e) => {
-                handleChange(e);
-                setFieldValue('role', e.target.value as any);
-              }}
+              onChange={handleChange}
               onBlur={(e) => {
                 handleBlur(e);
                 validateField('role', validationRules.role);
               }}
               className={clsx(
-                'w-full px-4 py-3 border rounded-lg',
-                'bg-[var(--bg2)]/50 text-[var(--t1)] placeholder-[var(--t3)]',
-                'focus:outline-none focus:ring-2 focus:ring-[var(--cyan)]/50',
+                'w-full px-4 py-3 border rounded-lg text-[#F1F5F9]',
+                'bg-[#111827] border-[#1E3A5F]',
+                'focus:outline-none focus:ring-2 focus:ring-[#06B6D4]/50',
                 'transition-all duration-200',
-                errors.role ? 'border-[var(--red)]/50' : 'border-[var(--border)]/40'
+                errors.role ? 'border-[#EF4444]/50' : 'border-[#1E3A5F]'
               )}
               required
             >
@@ -236,38 +256,43 @@ export const Register = () => {
             )}
           </div>
 
-          {/* Organization Field */}
           <div>
             <label className="block text-sm font-medium mb-2 text-[var(--t2)]">
               Organization
             </label>
             <select
               id="orgId"
+              name="orgId"
               value={values.orgId}
-              onChange={(e) => {
-                handleChange(e);
-                setFieldValue('orgId', e.target.value);
-              }}
+              onChange={handleChange}
               onBlur={(e) => {
                 handleBlur(e);
                 validateField('orgId', validationRules.orgId);
               }}
               className={clsx(
-                'w-full px-4 py-3 border rounded-lg',
-                'bg-[var(--bg2)]/50 text-[var(--t1)] placeholder-[var(--t3)]',
-                'focus:outline-none focus:ring-2 focus:ring-[var(--cyan)]/50',
+                'w-full px-4 py-3 border rounded-lg text-[#F1F5F9]',
+                'bg-[#111827] border-[#1E3A5F]',
+                'focus:outline-none focus:ring-2 focus:ring-[#06B6D4]/50',
                 'transition-all duration-200',
-                errors.orgId ? 'border-[var(--red)]/50' : 'border-[var(--border)]/40'
+                errors.orgId ? 'border-[#EF4444]/50' : 'border-[#1E3A5F]'
               )}
               required
+              disabled={orgsLoading}
             >
-              <option value="">Select your organization</option>
-              {ORGANIZATION_OPTIONS.map(org => (
-                <option key={org.value} value={org.value}>
-                  {org.label}
+              <option value="">
+                {orgsLoading ? 'Loading organizations...' : 'Select your organization'}
+              </option>
+              {organizations.map(org => (
+                <option key={org.id} value={org.id}>
+                  {org.name}
                 </option>
               ))}
             </select>
+            {orgsError && (
+              <p className="text-[var(--red)] text-sm mt-1">
+                {orgsError}
+              </p>
+            )}
             {errors.orgId && (
               <p className="text-[var(--red)] text-sm mt-1">
                 {errors.orgId}
@@ -275,15 +300,15 @@ export const Register = () => {
             )}
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="space-y-4">
             <button
               type="button"
               onClick={() => navigate('/login', { replace: true })}
-              className="text-[var(--t2)] hover:text-[var(--t1)] transition-colors text-sm"
+              className="w-full flex h-12 items-center justify-center border border-[var(--border)] text-[var(--t2)] hover:text-[var(--t1)] hover:border-[var(--cyan)] transition-colors text-sm rounded-lg"
             >
               Already have an account? Login
             </button>
-            
+
             <button
               type="submit"
               className={clsx(
@@ -293,7 +318,7 @@ export const Register = () => {
                 'focus:outline-none focus:ring-2 focus:ring-[var(--blue)]/30',
                 'disabled:opacity-50 disabled:cursor-not-allowed'
               )}
-              disabled={Object.keys(errors).length > 0}
+              disabled={Object.keys(errors).length > 0 || orgsLoading}
             >
               Register
             </button>

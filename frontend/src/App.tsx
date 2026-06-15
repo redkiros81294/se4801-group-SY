@@ -4,6 +4,8 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { PageShell } from './components/PageShell';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { Landing } from './pages/Landing';
+import { Forbidden } from './pages/Forbidden';
 import { Scan } from './pages/Scan';
 import { ProvenanceViewer } from './pages/ProvenanceViewer';
 import { ProductsList } from './pages/ProductsList';
@@ -23,6 +25,8 @@ function App() {
         <Routes>
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forbidden" element={<Forbidden />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/products" element={
             <ProtectedRoute>
               <PageShell title="Products">
@@ -84,16 +88,6 @@ function App() {
             <ProtectedRoute requiredRoles={['ADMIN', 'MANUFACTURER']}>
               <PageShell title="Dashboard">
                 <DashboardRouter />
-              </PageShell>
-            </ProtectedRoute>
-          } />
-          <Route path="/" element={
-            <ProtectedRoute>
-              <PageShell title="ChainTrack Dashboard">
-                <div className="space-y-6">
-                  <h1 className="text-3xl font-bold">ChainTrack Dashboard</h1>
-                  <p className="text-[var(--t2)]">Welcome to your supply chain provenance platform</p>
-                </div>
               </PageShell>
             </ProtectedRoute>
           } />

@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: chaintrack_user
       POSTGRES_PASSWORD: chaintrack_password
     ports:
-      - "5432:5432"
+      - "5536:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -36,7 +36,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-chaintrack-super-secret-key-that-is-long-enough-for-hs512-alg}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/verify/health-check"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -45,6 +45,20 @@ services:
       resources:
         limits:
           memory: 512m
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:8080/api
+    ports:
+      - "5173:80"
+    depends_on:
+      - app
+    deploy:
+      resources:
+        limits:
+          memory: 256m
 
 volumes:
   postgres-data:

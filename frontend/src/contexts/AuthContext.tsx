@@ -2,6 +2,15 @@ import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
+interface JwtPayload {
+  userId: string;
+  sub: string;
+  role: string;
+  orgId?: string;
+  iat?: number;
+  exp?: number;
+}
+
 interface User {
   userId: string;
   email: string;
@@ -37,11 +46,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     tokenStore = newToken;
     setToken(newToken);
     try {
-      const decoded = jwtDecode<{ userId: string; email: string; roles: string[]; orgId?: string }>(newToken);
+      const decoded = jwtDecode<JwtPayload>(newToken);
       setUser({
         userId: decoded.userId,
-        email: decoded.email,
-        roles: decoded.roles,
+        email: decoded.sub,
+        roles: [decoded.role],
         orgId: decoded.orgId,
       });
     } catch {
