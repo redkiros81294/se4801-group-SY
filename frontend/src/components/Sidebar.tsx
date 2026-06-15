@@ -1,8 +1,21 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import api from '../lib/api';
 
 export const Sidebar = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // Ignore logout API errors and clear local state anyway
+    } finally {
+      logout();
+      navigate('/login', { replace: true });
+    }
+  };
 
   // Define routes based on user roles
   const getRoutes = () => {
@@ -68,10 +81,7 @@ export const Sidebar = () => {
       {/* Footer - Logout button */}
       <div className="mt-6 pt-4 border-t border-[var(--border)]">
         <button 
-          onClick={() => {
-            // TODO: Implement logout functionality
-            console.log('Logout clicked');
-          }}
+          onClick={handleLogout}
           className="w-full flex items-center justify-start px-3 py-2 rounded-md text-[var(--t2)] hover:text-[var(--t1)] hover:bg-[var(--bg3)] transition-colors"
         >
           <i className="ti ti-logout mr-3 text-[var(--red)]" aria-hidden="true" />

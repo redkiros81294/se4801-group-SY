@@ -176,3 +176,4 @@ Run `mvn jacoco:report` to generate coverage report in `target/site/jacoco/index
 
 ## Environment Variables
 - `VITE_API_URL`: Base URL for the API (e.g., `http://localhost:8080/api`)
+

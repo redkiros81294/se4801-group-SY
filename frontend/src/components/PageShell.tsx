@@ -64,7 +64,7 @@ export const PageShell = ({ title, children, showSidebar = true }: {
     <div className="flex min-h-screen bg-[var(--bg0)]">
       {showSidebar && <Sidebar />}
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col ml-64">
         {/* Topbar */}
         <header className="bg-[var(--bg1)] text-[var(--t1)] px-6 py-4 flex items-center justify-between border-b border-[var(--border)]">
           <div className="flex items-center space-x-4">
