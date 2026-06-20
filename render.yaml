@@ -22,20 +22,9 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        value: https://chaintrack-frontend.onrender.com
+        value: https://redkiros81294.github.io/se4801-group-SY/
     healthCheckPath: /actuator/health
     buildCommand: mvn -B -DskipTests package
-
-  - type: web
-    name: chaintrack-frontend
-    env: docker
-    dockerfilePath: ./frontend/Dockerfile
-    dockerContext: ./frontend
-    envVars:
-      - key: VITE_API_URL
-        value: https://chaintrack-backend.onrender.com/api
-    healthCheckPath: /
-    buildCommand: npm ci && npm run build
 
   - type: postgresql
     name: chaintrack

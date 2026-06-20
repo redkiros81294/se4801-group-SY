@@ -68,7 +68,7 @@ export const ProductsList = () => {
           </div>
           {user?.roles.includes('MANUFACTURER') && (
             <a
-              href="/products/new"
+              href={`${import.meta.env.BASE_URL}products/new`}
               className="flex items-center space-x-2 px-4 py-2 bg-[var(--blue)] text-[var(--t1)] font-medium rounded-lg hover:bg-[var(--blue)]/90 transition-colors duration-200"
             >
               <i className="ti ti-plus" aria-hidden="true" />
@@ -132,7 +132,7 @@ export const ProductsList = () => {
                   : 'Get started by creating your first product',
                 action: user?.roles.includes('MANUFACTURER') ? {
                   label: 'Create Product',
-                  onClick: () => window.location.href = '/products/new',
+                  onClick: () => window.location.assign(`${import.meta.env.BASE_URL}products/new`),
                 } : undefined,
               }}
             />
