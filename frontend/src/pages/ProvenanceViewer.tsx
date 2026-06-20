@@ -88,7 +88,7 @@ export const ProvenanceViewer = () => {
           </div>
           <h1 className="text-xl font-bold text-[var(--t1)] mb-2">Verification Failed</h1>
           <p className="text-[var(--t2)] mb-6">{error || 'The requested batch could not be verified.'}</p>
-          <button onClick={() => window.location.href = '/'} className="px-6 py-3 rounded-lg bg-[var(--blue)] text-[var(--t1)] font-medium hover:bg-[var(--blue)]/90 transition-colors duration-200">Go to Homepage</button>
+          <button onClick={() => window.location.assign(`${import.meta.env.BASE_URL}`)} className="px-6 py-3 rounded-lg bg-[var(--blue)] text-[var(--t1)] font-medium hover:bg-[var(--blue)]/90 transition-colors duration-200">Go to Homepage</button>
         </div>
       </div>
     );
