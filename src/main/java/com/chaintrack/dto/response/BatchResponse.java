@@ -23,8 +23,8 @@ public record BatchResponse(
         Product product = batch.getProduct();
         Organization man = batch.getManufacturer();
         return new BatchResponse(
-            batch.getId(),
-            product != null ? product.getId() : null,
+            batch.getId().toString(),
+            product != null ? product.getId().toString() : null,
             product != null ? product.getName() : null,
             batch.getStatus(),
             man != null ? man.getId() : null,

@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Email already exists: " + request.email());
         }
 
-        Organization org = organizationRepository.findById(request.orgId())
+        Organization org = organizationRepository.findById(java.util.UUID.fromString(request.orgId()))
             .orElseThrow(() -> new ResourceNotFoundException("Organization", "id", request.orgId()));
 
         String passwordHash = passwordEncoder.encode(request.password());
@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
         if (isBlank(id)) {
             throw new IllegalArgumentException("User id must not be blank");
         }
-        User user = userRepository.findById(id)
+        User user = userRepository.findById(java.util.UUID.fromString(id))
             .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
         return UserResponse.fromEntity(user);
     }
@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
         if (isBlank(id)) {
             throw new IllegalArgumentException("User id must not be blank");
         }
-        User user = userRepository.findById(id)
+        User user = userRepository.findById(java.util.UUID.fromString(id))
             .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
         user.setActive(false);
         User saved = userRepository.save(user);

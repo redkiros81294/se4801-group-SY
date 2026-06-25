@@ -79,7 +79,7 @@ public class OrganizationService {
         if (isBlank(id)) {
             throw new IllegalArgumentException("Organization id must not be blank");
         }
-        Organization org = organizationRepository.findById(id)
+        Organization org = organizationRepository.findById(java.util.UUID.fromString(id))
             .orElseThrow(() -> new EntityNotFoundException(
                 "Organization with id '" + id + "' not found"));
         return OrganizationResponse.fromEntity(org);
@@ -119,10 +119,10 @@ public class OrganizationService {
         if (isBlank(id)) {
             throw new IllegalArgumentException("Organization id must not be blank");
         }
-        if (!organizationRepository.existsById(id)) {
+        if (!organizationRepository.existsById(java.util.UUID.fromString(id))) {
             return false;
         }
-        organizationRepository.deleteById(id);
+        organizationRepository.deleteById(java.util.UUID.fromString(id));
         return true;
     }
 
@@ -131,6 +131,6 @@ public class OrganizationService {
      */
     @Transactional(readOnly = true)
     public boolean exists(String id) {
-        return organizationRepository.existsById(id);
+        return organizationRepository.existsById(java.util.UUID.fromString(id));
     }
 }

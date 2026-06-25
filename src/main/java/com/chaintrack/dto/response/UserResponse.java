@@ -15,7 +15,7 @@ public record UserResponse(
 ) {
     public static UserResponse fromEntity(User user) {
         return new UserResponse(
-            user.getId(),
+            user.getId().toString(),
             user.getEmail(),
             user.getRole(),
             user.getOrg() != null ? user.getOrg().getId() : null,

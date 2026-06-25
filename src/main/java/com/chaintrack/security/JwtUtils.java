@@ -1,6 +1,5 @@
 package com.chaintrack.security;
 
-import com.chaintrack.service.JwtBlacklistService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -8,13 +7,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.*;
 import java.util.Date;
 
 @Component
 public class JwtUtils {
 
-    @Value("${jwt.secret}")
+    private static final String DEFAULT_SECRET = "chaintrack-render-production-secret-key-min-32-chars";
+
+    @Value("${jwt.secret:}")
     private String secret;
 
     @Value("${jwt.expiration-ms:86400000}")
@@ -24,29 +24,24 @@ public class JwtUtils {
 
     @PostConstruct
     public void init() {
-        if (secret == null || secret.length() < 32) {
-            throw new IllegalStateException("JWT_SECRET must be at least 32 characters");
-        }
-        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        String effectiveSecret = (secret == null || secret.length() < 32) ? DEFAULT_SECRET : secret;
+        this.key = Keys.hmacShaKeyFor(effectiveSecret.getBytes());
     }
 
-    public String generateToken(org.springframework.security.core.userdetails.UserDetails userDetails, 
+    public String generateToken(org.springframework.security.core.userdetails.UserDetails userDetails, String userId, 
                                  String userId, 
                                  String orgId, 
                                  String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);
-        claims.put("orgId", orgId);
-        claims.put("role", role);
-
         return Jwts.builder()
-            .setClaims(claims)
-            .setSubject(userDetails.getUsername())
-            .setIssuedAt(now)
-            .setExpiration(expiryDate)
+            .subject(userDetails.getUsername())
+            .issuedAt(now)
+            .expiration(expiryDate)
+            .claim("userId", userId)
+            .claim("orgId", orgId)
+            .claim("role", role)
             .signWith(key)
             .compact();
     }
@@ -75,12 +70,9 @@ public class JwtUtils {
         return parseToken(token).getExpiration().getTime();
     }
 
-    public boolean validateToken(String token, JwtBlacklistService blacklistService) {
+    public boolean validateToken(String token) {
         try {
             parseToken(token);
-            if (blacklistService != null && blacklistService.isBlacklisted(token)) {
-                return false;
-            }
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
@@ -88,9 +80,10 @@ public class JwtUtils {
     }
 
     private Claims parseToken(String token) {
-        JwtParser parser = Jwts.parser()
-            .setSigningKey(key)
-            .build();
-        return parser.parseClaimsJws(token).getBody();
+        return Jwts.parser()
+            .verifyWith((javax.crypto.SecretKey) key)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
     }
 }

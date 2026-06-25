@@ -176,7 +176,7 @@ class OrganizationServiceTest {
     @Test
     @DisplayName("deleteOrganization — returns true when org is deleted")
     void deleteOrganization_shouldReturnTrue_whenDeleted() {
-        boolean deleted = organizationService.deleteOrganization(mfrA.getId());
+        boolean deleted = organizationService.deleteOrganization(mfrA.getId().toString());
 
         assertThat(deleted).isTrue();
     }
@@ -194,7 +194,7 @@ class OrganizationServiceTest {
     @Test
     @DisplayName("exists — should return true for existing org id")
     void exists_shouldReturnTrue_forExistingOrg() {
-        assertThat(organizationService.exists(mfrA.getId())).isTrue();
+        assertThat(organizationService.exists(mfrA.getId().toString())).isTrue();
     }
 
     @Test

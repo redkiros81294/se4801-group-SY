@@ -19,7 +19,7 @@ public record BatchDTO(
 ) {
     public static BatchDTO fromEntity(Batch batch) {
         return new BatchDTO(
-            batch.getId(),
+            batch.getId().toString(),
             batch.getBatchNumber(),
             batch.getStatus(),
             batch.getProduct() != null ? batch.getProduct().getId() : null,

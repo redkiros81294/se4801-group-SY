@@ -1,3 +1,5 @@
+import java.util.UUID;
+import java.util.UUID;
 package com.chaintrack.repository;
 
 import com.chaintrack.model.Batch;
@@ -10,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface BatchRepository extends JpaRepository<Batch, String> {
+public interface BatchRepository extends JpaRepository<Batch, UUID> {
     List<Batch> findByProductAndStatus(Product product, BatchStatus status);
 
     List<Batch> findByManufacturer(Organization manufacturer);

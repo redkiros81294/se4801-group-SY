@@ -17,7 +17,7 @@ public record ProductResponse(
     public static ProductResponse fromEntity(com.chaintrack.model.Product product) {
         Organization man = product.getManufacturer();
         return new ProductResponse(
-            product.getId(),
+            product.getId().toString(),
             product.getSku(),
             product.getName(),
             product.getDescription(),

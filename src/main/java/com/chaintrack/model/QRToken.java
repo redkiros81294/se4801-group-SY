@@ -27,7 +27,7 @@ public class QRToken {
     @GeneratedValue(generator = "UUID")
     @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)
-    private String id;
+    private UUID id;
 
     @Column(name = "token_value", nullable = false, unique = true)
     private UUID tokenValue;

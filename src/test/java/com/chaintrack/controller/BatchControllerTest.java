@@ -60,7 +60,7 @@ class BatchControllerTest {
     void createBatch_returns200() throws Exception {
         CreateBatchRequest request = new CreateBatchRequest("prod-1", "BATCH-001", "org-1");
         Batch batch = Batch.builder()
-            .id("batch-1")
+            .id(java.util.UUID.fromString("00000000-0000-0000-0000-000000000001"))
             .batchNumber("BATCH-001")
             .status(BatchStatus.CREATED)
             .build();
@@ -78,7 +78,7 @@ class BatchControllerTest {
     @DisplayName("GET /api/batches/{batchId} — returns BatchResponse")
     void getBatchById_returnsBatch() throws Exception {
         Batch batch = Batch.builder()
-            .id("batch-1")
+            .id(java.util.UUID.fromString("00000000-0000-0000-0000-000000000001"))
             .batchNumber("BATCH-001")
             .status(BatchStatus.CREATED)
             .build();
@@ -94,7 +94,7 @@ class BatchControllerTest {
     @DisplayName("GET /api/batches — returns paginated list")
     void listBatches_returnsPage() throws Exception {
         Batch batch = Batch.builder()
-            .id("batch-1")
+            .id(java.util.UUID.fromString("00000000-0000-0000-0000-000000000001"))
             .batchNumber("BATCH-001")
             .status(BatchStatus.CREATED)
             .build();

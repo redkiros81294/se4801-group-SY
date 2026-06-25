@@ -43,10 +43,10 @@ public class BatchServiceImpl implements BatchService {
     @Override
     @Transactional
     public Batch createBatch(CreateBatchRequest request) {
-        Product product = productRepository.findById(request.productId())
+        Product product = productRepository.findById(java.util.UUID.fromString(request.productId()))
             .orElseThrow(() -> new ResourceNotFoundException("Product", "id", request.productId()));
 
-        Organization manufacturer = organizationRepository.findById(request.manufacturerId())
+        Organization manufacturer = organizationRepository.findById(java.util.UUID.fromString(request.manufacturerId()))
             .orElseThrow(() -> new ResourceNotFoundException("Organization", "id", request.manufacturerId()));
 
         // Verify the manufacturer owns the product
@@ -76,7 +76,7 @@ public class BatchServiceImpl implements BatchService {
         if (isBlank(batchId)) {
             throw new IllegalArgumentException("Batch id must not be blank");
         }
-        return batchRepository.findById(batchId)
+        return batchRepository.findById(java.util.UUID.fromString(batchId))
             .orElseThrow(() -> new ResourceNotFoundException("Batch", "id", batchId));
     }
 
@@ -95,7 +95,7 @@ public class BatchServiceImpl implements BatchService {
             throw new IllegalArgumentException("Actor org id must not be blank");
         }
 
-        Batch batch = batchRepository.findById(batchId)
+        Batch batch = batchRepository.findById(java.util.UUID.fromString(batchId))
             .orElseThrow(() -> new ResourceNotFoundException("Batch", "id", batchId));
 
         // BOLA check: only the owning org may change status
@@ -137,7 +137,7 @@ public class BatchServiceImpl implements BatchService {
         QRToken saved = qrTokenRepository.save(qrToken);
 
         return new GenerateBatchTokenResponse(
-            batch.getId(),
+            batch.getId().toString(),
             saved.getTokenValue(),
             saved.getQrImage(),
             saved.getCreatedAt()

@@ -19,7 +19,7 @@ public record OrganizationResponse(
 ) {
     public static OrganizationResponse fromEntity(Organization org) {
         return new OrganizationResponse(
-            org.getId(),
+            org.getId().toString(),
             org.getName(),
             org.getOrgType(),
             org.getCreatedAt(),

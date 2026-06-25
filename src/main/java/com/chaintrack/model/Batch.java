@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.UUID;
 import java.time.Instant;
 
 /**
@@ -27,7 +28,7 @@ public class Batch {
     @GeneratedValue(generator = "UUID")
     @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)
-    private String id;
+    private UUID id;
 
     @Column(name = "batch_number", nullable = false, unique = true, length = 100, updatable = false)
     private String batchNumber;
