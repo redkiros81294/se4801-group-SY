@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,7 +26,7 @@ public class User {
     @GeneratedValue(generator = "UUID")
     @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)
-    private String id;
+    private UUID id;
 
     @Column(unique = true, nullable = false, length = 255)
     private String email;

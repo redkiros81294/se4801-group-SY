@@ -1,3 +1,4 @@
+import java.util.UUID;
 package com.chaintrack.repository;
 
 import com.chaintrack.model.Batch;
@@ -9,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface QRTokenRepository extends JpaRepository<QRToken, String> {
+public interface QRTokenRepository extends JpaRepository<QRToken, UUID> {
     Optional<QRToken> findByTokenValue(UUID tokenValue);
 
     Optional<QRToken> findByBatch(Batch batch);

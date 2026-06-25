@@ -33,7 +33,7 @@ public class MovementTransactionServiceImpl implements MovementTransactionServic
     @Override
     @Transactional
     public MovementTransaction recordMovement(CreateMovementRequest request) {
-        Batch batch = batchRepository.findById(request.batchId())
+        Batch batch = batchRepository.findById(java.util.UUID.fromString(request.batchId()))
             .orElseThrow(() -> new ResourceNotFoundException("Batch", "id", request.batchId()));
 
         // Resolve the current event type from the request
@@ -94,7 +94,7 @@ public class MovementTransactionServiceImpl implements MovementTransactionServic
         if (isBlank(batchId)) {
             throw new IllegalArgumentException("batchId must not be blank");
         }
-        Batch batch = batchRepository.findById(batchId)
+        Batch batch = batchRepository.findById(java.util.UUID.fromString(batchId))
             .orElseThrow(() -> new ResourceNotFoundException("Batch", "id", batchId));
         return transactionRepository.findByBatchOrderByEventTimestampAsc(batch);
     }

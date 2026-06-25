@@ -145,7 +145,7 @@ class AuthControllerTest {
             .thenReturn(auth);
 
         User dbUser = User.builder()
-            .id("u-007")
+            .id(java.util.UUID.fromString("00000000-0000-0000-0000-000000000007"))
             .email("shipper@ex.com")
             .passwordHash("$2a$12$...")
             .role(Role.SHIPPER)
@@ -154,7 +154,7 @@ class AuthControllerTest {
             .build();
         when(userRepository.findByEmail("shipper@ex.com")).thenReturn(dbUser);
 
-        when(jwtUtils.generateToken(any(UserDetails.class), anyString(), any(), anyString()))
+        when(jwtUtils.generateToken(any(UserDetails.class), anyString(), anyString(), anyString(), anyString()))
             .thenReturn("fake.jwt.token.value");
         when(jwtUtils.getExpirationMillis(anyString()))
             .thenReturn(Instant.parse("2026-06-01T00:00:00Z").toEpochMilli());

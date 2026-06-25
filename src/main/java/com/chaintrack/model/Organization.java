@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.UUID;
 import java.time.Instant;
 
 /**
@@ -28,7 +29,7 @@ public class Organization {
     @GeneratedValue(generator = "UUID")
     @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)
-    private String id;
+    private UUID id;
 
     @Column(nullable = false, length = 255)
     private String name;

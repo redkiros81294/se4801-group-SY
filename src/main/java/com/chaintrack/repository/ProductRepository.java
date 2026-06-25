@@ -1,3 +1,5 @@
+import java.util.UUID;
+import java.util.UUID;
 package com.chaintrack.repository;
 
 import com.chaintrack.model.Product;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Repository;
  * — org-scoping is enforced in the service layer, never in the repository.
  */
 @Repository
-public interface ProductRepository extends JpaRepository<Product, String>, JpaSpecificationExecutor<Product> {
+public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpecificationExecutor<Product> {
     /**
      * Returns the product with the given SKU, or {@code null} if not found.
      */

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.util.UUID;
 import java.time.Instant;
 
 /**
@@ -28,7 +29,7 @@ public class MovementTransaction {
     @GeneratedValue(generator = "UUID")
     @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)
-    private String id;
+    private UUID id;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false, length = 50)

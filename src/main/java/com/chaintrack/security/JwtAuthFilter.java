@@ -1,6 +1,5 @@
 package com.chaintrack.security;
 
-import com.chaintrack.service.JwtBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,20 +16,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-// @Component  // Temporarily disabled - filter removed from chain
+@Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
 
     private final JwtUtils jwtUtils;
-    private final JwtBlacklistService blacklistService;
     private final UserDetailsService userDetailsService;
 
-    public JwtAuthFilter(JwtUtils jwtUtils,
-                         JwtBlacklistService blacklistService,
-                         UserDetailsService userDetailsService) {
+    public JwtAuthFilter(JwtUtils jwtUtils, UserDetailsService userDetailsService) {
         this.jwtUtils = jwtUtils;
-        this.blacklistService = blacklistService;
         this.userDetailsService = userDetailsService;
     }
 
@@ -53,7 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             try {
                 String username = jwtUtils.extractUsername(token);
                 if (username != null) {
-                    if (jwtUtils.validateToken(token, blacklistService)) {
+                    if (jwtUtils.validateToken(token)) {
                         UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
                         UsernamePasswordAuthenticationToken authToken =
                                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

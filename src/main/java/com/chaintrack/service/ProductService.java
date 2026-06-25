@@ -77,7 +77,7 @@ public class ProductService {
      */
     @Transactional(readOnly = true)
     public ProductResponse getProductById(String id) {
-        Product product = productRepository.findById(id)
+        Product product = productRepository.findById(java.util.UUID.fromString(id))
             .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
         return ProductResponse.fromEntity(product);
     }
@@ -148,7 +148,7 @@ public class ProductService {
             throw new IllegalArgumentException("productId must not be blank");
         }
 
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findById(java.util.UUID.fromString(productId))
             .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
 
         // BOLA: only the owning org may update

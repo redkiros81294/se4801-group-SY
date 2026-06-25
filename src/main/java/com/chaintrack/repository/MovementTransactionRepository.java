@@ -1,3 +1,5 @@
+import java.util.UUID;
+import java.util.UUID;
 package com.chaintrack.repository;
 
 import com.chaintrack.model.Batch;
@@ -10,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MovementTransactionRepository extends JpaRepository<MovementTransaction, String> {
+public interface MovementTransactionRepository extends JpaRepository<MovementTransaction, UUID> {
     
     @EntityGraph(attributePaths = "batch")
     List<MovementTransaction> findByBatchOrderByEventTimestampAsc(Batch batch);

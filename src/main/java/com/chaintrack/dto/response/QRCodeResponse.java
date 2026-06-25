@@ -17,7 +17,7 @@ public record QRCodeResponse(
         return new QRCodeResponse(
             qrToken.getId(),
             qrToken.getTokenValue(),
-            batch != null ? UUID.fromString(batch.getId()) : null,
+            batch != null ? UUID.fromString(batch.getId().toString()) : null,
             qrToken.getQrImage(),
             qrToken.getCreatedAt()
         );

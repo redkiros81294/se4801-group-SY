@@ -73,14 +73,14 @@ public class AuthController {
         User user = userRepository.findByEmail(request.username());
         String token = jwtUtils.generateToken(
             (org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal(),
-            user.getId(),
-            user.getOrg() != null ? user.getOrg().getId() : null,
+            user.getId().toString(),
+            user.getOrg() != null ? user.getOrg().getId().toString() : null,
             user.getRole().name()
         );
         
         return ResponseEntity.ok(new LoginResponse(
             token,
-            user.getId(),
+            user.getId().toString(),
             user.getEmail(),
             java.util.List.of(user.getRole()),
             Instant.ofEpochMilli(jwtUtils.getExpirationMillis(token))

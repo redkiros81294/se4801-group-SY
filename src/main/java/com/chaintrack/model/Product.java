@@ -29,7 +29,7 @@ public class Product {
     @GeneratedValue(generator = "UUID")
     @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)
-    private String id;
+    private UUID id;
 
     @Column(nullable = false, unique = true, length = 100)
     private String sku;

@@ -55,7 +55,7 @@ class UserServiceTest {
             "test@example.com",
             "plainPassword123",
             Role.MANUFACTURER,
-            manufacturerOrg.getId()
+            manufacturerOrg.getId().toString()
         );
 
         UserResponse response = userService.register(request);
@@ -63,7 +63,7 @@ class UserServiceTest {
         assertThat(response.id()).isNotBlank();
         assertThat(response.email()).isEqualTo("test@example.com");
         assertThat(response.role()).isEqualTo(Role.MANUFACTURER);
-        assertThat(response.orgId()).isEqualTo(manufacturerOrg.getId());
+        assertThat(response.orgId()).isEqualTo(manufacturerOrg.getId().toString());
         assertThat(response.isActive()).isTrue();
     }
 
@@ -82,7 +82,7 @@ class UserServiceTest {
             "existing@example.com",
             "newPassword",
             Role.RETAILER,
-            manufacturerOrg.getId()
+            manufacturerOrg.getId().toString()
         );
 
         assertThatThrownBy(() -> userService.register(request))
@@ -117,9 +117,9 @@ class UserServiceTest {
             .build();
         entityManager.persistAndFlush(user);
 
-        UserResponse response = userService.getUserById(user.getId());
+        UserResponse response = userService.getUserById(user.getId().toString());
 
-        assertThat(response.id()).isEqualTo(user.getId());
+        assertThat(response.id()).isEqualTo(user.getId().toString());
         assertThat(response.email()).isEqualTo("findme@example.com");
     }
 
@@ -163,7 +163,7 @@ class UserServiceTest {
             .build();
         entityManager.persistAndFlush(user);
 
-        UserResponse response = userService.deactivateUser(user.getId());
+        UserResponse response = userService.deactivateUser(user.getId().toString());
 
         assertThat(response.isActive()).isFalse();
     }
