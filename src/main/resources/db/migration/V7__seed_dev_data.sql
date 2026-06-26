@@ -9,6 +9,13 @@ VALUES
     ('c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3', 'RetailPlus Inc.', 'RETAILER', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
+-- Seed admin user (password: "Admin@123!" BCrypt(12) hash)
+-- Generated with: BCrypt.hashpw("Admin@123!", BCrypt.gensalt(12))
+INSERT INTO users (id, email, password_hash, role, org_id, is_active, created_at, updated_at, last_login)
+VALUES
+    ('00000000-0000-0000-0000-000000000000', 'admin@chaintrack.com', '$2a$12$W15s4JbLSdn9eAWc4WenM.1rPplX618rA95dzP9GY9PHQylE8F4d2', 'ADMIN', 'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1', true, NOW(), NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
 -- Seed admin user (password: BCrypt(12) hash)
 -- Run the following in psql to generate the hash:
 -- SELECT crypt('Admin@123!', gen_salt('bf', 12));
