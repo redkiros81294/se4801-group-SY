@@ -127,7 +127,7 @@ class AuthControllerTest {
                     """))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.status").value(409))
-            .andExpect(jsonPath("$.error").value("Conflict"));
+            .andExpect(jsonPath("$.title").value("Conflict"));
     }
 
     // ── login ─────────────────────────────────────────────────────────────
@@ -194,6 +194,6 @@ class AuthControllerTest {
                     """))
             .andExpect(status().isUnauthorized())
             .andExpect(jsonPath("$.status").value(401))
-            .andExpect(jsonPath("$.error").value("Unauthorized"));
+            .andExpect(jsonPath("$.title").value("Unauthorized"));
     }
 }
