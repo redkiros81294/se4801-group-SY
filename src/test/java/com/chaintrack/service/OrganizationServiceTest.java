@@ -111,7 +111,7 @@ class OrganizationServiceTest {
     @Test
     @DisplayName("findById — returns OrganizationResponse when id exists")
     void findById_shouldReturnOrg_whenExists() {
-        OrganizationResponse found = organizationService.findById(mfrA.getId());
+        OrganizationResponse found = organizationService.findById(mfrA.getId().toString());
 
         assertThat(found).isNotNull();
         assertThat(found.name()).isEqualTo("PharmaCorp Manufacturing");
@@ -146,7 +146,7 @@ class OrganizationServiceTest {
         OrganizationResponse created = organizationService.createOrganization(req);
 
         // Verify the DTO round-trips the persisted entity
-        assertThat(created.id()).isNotBlank();
+        assertThat(created.id()).isNotNull();
         assertThat(created.name()).isEqualTo("New Manufacturer");
         assertThat(created.orgType()).isEqualTo(OrgType.MANUFACTURER);
     }

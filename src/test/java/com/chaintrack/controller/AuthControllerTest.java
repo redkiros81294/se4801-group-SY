@@ -127,7 +127,7 @@ class AuthControllerTest {
                     """))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.status").value(409))
-            .andExpect(jsonPath("$.error").value("Conflict"));
+            .andExpect(jsonPath("$.title").value("Conflict"));
     }
 
     // ── login ─────────────────────────────────────────────────────────────
@@ -154,7 +154,7 @@ class AuthControllerTest {
             .build();
         when(userRepository.findByEmail("shipper@ex.com")).thenReturn(dbUser);
 
-        when(jwtUtils.generateToken(any(UserDetails.class), anyString(), anyString(), anyString(), anyString()))
+        when(jwtUtils.generateToken(any(), any(), any(), any()))
             .thenReturn("fake.jwt.token.value");
         when(jwtUtils.getExpirationMillis(anyString()))
             .thenReturn(Instant.parse("2026-06-01T00:00:00Z").toEpochMilli());
@@ -170,7 +170,7 @@ class AuthControllerTest {
                     """))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.token").value("fake.jwt.token.value"))
-            .andExpect(jsonPath("$.userId").value("u-007"))
+            .andExpect(jsonPath("$.userId").value("00000000-0000-0000-0000-000000000007"))
             .andExpect(jsonPath("$.email").value("shipper@ex.com"))
             .andExpect(jsonPath("$.roles[0]").value("SHIPPER"));
     }
@@ -194,6 +194,6 @@ class AuthControllerTest {
                     """))
             .andExpect(status().isUnauthorized())
             .andExpect(jsonPath("$.status").value(401))
-            .andExpect(jsonPath("$.error").value("Unauthorized"));
+            .andExpect(jsonPath("$.title").value("Unauthorized"));
     }
 }

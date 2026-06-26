@@ -120,7 +120,7 @@ class MovementTransactionRepositoryTest {
         em.flush();
         em.clear();
         Batch unknownBatch = new Batch();
-        unknownBatch.setId("99999999-9999-9999-9999-999999999999");
+        unknownBatch.setId(java.util.UUID.fromString("99999999-9999-9999-9999-999999999999"));
         unknownBatch.setVersion(0L);
 
         // Act
@@ -150,7 +150,7 @@ class MovementTransactionRepositoryTest {
         em.flush();
         em.clear();
         Batch unknownBatch = new Batch();
-        unknownBatch.setId("99999999-9999-9999-9999-999999999999");
+        unknownBatch.setId(java.util.UUID.fromString("99999999-9999-9999-9999-999999999999"));
         unknownBatch.setVersion(0L);
 
         // Act

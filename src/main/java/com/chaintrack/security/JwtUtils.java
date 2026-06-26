@@ -28,7 +28,7 @@ public class JwtUtils {
         this.key = Keys.hmacShaKeyFor(effectiveSecret.getBytes());
     }
 
-    public String generateToken(org.springframework.security.core.userdetails.UserDetails userDetails, String userId, 
+    public String generateToken(org.springframework.security.core.userdetails.UserDetails userDetails,
                                  String userId, 
                                  String orgId, 
                                  String role) {

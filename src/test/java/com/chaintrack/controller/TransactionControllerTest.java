@@ -45,7 +45,7 @@ class TransactionControllerTest {
     @DisplayName("POST /api/transactions — logs movement event (201)")
     void logEvent_returns201() throws Exception {
         MovementTransaction tx = MovementTransaction.builder()
-            .id("tx-1")
+            .id(java.util.UUID.randomUUID())
             .eventType(MovementTransaction.EventType.MANUFACTURED)
             .eventTimestamp(Instant.now())
             .signatureHash("sig-123")
@@ -64,7 +64,7 @@ class TransactionControllerTest {
     @DisplayName("GET /api/transactions — returns history for batch")
     void getHistory_returnsList() throws Exception {
         MovementTransaction tx = MovementTransaction.builder()
-            .id("tx-1")
+            .id(java.util.UUID.randomUUID())
             .eventType(MovementTransaction.EventType.MANUFACTURED)
             .build();
         

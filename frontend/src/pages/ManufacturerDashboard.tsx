@@ -32,7 +32,8 @@ export const ManufacturerDashboard = () => {
 
       try {
         const { data } = await api.get('/products?size=100');
-        const mapped: ProductStat[] = (data.content ?? []).map((p: any) => ({
+        const productsList = data.content ?? data ?? [];
+        const mapped: ProductStat[] = productsList.map((p: any) => ({
           name: p.name,
           batches: 0,
           delivered: 0,

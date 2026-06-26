@@ -8,6 +8,11 @@ RUN mvn -B package -DskipTests
 # Runtime stage
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
-COPY --from=builder /app/target/chaintrack-0.0.1-SNAPSHOT.jar app.jar
+
+# Add a non-root user for security
+RUN groupadd -r spring && useradd -r -g spring spring
+USER spring
+
+COPY --from=builder --chown=spring:spring /app/target/chaintrack-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75", "-jar", "/app/app.jar"]

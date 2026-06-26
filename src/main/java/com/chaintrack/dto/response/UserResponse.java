@@ -18,7 +18,7 @@ public record UserResponse(
             user.getId().toString(),
             user.getEmail(),
             user.getRole(),
-            user.getOrg() != null ? user.getOrg().getId() : null,
+            user.getOrg() != null ? user.getOrg().getId().toString() : null,
             user.isActive(),
             user.getCreatedAt(),
             user.getUpdatedAt()

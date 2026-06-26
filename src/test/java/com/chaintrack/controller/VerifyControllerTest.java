@@ -51,7 +51,7 @@ class VerifyControllerTest {
         QRToken qrToken = QRToken.builder()
             .tokenValue(token)
             .batch(Batch.builder()
-                .id("batch-1")
+                .id(UUID.randomUUID())
                 .batchNumber("BATCH-001")
                 .status(BatchStatus.CREATED)
                 .product(Product.builder().name("Test Product").sku("SKU-001").build())
@@ -59,8 +59,8 @@ class VerifyControllerTest {
             .build();
         
         when(qrTokenRepository.findByTokenValue(token)).thenReturn(Optional.of(qrToken));
-        when(chainVerificationService.verifyChain("batch-1")).thenReturn(ChainStatus.VALID);
-        when(movementService.getChainForBatch("batch-1")).thenReturn(List.of());
+        when(chainVerificationService.verifyChain(qrToken.getBatch().getId().toString())).thenReturn(ChainStatus.VALID);
+        when(movementService.getChainForBatch(qrToken.getBatch().getId().toString())).thenReturn(List.of());
 
         mockMvc.perform(get("/api/verify/" + token))
             .andExpect(status().isOk())

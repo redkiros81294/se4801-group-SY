@@ -58,7 +58,7 @@ public class ChainVerificationService {
             throw new IllegalArgumentException("batchId must not be blank");
         }
 
-        Batch batch = batchRepository.findById(batchId)
+        Batch batch = batchRepository.findById(java.util.UUID.fromString(batchId))
             .orElseThrow(() -> new ResourceNotFoundException("Batch", "id", batchId));
 
         List<MovementTransaction> chain =

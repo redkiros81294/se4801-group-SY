@@ -22,8 +22,8 @@ public record BatchDTO(
             batch.getId().toString(),
             batch.getBatchNumber(),
             batch.getStatus(),
-            batch.getProduct() != null ? batch.getProduct().getId() : null,
-            batch.getManufacturer() != null ? batch.getManufacturer().getId() : null,
+            batch.getProduct() != null ? batch.getProduct().getId().toString() : null,
+            batch.getManufacturer() != null ? batch.getManufacturer().getId().toString() : null,
             batch.getCreatedAt(),
             batch.getUpdatedAt()
         );

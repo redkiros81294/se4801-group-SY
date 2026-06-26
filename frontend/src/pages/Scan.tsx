@@ -259,10 +259,10 @@ export const Scan = () => {
       </div>
 
       {result && (
-        <div className={`p-4 rounded mt-4 ${result.valid ? 'bg-[var(--green)]/20 border border-[var(--green)]/20' : 'bg-[var(--red)]/20 border border-[var(--red)]/20'}`}>
+        <div className={`p-4 rounded-xl mt-4 ${result.valid ? 'bg-[var(--green)]/10 border border-[var(--green)]/20' : 'bg-[var(--red)]/10 border border-[var(--red)]/20'}`}>
           <div className="flex items-start space-x-3">
             <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-lg bg-[var(--bg2)]/50">
-              <i className={`${result.valid ? 'ti-check-circle text-[var(--green)]' : 'ti-alert-octagon text-[var(--red)]'}`} aria-hidden="true" />
+              <i className={`ti ${result.valid ? 'ti-check-circle text-[var(--green)]' : 'ti-alert-octagon text-[var(--red)]'}`} aria-hidden="true" />
             </div>
             <div>
               <h2 className={`text-lg font-bold ${result.valid ? 'text-[var(--green)]' : 'text-[var(--red)]'}`}>

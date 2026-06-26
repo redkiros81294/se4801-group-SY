@@ -100,7 +100,7 @@ public class BatchServiceImpl implements BatchService {
 
         // BOLA check: only the owning org may change status
         if (batch.getManufacturer() == null ||
-            !batch.getManufacturer().getId().equals(actorOrgId)) {
+            !batch.getManufacturer().getId().toString().equals(actorOrgId)) {
             throw new AccessDeniedException(
                 "Organization '" + actorOrgId + "' does not own batch '" + batchId + "'");
         }

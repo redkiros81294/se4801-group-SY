@@ -66,7 +66,7 @@ class MovementTransactionServiceTest {
     void recordMovement_createsMovementWithSignature() {
         CreateMovementRequest request = new CreateMovementRequest() {
             @Override public String eventType() { return "MANUFACTURED"; }
-            @Override public String batchId() { return batch.getId(); }
+            @Override public String batchId() { return batch.getId().toString(); }
             @Override public String fromOrgId() { return null; }
             @Override public String toOrgId() { return null; }
             @Override public String signatureHash() { return ""; }
@@ -86,7 +86,7 @@ class MovementTransactionServiceTest {
     void getChainForBatch_returnsOrderedChain() {
         CreateMovementRequest genesis = new CreateMovementRequest() {
             @Override public String eventType() { return "MANUFACTURED"; }
-            @Override public String batchId() { return batch.getId(); }
+            @Override public String batchId() { return batch.getId().toString(); }
             @Override public String fromOrgId() { return null; }
             @Override public String toOrgId() { return null; }
             @Override public String signatureHash() { return ""; }
@@ -97,8 +97,8 @@ class MovementTransactionServiceTest {
 
         CreateMovementRequest shipped = new CreateMovementRequest() {
             @Override public String eventType() { return "SHIPPED"; }
-            @Override public String batchId() { return batch.getId(); }
-            @Override public String fromOrgId() { return manufacturer.getId(); }
+            @Override public String batchId() { return batch.getId().toString(); }
+            @Override public String fromOrgId() { return manufacturer.getId().toString(); }
             @Override public String toOrgId() { return "org-shipper"; }
             @Override public String signatureHash() { return ""; }
             @Override public String previousHash() { return ""; }
@@ -106,7 +106,7 @@ class MovementTransactionServiceTest {
         };
         movementService.recordMovement(shipped);
 
-        List<MovementTransaction> chain = movementService.getChainForBatch(batch.getId());
+        List<MovementTransaction> chain = movementService.getChainForBatch(batch.getId().toString());
 
         assertThat(chain).hasSize(2);
         assertThat(chain.get(0).getEventType()).isEqualTo(MovementTransaction.EventType.MANUFACTURED);
