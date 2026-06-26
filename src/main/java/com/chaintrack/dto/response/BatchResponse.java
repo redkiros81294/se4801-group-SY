@@ -27,7 +27,7 @@ public record BatchResponse(
             product != null ? product.getId().toString() : null,
             product != null ? product.getName() : null,
             batch.getStatus(),
-            man != null ? man.getId() : null,
+            man != null ? man.getId().toString() : null,
             batch.getCreatedAt(),
             batch.getUpdatedAt()
         );

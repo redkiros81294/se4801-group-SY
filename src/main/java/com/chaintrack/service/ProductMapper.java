@@ -12,12 +12,12 @@ public class ProductMapper {
             return null;
         }
         return new ProductResponse(
-            product.getId(),
+            product.getId().toString(),
             product.getSku(),
             product.getName(),
             product.getDescription(),
             product.getCategory(),
-            product.getManufacturer() != null ? product.getManufacturer().getId() : null,
+            product.getManufacturer() != null ? product.getManufacturer().getId().toString() : null,
             product.getCreatedAt(),
             product.getUpdatedAt()
         );

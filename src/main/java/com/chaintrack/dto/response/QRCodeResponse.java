@@ -15,9 +15,9 @@ public record QRCodeResponse(
     public static QRCodeResponse fromEntity(com.chaintrack.model.QRToken qrToken) {
         Batch batch = qrToken.getBatch();
         return new QRCodeResponse(
-            qrToken.getId(),
+            qrToken.getId().toString(),
             qrToken.getTokenValue(),
-            batch != null ? UUID.fromString(batch.getId().toString()) : null,
+            batch != null ? batch.getId() : null,
             qrToken.getQrImage(),
             qrToken.getCreatedAt()
         );

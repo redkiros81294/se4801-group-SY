@@ -20,8 +20,8 @@ public record TransactionDTO(
 ) {
     public static TransactionDTO fromEntity(MovementTransaction tx) {
         return new TransactionDTO(
-            tx.getId(),
-            tx.getBatch() != null ? tx.getBatch().getId() : tx.getBatchId(),
+            tx.getId().toString(),
+            tx.getBatch() != null ? tx.getBatch().getId().toString() : tx.getBatchId(),
             tx.getEventType() != null ? tx.getEventType().name() : null,
             tx.getFromOrgId(),
             tx.getToOrgId(),

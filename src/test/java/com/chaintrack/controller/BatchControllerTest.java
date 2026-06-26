@@ -71,7 +71,7 @@ class BatchControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"productId\":\"prod-1\",\"batchNumber\":\"BATCH-001\",\"manufacturerId\":\"org-1\"}"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value("batch-1"));
+            .andExpect(jsonPath("$.id").value("00000000-0000-0000-0000-000000000001"));
     }
 
     @Test
@@ -87,7 +87,7 @@ class BatchControllerTest {
 
         mockMvc.perform(get("/api/batches/batch-1"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value("batch-1"));
+            .andExpect(jsonPath("$.id").value("00000000-0000-0000-0000-000000000001"));
     }
 
     @Test

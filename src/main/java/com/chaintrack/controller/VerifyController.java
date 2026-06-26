@@ -47,9 +47,9 @@ public class VerifyController {
             
             Batch batch = qrToken.getBatch();
             Product product = batch.getProduct();
-            ChainStatus chainStatus = chainVerificationService.verifyChain(batch.getId());
+            ChainStatus chainStatus = chainVerificationService.verifyChain(batch.getId().toString());
             
-            List<MovementTransaction> movements = movementService.getChainForBatch(batch.getId());
+            List<MovementTransaction> movements = movementService.getChainForBatch(batch.getId().toString());
             List<MovementResponse> chain = movements.stream()
                     .map(MovementResponse::fromEntity)
                     .toList();

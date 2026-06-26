@@ -102,8 +102,8 @@ class SecurityIntegrationTest {
                         .password("test")
                         .roles("MANUFACTURER")
                         .build(),
-                manufacturerUser.getId(),
-                manufacturerOrg.getId(),
+                manufacturerUser.getId().toString(),
+                manufacturerOrg.getId().toString(),
                 "MANUFACTURER"
         );
 
@@ -112,8 +112,8 @@ class SecurityIntegrationTest {
                         .password("test")
                         .roles("SHIPPER")
                         .build(),
-                shipperUser.getId(),
-                shipperOrg.getId(),
+                shipperUser.getId().toString(),
+                shipperOrg.getId().toString(),
                 "SHIPPER"
         );
     }
@@ -188,7 +188,7 @@ class SecurityIntegrationTest {
         void bolaReturns404() throws Exception {
             when(blacklistService.isBlacklisted(any())).thenReturn(false);
             // Use a non-existent batch ID with manufacturer token
-            mockMvc.perform(get("/api/batches/batch-123")
+            mockMvc.perform(get("/api/batches/00000000-0000-0000-0000-000000000000")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + manufacturerToken))
                     .andExpect(status().isNotFound());
         }

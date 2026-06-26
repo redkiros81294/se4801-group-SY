@@ -74,7 +74,7 @@ class ChainTamperIntegrationTest {
             .orgType(Organization.OrgType.MANUFACTURER)
             .build();
         Organization savedOrg = organizationRepository.save(org);
-        orgId = savedOrg.getId();
+        orgId = savedOrg.getId().toString();
 
         // Register user
         String registerJson = """
@@ -182,7 +182,7 @@ class ChainTamperIntegrationTest {
                 .eventTimestamp(Instant.now())
                 .fromOrgId(null)
                 .toOrgId(orgId)
-                .batch(batchRepository.findById(batchId).orElseThrow())
+                .batch(batchRepository.findById(java.util.UUID.fromString(batchId)).orElseThrow())
                 .signatureHash("original_hash_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
                 .previousHash("GENESIS")
                 .build();

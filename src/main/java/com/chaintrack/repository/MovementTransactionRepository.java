@@ -1,5 +1,3 @@
-import java.util.UUID;
-import java.util.UUID;
 package com.chaintrack.repository;
 
 import com.chaintrack.model.Batch;
@@ -10,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface MovementTransactionRepository extends JpaRepository<MovementTransaction, UUID> {
