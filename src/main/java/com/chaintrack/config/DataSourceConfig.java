@@ -15,10 +15,10 @@ public class DataSourceConfig {
     @Value("${SPRING_DATASOURCE_URL:${POSTGRES_URL:${DATABASE_URL:${DB_URL:}}}}")
     private String databaseUrl;
 
-    @Value("${SPRING_DATASOURCE_USERNAME:${POSTGRES_USER:${DB_USERNAME:}}}}")
+    @Value("${SPRING_DATASOURCE_USERNAME:${POSTGRES_USER:${DB_USERNAME:}}}")
     private String username;
 
-    @Value("${SPRING_DATASOURCE_PASSWORD:${POSTGRES_PASSWORD:${DB_PASSWORD:}}}}")
+    @Value("${SPRING_DATASOURCE_PASSWORD:${POSTGRES_PASSWORD:${DB_PASSWORD:}}}")
     private String password;
 
     @Bean
