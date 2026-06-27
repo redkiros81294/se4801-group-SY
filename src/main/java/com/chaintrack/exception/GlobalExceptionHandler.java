@@ -1,6 +1,7 @@
 package com.chaintrack.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -8,10 +9,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-import jakarta.servlet.http.HttpServletRequest;
-import java.time.Instant;
+
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,89 +19,65 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
-        return createErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
+    public ProblemDetail handleNotFound(ResourceNotFoundException ex) {
+        return createProblemDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleForbidden(AccessDeniedException ex, HttpServletRequest request) {
-        return createErrorResponse(HttpStatus.FORBIDDEN, ex.getMessage(), request.getRequestURI());
+    public ProblemDetail handleForbidden(AccessDeniedException ex) {
+        return createProblemDetail(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAuthorizationDenied(AuthorizationDeniedException ex, HttpServletRequest request) {
-        return createErrorResponse(HttpStatus.FORBIDDEN, "Access Denied", request.getRequestURI());
+    public ProblemDetail handleAuthorizationDenied(AuthorizationDeniedException ex) {
+        return createProblemDetail(HttpStatus.FORBIDDEN, "Access Denied");
     }
 
     @ExceptionHandler(DuplicateSkuException.class)
-    public ResponseEntity<ErrorResponse> handleConflict(DuplicateSkuException ex, HttpServletRequest request) {
-        return createErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI());
+    public ProblemDetail handleConflict(DuplicateSkuException ex) {
+        return createProblemDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(InvalidEventTransitionException.class)
-    public ResponseEntity<ErrorResponse> handleBadRequest(InvalidEventTransitionException ex, HttpServletRequest request) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
+    public ProblemDetail handleBadRequest(InvalidEventTransitionException ex) {
+        return createProblemDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorized(BadCredentialsException ex, HttpServletRequest request) {
-        return createErrorResponse(HttpStatus.UNAUTHORIZED, "Invalid credentials", request.getRequestURI());
+    public ProblemDetail handleUnauthorized(BadCredentialsException ex) {
+        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationErrorResponse> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, "Validation failed");
         List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
             .map(err -> new FieldError(err.getField(), err.getDefaultMessage()))
             .collect(Collectors.toList());
-
-        ValidationErrorResponse response = new ValidationErrorResponse(
-            Instant.now(),
-            HttpStatus.BAD_REQUEST.value(),
-            "Validation failed",
-            fieldErrors
-        );
-        return ResponseEntity.badRequest().body(response);
+        problemDetail.setProperty("errors", fieldErrors);
+        return problemDetail;
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
+    public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
+        return createProblemDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(NoResourceFoundException ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse(
-            Instant.now(),
-            HttpStatus.NOT_FOUND.value(),
-            "Not Found",
-            ex.getMessage(),
-            request.getRequestURI()
-        );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    public ProblemDetail handleNotFound(NoResourceFoundException ex) {
+        return createProblemDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleAll(Exception ex, HttpServletRequest request) {
-        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", request.getRequestURI());
+    public ProblemDetail handleAll(Exception ex) {
+        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
     }
 
-    private ResponseEntity<ErrorResponse> createErrorResponse(HttpStatus status, String message, String path) {
-        ErrorResponse response = new ErrorResponse(
-            Instant.now(),
-            status.value(),
-            status.getReasonPhrase(),
-            message,
-            path
-        );
-        return ResponseEntity.status(status).body(response);
+    private ProblemDetail createProblemDetail(HttpStatus status, String detail) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+        problemDetail.setTitle(status.getReasonPhrase());
+        return problemDetail;
     }
-
-    public record ValidationErrorResponse(
-        Instant timestamp,
-        int status,
-        String error,
-        List<FieldError> errors
-    ) {}
 
     public record FieldError(String field, String message) {}
 }

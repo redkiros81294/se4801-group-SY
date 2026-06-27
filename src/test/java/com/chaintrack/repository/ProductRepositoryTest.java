@@ -124,7 +124,7 @@ class ProductRepositoryTest {
 
         // Assert
         assertThat(refreshed).isNotNull();
-        assertThat(refreshed.getId()).isNotBlank();
+        assertThat(refreshed.getId()).isNotNull();
         assertThat(refreshed.getCreatedAt()).isNotNull();
         assertThat(refreshed.getSku()).isEqualTo("SKU-GEN");
     }

@@ -31,16 +31,15 @@ export const Sidebar = () => {
     // Filter routes based on user roles
     if (!user) return [];
     return routes.filter(route => 
-      !route.roles || route.roles.includes(user.roles[0]) || 
-      route.roles.some(role => user.roles.includes(role))
+      !route.roles || route.roles.some(role => user.roles.includes(role))
     );
   };
 
   const routes = getRoutes();
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-64 bg-[var(--bg1)] text-[var(--t1)] p-4 space-y-6">
-      <div className="space-y-4">
+    <aside className="fixed left-0 top-0 bottom-0 lg:static h-full w-64 bg-[var(--bg1)] text-[var(--t1)] p-4 space-y-6 flex flex-col border-r border-[var(--border)] lg:border-none">
+      <div className="flex-1 space-y-4 overflow-y-auto">
         {/* User Profile Card */}
         <div className="text-center py-4 border-b border-[var(--border)] pb-4">
           {user ? (
@@ -79,7 +78,7 @@ export const Sidebar = () => {
       </div>
 
       {/* Footer - Logout button */}
-      <div className="mt-6 pt-4 border-t border-[var(--border)]">
+      <div className="pt-4 border-t border-[var(--border)]">
         <button 
           onClick={handleLogout}
           className="w-full flex items-center justify-start px-3 py-2 rounded-md text-[var(--t2)] hover:text-[var(--t1)] hover:bg-[var(--bg3)] transition-colors"

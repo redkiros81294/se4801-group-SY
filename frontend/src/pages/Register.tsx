@@ -234,15 +234,15 @@ export const Register = () => {
                 validateField('role', validationRules.role);
               }}
               className={clsx(
-                'w-full px-4 py-3 border rounded-lg text-[#F1F5F9]',
+                'w-full px-4 py-3 border rounded-lg text-[#F1F5F9] appearance-none',
                 'bg-[#111827] border-[#1E3A5F]',
                 'focus:outline-none focus:ring-2 focus:ring-[#06B6D4]/50',
-                'transition-all duration-200',
+                'transition-all duration-200 cursor-pointer',
                 errors.role ? 'border-[#EF4444]/50' : 'border-[#1E3A5F]'
               )}
               required
             >
-              <option value="">Select your role</option>
+              <option value="" className="bg-[#111827]">Select your role</option>
               {ROLE_OPTIONS.map(option => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -270,16 +270,16 @@ export const Register = () => {
                 validateField('orgId', validationRules.orgId);
               }}
               className={clsx(
-                'w-full px-4 py-3 border rounded-lg text-[#F1F5F9]',
+                'w-full px-4 py-3 border rounded-lg text-[#F1F5F9] appearance-none',
                 'bg-[#111827] border-[#1E3A5F]',
                 'focus:outline-none focus:ring-2 focus:ring-[#06B6D4]/50',
-                'transition-all duration-200',
+                'transition-all duration-200 cursor-pointer disabled:cursor-wait',
                 errors.orgId ? 'border-[#EF4444]/50' : 'border-[#1E3A5F]'
               )}
               required
               disabled={orgsLoading}
             >
-              <option value="">
+              <option value="" className="bg-[#111827]">
                 {orgsLoading ? 'Loading organizations...' : 'Select your organization'}
               </option>
               {organizations.map(org => (

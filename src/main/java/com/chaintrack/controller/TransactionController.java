@@ -45,8 +45,8 @@ public class TransactionController {
         CreateMovementRequest createRequest = new CreateMovementRequestImpl(request);
         MovementTransaction movement = movementService.recordMovement(createRequest);
         return new MovementCreateResponse(
-            movement.getId(),
-            movement.getBatch() != null ? movement.getBatch().getId() : movement.getBatchId(),
+            movement.getId().toString(),
+            movement.getBatch() != null ? movement.getBatch().getId().toString() : movement.getBatchId(),
             movement.getEventType().name(),
             movement.getSignatureHash(),
             movement.getPreviousHash(),

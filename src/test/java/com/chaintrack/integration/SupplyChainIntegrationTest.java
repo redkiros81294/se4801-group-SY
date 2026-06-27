@@ -60,7 +60,7 @@ class SupplyChainIntegrationTest {
             .orgType(OrgType.MANUFACTURER)
             .build();
         Organization savedOrg = organizationRepository.save(org);
-        orgId = savedOrg.getId();
+        orgId = savedOrg.getId().toString();
 
         // Register a manufacturer user
         String registerJson = """
@@ -171,7 +171,7 @@ class SupplyChainIntegrationTest {
 
         // Assert that product exists in database
         assertThat(productRepository.findBySku("PRODUCT-SKU-001")).isNotNull();
-        assertThat(organizationRepository.findById(orgId)).isPresent();
+        assertThat(organizationRepository.findById(java.util.UUID.fromString(orgId))).isPresent();
         assertThat(userRepository.findByEmail("manufacturer@test.com")).isNotNull();
     }
 }

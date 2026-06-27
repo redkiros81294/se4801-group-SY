@@ -14,11 +14,11 @@ public class BatchMapper {
         }
         Product product = batch.getProduct();
         return new BatchResponse(
-            batch.getId(),
-            product != null ? product.getId() : null,
+            batch.getId().toString(),
+            product != null ? product.getId().toString() : null,
             product != null ? product.getName() : null,
             batch.getStatus(),
-            batch.getManufacturer() != null ? batch.getManufacturer().getId() : null,
+            batch.getManufacturer() != null ? batch.getManufacturer().getId().toString() : null,
             batch.getCreatedAt(),
             batch.getUpdatedAt()
         );

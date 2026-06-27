@@ -63,14 +63,14 @@ class BatchServiceTest {
     @DisplayName("createBatch — creates batch with correct batch number format")
     void createBatch_createsBatchWithCorrectFormat() {
         CreateBatchRequest request = new CreateBatchRequest(
-            product.getId(),
-            null,
-            manufacturerOrg.getId()
+            product.getId().toString(),
+            "B-001",
+            manufacturerOrg.getId().toString()
         );
 
         Batch batch = batchService.createBatch(request);
 
-        assertThat(batch.getId()).isNotBlank();
+        assertThat(batch.getId()).isNotNull();
         assertThat(batch.getBatchNumber()).startsWith("SKU-TEST-001-");
         assertThat(batch.getStatus()).isEqualTo(BatchStatus.CREATED);
         assertThat(batch.getManufacturer().getId()).isEqualTo(manufacturerOrg.getId());
@@ -86,9 +86,9 @@ class BatchServiceTest {
         entityManager.persistAndFlush(otherOrg);
 
         CreateBatchRequest request = new CreateBatchRequest(
-            product.getId(),
-            null,
-            otherOrg.getId()
+            product.getId().toString(),
+            "B-001",
+            otherOrg.getId().toString()
         );
 
         assertThatThrownBy(() -> batchService.createBatch(request))
@@ -101,13 +101,13 @@ class BatchServiceTest {
     @DisplayName("getBatchById — returns batch when exists")
     void getBatchById_returnsBatch_whenExists() {
         CreateBatchRequest request = new CreateBatchRequest(
-            product.getId(),
-            null,
-            manufacturerOrg.getId()
+            product.getId().toString(),
+            "B-001",
+            manufacturerOrg.getId().toString()
         );
         Batch created = batchService.createBatch(request);
 
-        Batch found = batchService.getBatchById(created.getId());
+        Batch found = batchService.getBatchById(created.getId().toString());
 
         assertThat(found.getId()).isEqualTo(created.getId());
         assertThat(found.getBatchNumber()).isEqualTo(created.getBatchNumber());
@@ -126,14 +126,14 @@ class BatchServiceTest {
     @DisplayName("advanceStatus — changes status when actor owns batch")
     void advanceStatus_changesStatus_whenActorOwns() {
         CreateBatchRequest request = new CreateBatchRequest(
-            product.getId(),
-            null,
-            manufacturerOrg.getId()
+            product.getId().toString(),
+            "B-001",
+            manufacturerOrg.getId().toString()
         );
         Batch batch = batchService.createBatch(request);
 
         Batch updated = batchService.advanceStatus(
-            batch.getId(), BatchStatus.IN_TRANSIT, manufacturerOrg.getId());
+            batch.getId().toString(), BatchStatus.IN_TRANSIT, manufacturerOrg.getId().toString());
 
         assertThat(updated.getStatus()).isEqualTo(BatchStatus.IN_TRANSIT);
     }
@@ -148,14 +148,14 @@ class BatchServiceTest {
         entityManager.persistAndFlush(otherOrg);
 
         CreateBatchRequest request = new CreateBatchRequest(
-            product.getId(),
-            null,
-            manufacturerOrg.getId()
+            product.getId().toString(),
+            "B-001",
+            manufacturerOrg.getId().toString()
         );
         Batch batch = batchService.createBatch(request);
 
         assertThatThrownBy(() ->
-            batchService.advanceStatus(batch.getId(), BatchStatus.IN_TRANSIT, otherOrg.getId()))
+            batchService.advanceStatus(batch.getId().toString(), BatchStatus.IN_TRANSIT, otherOrg.getId().toString()))
             .isInstanceOf(com.chaintrack.exception.AccessDeniedException.class);
     }
 
@@ -165,15 +165,15 @@ class BatchServiceTest {
     @DisplayName("generateQR — creates QR token and image")
     void generateQR_createsTokenAndImage() {
         CreateBatchRequest request = new CreateBatchRequest(
-            product.getId(),
-            null,
-            manufacturerOrg.getId()
+            product.getId().toString(),
+            "B-001",
+            manufacturerOrg.getId().toString()
         );
         Batch batch = batchService.createBatch(request);
 
-        GenerateBatchTokenResponse response = ((BatchServiceImpl) batchService).generateQR(batch.getId());
+        GenerateBatchTokenResponse response = ((BatchServiceImpl) batchService).generateQR(batch.getId().toString());
 
-        assertThat(response.batchId()).isEqualTo(batch.getId());
+        assertThat(response.batchId()).isEqualTo(batch.getId().toString());
         assertThat(response.tokenValue()).isNotNull();
         assertThat(response.qrImage()).isNotBlank();
         assertThat(response.qrImage()).startsWith("iVBORw0KGgo");

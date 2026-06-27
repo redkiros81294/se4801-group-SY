@@ -104,9 +104,9 @@ class ProductControllerTest {
     @Test
     @DisplayName("POST /api/products — creates product (201) for MANUFACTURER")
     void createProduct_returnsCreated() throws Exception {
-        when(jwtUtils.extractOrgId(any())).thenReturn("org-1");
-        when(organizationRepository.findById(eq("org-1")))
-            .thenReturn(java.util.Optional.of(Organization.builder().id("org-1").build()));
+        when(jwtUtils.extractOrgId(any())).thenReturn("11111111-1111-1111-1111-111111111111");
+        when(organizationRepository.findById(eq(java.util.UUID.fromString("11111111-1111-1111-1111-111111111111"))))
+            .thenReturn(java.util.Optional.of(Organization.builder().id(java.util.UUID.fromString("11111111-1111-1111-1111-111111111111")).build()));
 
         ProductResponse resp = new ProductResponse(
             "prod-new",

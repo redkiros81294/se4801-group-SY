@@ -22,7 +22,7 @@ public record ProductResponse(
             product.getName(),
             product.getDescription(),
             product.getCategory(),
-            man != null ? man.getId() : null,
+            man != null ? man.getId().toString() : null,
             product.getCreatedAt(),
             product.getUpdatedAt()
         );

@@ -125,7 +125,7 @@ public class ProductService {
             .category(request.category())
             .description(request.description())
             .manufacturer(manufacturerOrg)
-            .createdBy(java.util.UUID.fromString(manufacturerOrg.getId()))
+            .createdBy(manufacturerOrg.getId())
             .build();
         Product saved = productRepository.save(product);
         return ProductResponse.fromEntity(saved);
@@ -153,7 +153,7 @@ public class ProductService {
 
         // BOLA: only the owning org may update
         if (product.getManufacturer() == null
-            || !product.getManufacturer().getId().equals(callerOrgId)) {
+            || !product.getManufacturer().getId().toString().equals(callerOrgId)) {
             throw new AccessDeniedException(
                 "Organization '" + callerOrgId + "' does not own product '" + productId + "'");
         }

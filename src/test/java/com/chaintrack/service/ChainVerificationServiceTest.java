@@ -67,7 +67,7 @@ class ChainVerificationServiceTest {
     @Test
     @DisplayName("verifyChain — empty chain returns VALID")
     void verifyChain_emptyChain_returnsValid() {
-        assertThat(verificationService.verifyChain(batch.getId()))
+        assertThat(verificationService.verifyChain(batch.getId().toString()))
             .isEqualTo(ChainStatus.VALID);
     }
 
@@ -88,7 +88,7 @@ class ChainVerificationServiceTest {
         );
         entityManager.persistAndFlush(shipped);
 
-        assertThat(verificationService.verifyChain(batch.getId()))
+        assertThat(verificationService.verifyChain(batch.getId().toString()))
             .isEqualTo(ChainStatus.VALID);
     }
 
@@ -105,7 +105,7 @@ class ChainVerificationServiceTest {
         genesis.setSignatureHash("tampered_hash_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
         entityManager.persistAndFlush(genesis);
 
-        assertThat(verificationService.verifyChain(batch.getId()))
+        assertThat(verificationService.verifyChain(batch.getId().toString()))
             .isEqualTo(ChainStatus.COMPROMISED);
     }
 

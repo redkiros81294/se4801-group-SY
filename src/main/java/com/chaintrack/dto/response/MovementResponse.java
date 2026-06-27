@@ -21,12 +21,12 @@ public record MovementResponse(
 ) {
     public static MovementResponse fromEntity(MovementTransaction tx) {
         return new MovementResponse(
-            tx.getId(),
+            tx.getId().toString(),
             tx.getEventType(),
             tx.getEventTimestamp(),
             tx.getFromOrgId(),
             tx.getToOrgId(),
-            tx.getBatch() != null ? tx.getBatch().getId() : tx.getBatchId(),
+            tx.getBatch() != null ? tx.getBatch().getId().toString() : tx.getBatchId(),
             tx.getSignatureHash(),
             tx.getPreviousHash()
         );

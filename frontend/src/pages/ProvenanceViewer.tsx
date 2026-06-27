@@ -169,7 +169,7 @@ export const ProvenanceViewer = () => {
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-3">
                         <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${getEventColor(tx.eventType)}`}>
-                          <i className="ti ti-truck" aria-hidden="true" />
+                          <i className={getEventIcon(tx.eventType)} aria-hidden="true" />
                         </div>
                         <div>
                           <p className="text-[var(--t1)] font-semibold">{formatEventType(tx.eventType)}</p>
@@ -237,5 +237,15 @@ function formatEventType(eventType: string): string {
     case 'IN_TRANSIT': return 'In Transit';
     case 'RECEIVED': return 'Received';
     default: return eventType;
+  }
+}
+
+function getEventIcon(eventType: string): string {
+  switch (eventType) {
+    case 'MANUFACTURED': return 'ti ti-building-factory-2';
+    case 'SHIPPED': return 'ti ti-package-export';
+    case 'IN_TRANSIT': return 'ti ti-truck';
+    case 'RECEIVED': return 'ti ti-building-store';
+    default: return 'ti ti-circle-check';
   }
 }

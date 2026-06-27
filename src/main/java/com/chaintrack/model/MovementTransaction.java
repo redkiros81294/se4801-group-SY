@@ -79,7 +79,7 @@ public class MovementTransaction {
     @PrePersist
     void prePersist() {
         if (batch != null && batchId == null) {
-            this.batchId = batch.getId();
+            this.batchId = batch.getId().toString();
         }
     }
 

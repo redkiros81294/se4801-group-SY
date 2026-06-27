@@ -48,22 +48,12 @@ public class OrganizationService {
 
     /**
      * Returns organizations filtered by type, wrapped in a Page.
-     * Uses an in-memory stream because findByOrgType returns the full list
-     * and we paginate in Java — acceptable at this stage. Replace with a
-     * dedicated repository method when Simon adds a Pageable overload.
+     * Uses database-level pagination to avoid loading all entities into memory.
      */
     @Transactional(readOnly = true)
     public Page<OrganizationResponse> listByType(OrgType orgType, Pageable pageable) {
-        List<Organization> all = organizationRepository.findByOrgType(orgType);
-        int start = (int) pageable.getOffset();
-        if (start >= all.size()) {
-            return new PageImpl<>(List.of(), pageable, all.size());
-        }
-        int end = Math.min(start + pageable.getPageSize(), all.size());
-        List<OrganizationResponse> pageContent = all.subList(start, end).stream()
-            .map(OrganizationResponse::fromEntity)
-            .toList();
-        return new PageImpl<>(pageContent, pageable, all.size());
+        return organizationRepository.findByOrgType(orgType, pageable)
+            .map(OrganizationResponse::fromEntity);
     }
 
     /**

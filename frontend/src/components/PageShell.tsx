@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Sidebar } from './Sidebar';
 import React from 'react';
@@ -10,6 +10,7 @@ export const PageShell = ({ title, children, showSidebar = true }: {
 }) => {
   const { user } = useAuth();
   const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
   // Generate breadcrumb based on current path
   const getBreadcrumbItems = () => {
@@ -62,19 +63,45 @@ export const PageShell = ({ title, children, showSidebar = true }: {
 
   return (
     <div className="flex min-h-screen bg-[var(--bg0)]">
-      {showSidebar && <Sidebar />}
+      {/* Sidebar - Desktop */}
+      {showSidebar && (
+        <div className="hidden lg:block">
+          <Sidebar />
+        </div>
+      )}
 
-      <div className="flex-1 flex flex-col ml-64">
+      {/* Sidebar - Mobile Overlay */}
+      {showSidebar && isSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 lg:hidden bg-black/60 backdrop-blur-sm"
+          onClick={() => setIsSidebarOpen(false)}
+        >
+          <div className="w-64 h-full" onClick={e => e.stopPropagation()}>
+            <Sidebar />
+          </div>
+        </div>
+      )}
+
+      <div className={`flex-1 flex flex-col ${showSidebar ? 'lg:ml-64' : ''}`}>
         {/* Topbar */}
-        <header className="bg-[var(--bg1)] text-[var(--t1)] px-6 py-4 flex items-center justify-between border-b border-[var(--border)]">
+        <header className="bg-[var(--bg1)] text-[var(--t1)] px-4 lg:px-6 py-4 flex items-center justify-between border-b border-[var(--border)] sticky top-0 z-30">
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold">{title}</h1>
+            {showSidebar && (
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="lg:hidden p-2 -ml-2 rounded-md hover:bg-[var(--bg2)] text-[var(--t2)] transition-colors"
+                aria-label="Open sidebar"
+              >
+                <i className="ti ti-menu-2 text-xl"></i>
+              </button>
+            )}
+            <h1 className="text-lg lg:text-xl font-bold truncate">{title}</h1>
           </div>
           
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                <div className="w-8 h-8 bg-[var(--bg2)] rounded-flex items-center justify-center">
+                <div className="w-8 h-8 bg-[var(--bg2)] rounded-full flex items-center justify-center">
                   <i className="ti ti-user text-[var(--t2)]"></i>
                 </div>
                 <span className="text-[var(--t2)]">{user.email.split('@')[0]}</span>
@@ -86,15 +113,17 @@ export const PageShell = ({ title, children, showSidebar = true }: {
         </header>
 
         {/* Breadcrumb */}
-        <nav className="bg-[var(--bg2)] text-[var(--t2)] px-6 py-2 border-b border-[var(--border)]">
-          <ol className="flex items-center space-x-2 text-sm">
+        <nav className="bg-[var(--bg2)] text-[var(--t2)] px-4 lg:px-6 py-2 border-b border-[var(--border)] overflow-x-auto">
+          <ol className="flex items-center space-x-2 text-sm whitespace-nowrap">
             {breadcrumbItems.map((item, index) => (
               <React.Fragment key={item.path}>
-                {index > 0 && <span className="mx-2">/</span>}
+                {index > 0 && <span className="mx-2 opacity-50">/</span>}
                 {item.path === location.pathname ? (
                   <span className="text-[var(--t1)] font-medium">{item.label}</span>
                 ) : (
-                  <a href={item.path} className="hover:text-[var(--t1)] transition-colors">{item.label}</a>
+                  <Link to={item.path} className="hover:text-[var(--cyan)] transition-colors">
+                    {item.label}
+                  </Link>
                 )}
               </React.Fragment>
             ))}

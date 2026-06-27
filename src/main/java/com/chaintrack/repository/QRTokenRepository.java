@@ -1,4 +1,3 @@
-import java.util.UUID;
 package com.chaintrack.repository;
 
 import com.chaintrack.model.Batch;

@@ -72,7 +72,7 @@ public class ProductController {
         String token = authHeader != null && authHeader.startsWith("Bearer ") ? authHeader.substring(7) : "";
         String orgId = jwtUtils.extractOrgId(token);
         final String finalOrgId = (orgId != null) ? orgId : "";
-        Organization org = organizationRepository.findById(finalOrgId)
+        Organization org = organizationRepository.findById(java.util.UUID.fromString(finalOrgId))
             .orElseThrow(() -> new ResourceNotFoundException("Organization", "id", finalOrgId));
         return productService.createProduct(request, org);
     }
