@@ -6,7 +6,6 @@
 [![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=java&logoColor=white)](https://www.java.com)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ---
 
@@ -202,7 +201,4 @@ Run `mvn test` for backend tests. Generate reports with `mvn jacoco:report` (ava
 ### Frontend
 - `VITE_API_URL`: Base URL for the backend API
 
----
 
-## 📄 License
-This project is licensed under the MIT License.
