@@ -35,7 +35,8 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         env:
-          VITE_API_URL: https://chaintrack-backend.onrender.com/api
+          VITE_API_URL: https://chaintrack-backend-production.up.railway.app/api
+          VITE_API_FALLBACK_URL: https://chaintrack-backend.onrender.com/api
           VITE_BASE_PATH: /se4801-group-SY/
         run: npm run build
 
