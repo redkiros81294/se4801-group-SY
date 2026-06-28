@@ -56,6 +56,16 @@ api.interceptors.response.use(
       clearToken();
       window.location.assign(`${import.meta.env.BASE_URL}login`);
     }
+    if (error.response?.status === 403) {
+      window.location.assign(`${import.meta.env.BASE_URL}forbidden`);
+    }
+    if (error.response?.status === 404) {
+      window.location.assign(`${import.meta.env.BASE_URL}not-found`);
+    }
+    if (error.response?.status >= 500) {
+      const msg = encodeURIComponent(error.response?.data?.message || 'Something went wrong');
+      window.location.assign(`${import.meta.env.BASE_URL}error?msg=${msg}`);
+    }
     return Promise.reject(error);
   }
 );

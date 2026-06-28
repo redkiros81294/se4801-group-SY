@@ -1,0 +1,44 @@
+import { useLocation, useNavigate } from 'react-router-dom';
+
+export const Error = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Try state first (navigate), then query param (interceptor redirect)
+  const stateMessage = (location.state as { message?: string })?.message;
+  const queryParams = new URLSearchParams(location.search);
+  const queryMessage = queryParams.get('msg');
+  const message = stateMessage || queryMessage || 'An unexpected error occurred. Please try again later.';
+
+  return (
+    <div className="min-h-screen bg-[var(--bg0)] flex items-center justify-center p-4">
+      <div className="bg-[var(--bg1)] border border-[var(--border)] rounded-xl p-8 max-w-md w-full text-center space-y-6 animate-fade-in">
+        <div className="w-16 h-16 bg-[var(--red)]/10 rounded-full flex items-center justify-center mx-auto">
+          <i className="ti ti-alert-triangle text-[var(--red)] text-3xl"></i>
+        </div>
+
+        <div>
+          <h1 className="text-2xl font-bold text-[var(--t1)] mb-2">Something Went Wrong</h1>
+          <p className="text-[var(--t2)]">{message}</p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex-1 h-12 bg-[var(--bg2)] text-[var(--t1)] border border-[var(--border)] rounded-lg hover:bg-[var(--bg3)] transition-colors"
+          >
+            Go Back
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/', { replace: true })}
+            className="flex-1 h-12 bg-[var(--blue)] text-[var(--t1)] rounded-lg hover:bg-[var(--blue)]/90 transition-colors"
+          >
+            Go Home
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
