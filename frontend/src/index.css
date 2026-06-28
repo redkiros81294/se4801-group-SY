@@ -26,6 +26,31 @@
   --font-mono: 'JetBrains Mono', monospace;
 }
 
+/* Light theme overrides */
+[data-theme="light"] {
+  --bg0: #F8FAFC;
+  --bg1: #FFFFFF;
+  --bg2: #F1F5F9;
+  --bg3: #E2E8F0;
+  --t1: #0F172A;
+  --t2: #475569;
+  --t3: #94A3B8;
+  --border: #E2E8F0;
+  --border2: #2563EB;
+}
+
+/* Smooth theme transitions */
+*, *::before, *::after {
+  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 body {
   @apply bg-[var(--bg0)] text-[var(--t1)];
   font-family: var(--font-body);
@@ -246,4 +271,14 @@ body {
 
 .animate-scan-line {
   animation: scan-line 2.5s ease-in-out infinite;
+}
+
+/* Fade-in animation for error pages */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 200ms ease-out forwards;
 }
