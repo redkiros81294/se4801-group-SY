@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useFormValidation } from '../hooks/useFormValidation';
@@ -13,6 +13,14 @@ export const Login = () => {
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
 
+  // Check for status query param (pending/deactivated)
+  const searchParams = new URLSearchParams(location.search);
+  const statusParam = searchParams.get('status');
+
+  // Check for message in state (from invitation acceptance)
+  const message = (location.state as { message?: string })?.message;
+
+  // Form validation rules
   const validationRules = {
     email: [
       { validate: (value: string) => value.trim().length > 0, message: 'Email is required' },
@@ -45,7 +53,19 @@ export const Login = () => {
       login(response.data.token);
       navigate(from, { replace: true });
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+      const status = err.response?.status;
+      const responseMessage = err.response?.data?.message || '';
+      
+      if (status === 401) {
+        // Check if it's a deactivated account
+        if (responseMessage.includes('disabled') || responseMessage.includes('not active')) {
+          setError('Your account is pending admin approval. Please contact your administrator.');
+        } else {
+          setError('Invalid email or password');
+        }
+      } else {
+        setError(responseMessage || 'Login failed');
+      }
     }
   };
 
@@ -61,11 +81,36 @@ export const Login = () => {
           <h1 className="text-2xl font-bold mb-6 text-center text-[var(--t1)]">
             ChainTrack Login
           </h1>
-          {error && (
+
+          {/* Pending approval banner */}
+          {statusParam === 'pending' && (
+            <div className="mb-4 p-4 bg-[var(--amber)]/10 border border-[var(--amber)]/20 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <i className="ti ti-clock text-[var(--amber)] text-xl mt-0.5" aria-hidden="true" />
+                <div>
+                  <h3 className="text-[var(--amber)] font-semibold text-sm">Pending Approval</h3>
+                  <p className="text-[var(--t2)] text-sm mt-1">
+                    Your account is awaiting admin approval. You will be notified once your account is activated.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Success message from invitation acceptance */}
+          {message && (
+            <div className="mb-4 p-4 bg-[var(--green)]/10 border border-[var(--green)]/20 rounded-lg">
+              <p className="text-[var(--green)] text-sm">{message}</p>
+            </div>
+          )}
+
+          {/* Error message */}
+          {error && statusParam !== 'pending' && (
             <div className="text-[var(--red)] mb-4">
               {error}
             </div>
           )}
+
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2 text-[var(--t2)]">
               Email
@@ -97,6 +142,7 @@ export const Login = () => {
               </p>
             )}
           </div>
+
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2 text-[var(--t2)]">
               Password
@@ -128,6 +174,7 @@ export const Login = () => {
               </p>
             )}
           </div>
+
           <button
             type="submit"
             disabled={Object.keys(errors).length > 0}
@@ -138,14 +185,7 @@ export const Login = () => {
 
           <div className="text-center mt-6">
             <p className="text-[var(--t2)] text-sm">
-              Don't have an account?{' '}
-              <button
-                type="button"
-                onClick={() => navigate('/register', { replace: true })}
-                className="text-[var(--cyan)] hover:text-[var(--t1)] font-medium transition-colors"
-              >
-                Register
-              </button>
+              Don't have an account? Contact your administrator to invite you to ChainTrack.
             </p>
           </div>
         </form>

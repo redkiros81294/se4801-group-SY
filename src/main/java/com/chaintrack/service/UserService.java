@@ -1,13 +1,27 @@
 package com.chaintrack.service;
 
-import com.chaintrack.dto.request.RegisterRequest;
+import com.chaintrack.dto.request.AcceptInvitationRequest;
+import com.chaintrack.dto.request.ApproveUserRequest;
+import com.chaintrack.dto.request.InviteUserRequest;
+import com.chaintrack.dto.response.InvitationResponse;
 import com.chaintrack.dto.response.UserResponse;
+import com.chaintrack.model.UserStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface UserService {
 
-    UserResponse register(RegisterRequest request);
+    InvitationResponse inviteUser(InviteUserRequest request, String adminEmail);
+
+    InvitationResponse acceptInvitation(AcceptInvitationRequest request);
+
+    UserResponse approveUser(String userId, ApproveUserRequest request);
+
+    UserResponse rejectUser(String userId, ApproveUserRequest request);
+
+    List<UserResponse> listPendingUsers();
 
     UserResponse getUserById(String id);
 

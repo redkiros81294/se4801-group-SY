@@ -3,7 +3,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { PageShell } from './components/PageShell';
 import { Login } from './pages/Login';
-import { Register } from './pages/Register';
+import { InvitationAccept } from './pages/InvitationAccept';
 import { Landing } from './pages/Landing';
 import { Forbidden } from './pages/Forbidden';
 import { Scan } from './pages/Scan';
@@ -16,6 +16,7 @@ import { BatchDetail } from './pages/BatchDetail';
 import { LogMovement } from './pages/LogMovement';
 import { TransactionHistory } from './pages/TransactionHistory';
 import { DashboardRouter } from './pages/DashboardRouter';
+import { AdminInviteUsers } from './pages/AdminInviteUsers';
 import './index.css';
 
 function App() {
@@ -23,7 +24,7 @@ function App() {
     <AuthProvider>
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
-          <Route path="/register" element={<Register />} />
+          <Route path="/invite/:token" element={<InvitationAccept />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forbidden" element={<Forbidden />} />
           <Route path="/" element={<Landing />} />
@@ -88,6 +89,13 @@ function App() {
             <ProtectedRoute requiredRoles={['ADMIN', 'MANUFACTURER']}>
               <PageShell title="Dashboard">
                 <DashboardRouter />
+              </PageShell>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/invite" element={
+            <ProtectedRoute requiredRoles={['ADMIN']}>
+              <PageShell title="Invite Users">
+                <AdminInviteUsers />
               </PageShell>
             </ProtectedRoute>
           } />
