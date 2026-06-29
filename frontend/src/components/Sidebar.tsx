@@ -21,6 +21,7 @@ export const Sidebar = () => {
   const getRoutes = () => {
     const routes = [
       { path: '/dashboard', label: 'Dashboard', icon: 'ti ti-home', roles: ['ADMIN', 'MANUFACTURER'] },
+      { path: '/admin/invite', label: 'Invite Users', icon: 'ti ti-user-plus', roles: ['ADMIN'] },
       { path: '/products', label: 'Products', icon: 'ti ti-box', roles: ['ADMIN', 'MANUFACTURER', 'SHIPPER', 'RETAILER'] },
       { path: '/products/new', label: 'Create Product', icon: 'ti ti-plus', roles: ['MANUFACTURER'] },
       { path: '/batches/new', label: 'Create Batch', icon: 'ti ti-tag', roles: ['MANUFACTURER'] },

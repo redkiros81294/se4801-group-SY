@@ -31,7 +31,8 @@ public class JwtUtils {
     public String generateToken(org.springframework.security.core.userdetails.UserDetails userDetails,
                                  String userId, 
                                  String orgId, 
-                                 String role) {
+                                 String role,
+                                 String status) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
 
@@ -42,6 +43,7 @@ public class JwtUtils {
             .claim("userId", userId)
             .claim("orgId", orgId)
             .claim("role", role)
+            .claim("status", status)
             .signWith(key)
             .compact();
     }
@@ -60,6 +62,10 @@ public class JwtUtils {
 
     public String extractRole(String token) {
         return parseToken(token).get("role", String.class);
+    }
+
+    public String extractStatus(String token) {
+        return parseToken(token).get("status", String.class);
     }
 
     public Date extractExpiration(String token) {

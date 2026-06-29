@@ -34,11 +34,12 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(request -> {
                 var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                corsConfig.setAllowedOrigins(java.util.List.of(
-                    "http://localhost:5173",
-                    "https://redkiros81294.github.io",
-                    frontendUrl
-                ));
+corsConfig.setAllowedOrigins(java.util.List.of(
+                     "http://localhost:5173",
+                     "https://redkiros81294.github.io",
+                     "https://redkiros81294.github.io/se4801-group-SY",
+                     frontendUrl
+                 ));
                 corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
                 corsConfig.setAllowedHeaders(java.util.List.of("*"));
                 corsConfig.setAllowCredentials(true);
@@ -50,7 +51,9 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/health", "/health/**").permitAll()
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/invitations/accept").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/auth/invitations/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/actuator/health/**").permitAll()

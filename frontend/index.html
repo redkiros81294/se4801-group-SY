@@ -6,7 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    <title>frontend</title>
+    <title>ChainTrack</title>
+    <script type="text/javascript">
+      // GitHub Pages SPA redirect handling
+      (function() {
+        var redirect = sessionStorage.redirect;
+        if (redirect) {
+          sessionStorage.removeItem('redirect');
+          history.replaceState(null, '', redirect);
+        }
+        // If this is a 404 page load, redirect to home
+        var path = window.location.pathname;
+        if (path === '/se4801-group-SY/404.html') {
+          window.history.replaceState(null, '', '/se4801-group-SY/');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

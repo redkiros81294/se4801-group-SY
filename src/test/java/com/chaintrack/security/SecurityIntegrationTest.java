@@ -5,6 +5,7 @@ import com.chaintrack.model.Organization;
 import com.chaintrack.model.Organization.OrgType;
 import com.chaintrack.model.User;
 import com.chaintrack.model.Role;
+import com.chaintrack.model.UserStatus;
 import com.chaintrack.repository.OrganizationRepository;
 import com.chaintrack.repository.UserRepository;
 import com.chaintrack.service.JwtBlacklistService;
@@ -83,7 +84,7 @@ class SecurityIntegrationTest {
             .passwordHash("$2a$12$hashedpassword")
             .role(Role.MANUFACTURER)
             .org(manufacturerOrg)
-            .isActive(true)
+            .status(UserStatus.ACTIVE)
             .build();
         userRepository.save(manufacturerUser);
 
@@ -92,7 +93,7 @@ class SecurityIntegrationTest {
             .passwordHash("$2a$12$hashedpassword")
             .role(Role.SHIPPER)
             .org(shipperOrg)
-            .isActive(true)
+            .status(UserStatus.ACTIVE)
             .build();
         userRepository.save(shipperUser);
 
@@ -104,7 +105,8 @@ class SecurityIntegrationTest {
                         .build(),
                 manufacturerUser.getId().toString(),
                 manufacturerOrg.getId().toString(),
-                "MANUFACTURER"
+                "MANUFACTURER",
+                UserStatus.ACTIVE.name()
         );
 
         shipperToken = jwtUtils.generateToken(
@@ -114,7 +116,8 @@ class SecurityIntegrationTest {
                         .build(),
                 shipperUser.getId().toString(),
                 shipperOrg.getId().toString(),
-                "SHIPPER"
+                "SHIPPER",
+                UserStatus.ACTIVE.name()
         );
     }
 

@@ -3,6 +3,7 @@ package com.chaintrack.controller;
 import com.chaintrack.dto.response.AdminAnalyticsResponse;
 import com.chaintrack.dto.response.UserResponse;
 import com.chaintrack.model.Role;
+import com.chaintrack.model.UserStatus;
 import com.chaintrack.security.JwtUtils;
 import com.chaintrack.service.AdminAnalyticsService;
 import com.chaintrack.service.JwtBlacklistService;
@@ -67,7 +68,10 @@ class AdminControllerTest {
                 "admin@test.com",
                 Role.ADMIN,
                 "org-1",
-                true,
+                UserStatus.ACTIVE,
+                null,
+                null,
+                null,
                 Instant.now(),
                 Instant.now()
             );
@@ -158,7 +162,7 @@ class AdminControllerTest {
                 .password("test")
                 .roles(role)
                 .build(),
-            "user-1", "org-1", role
+            "user-1", "org-1", role, UserStatus.ACTIVE.name()
         );
     }
 }

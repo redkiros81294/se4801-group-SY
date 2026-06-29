@@ -51,10 +51,10 @@ export const Landing = () => {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/register')}
+              onClick={() => window.open('https://github.com/redkiros81294/se4801-group-SY', '_blank')}
               className="px-5 py-2 bg-gradient-to-r from-[var(--blue)] to-[var(--blue)]/80 text-white rounded-lg hover:shadow-lg hover:shadow-[var(--blue)]/30 transition-all text-sm font-medium"
             >
-              Get Started
+              GitHub
             </button>
           </nav>
         </div>
@@ -89,18 +89,11 @@ export const Landing = () => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   type="button"
-                  onClick={() => navigate('/register')}
+                  onClick={() => navigate('/login')}
                   className="group h-14 px-8 bg-gradient-to-r from-[var(--blue)] to-[var(--blue)]/90 text-white rounded-xl hover:shadow-xl hover:shadow-[var(--blue)]/30 transition-all font-medium flex items-center justify-center gap-2"
                 >
-                  Start Free Trial
-                  <i className="ti ti-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => navigate('/login')}
-                  className="h-14 px-8 bg-[var(--bg1)]/80 text-[var(--t1)] font-medium border border-[var(--border)] rounded-xl hover:bg-[var(--bg2)]/50 hover:border-[var(--cyan)]/30 transition-all"
-                >
                   View Demo
+                  <i className="ti ti-arrow-right group-hover:translate-x-1 transition-transform"></i>
                 </button>
               </div>
 

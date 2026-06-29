@@ -1,6 +1,7 @@
 package com.chaintrack.security;
 
 import com.chaintrack.model.User;
+import com.chaintrack.model.UserStatus;
 import com.chaintrack.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,12 +28,16 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found: " + email);
         }
-        
+
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new UsernameNotFoundException("User account is not active: " + email);
+        }
+
         return org.springframework.security.core.userdetails.User.builder()
             .username(user.getEmail())
             .password(user.getPasswordHash())
             .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())))
-            .disabled(!user.isActive())
+            .disabled(false)
             .build();
     }
 }

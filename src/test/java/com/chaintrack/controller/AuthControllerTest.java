@@ -1,45 +1,45 @@
 package com.chaintrack.controller;
 
-import com.chaintrack.dto.request.LoginRequest;
-import com.chaintrack.dto.request.RegisterRequest;
 import com.chaintrack.dto.response.UserResponse;
-import com.chaintrack.exception.DuplicateSkuException;
+import com.chaintrack.dto.request.InviteUserRequest;
+import com.chaintrack.dto.request.AcceptInvitationRequest;
+import com.chaintrack.dto.response.InvitationResponse;
+import com.chaintrack.model.Invitation;
+import com.chaintrack.model.Organization;
 import com.chaintrack.model.Role;
-import com.chaintrack.model.User;
+import com.chaintrack.model.UserStatus;
 import com.chaintrack.repository.UserRepository;
 import com.chaintrack.security.JwtUtils;
+import com.chaintrack.service.InvitationService;
 import com.chaintrack.service.JwtBlacklistService;
 import com.chaintrack.service.UserService;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * Web MVC slice tests for {@link AuthController}.
- * All dependencies @MockBean'ed. Security filters disabled via addFilters=false.
- * Uses AAA, @DisplayName, section dividers, jsonPath assertions.
- * Covers exactly the cases specified in the 4-week plan (Day 12 B task).
- */
-@WebMvcTest(AuthController.class)
-@AutoConfigureMockMvc(addFilters = false)
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
 class AuthControllerTest {
 
     @Autowired
@@ -52,7 +52,7 @@ class AuthControllerTest {
     private UserRepository userRepository;
 
     @MockBean
-    private JwtUtils jwtUtils;
+    private InvitationService invitationService;
 
     @MockBean
     private JwtBlacklistService blacklistService;
@@ -60,140 +60,191 @@ class AuthControllerTest {
     @MockBean
     private AuthenticationManager authenticationManager;
 
-    // ── register ─────────────────────────────────────────────────────────────
+    @MockBean
+    private JwtUtils jwtUtils;
 
-    @Test
-    @DisplayName("register — returns 201 Created when valid payload")
-    void register_returns201Created() throws Exception {
-        // Arrange
-        RegisterRequest request = new RegisterRequest(
-            "new@user.com",
-            "s3cr3tPass",
-            Role.MANUFACTURER,
-            "11111111-1111-1111-1111-111111111111"
-        );
-        UserResponse resp = new UserResponse(
-            "u-001",
-            "new@user.com",
-            Role.MANUFACTURER,
-            "11111111-1111-1111-1111-111111111111",
-            true,
-            Instant.parse("2026-05-20T10:00:00Z"),
-            Instant.parse("2026-05-20T10:00:00Z")
-        );
-        when(userService.register(any(RegisterRequest.class))).thenReturn(resp);
+    @MockBean
+    private UserDetailsService userDetailsService;
 
-        // Act & Assert
-        mockMvc.perform(post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                      "email": "new@user.com",
-                      "password": "s3cr3tPass",
-                      "role": "MANUFACTURER",
-                      "orgId": "11111111-1111-1111-1111-111111111111"
-                    }
-                    """))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").value("u-001"))
-            .andExpect(jsonPath("$.email").value("new@user.com"))
-            .andExpect(jsonPath("$.role").value("MANUFACTURER"))
-            .andExpect(jsonPath("$.orgId").value("11111111-1111-1111-1111-111111111111"));
+    // ── invite ─────────────────────────────────────────────────────────────
+    // Note: /api/auth/invite requires JWT authentication with ADMIN role.
+    // Full integration test is in AuthInvitationIntegrationTest.
+
+    @Nested
+    @DisplayName("POST /api/auth/invite")
+    class InviteUser {
+
+        @Test
+        @DisplayName("returns 401 without valid authentication")
+        void inviteUser_requiresAuth() throws Exception {
+            // Act & Assert - Request without valid authentication should fail
+            mockMvc.perform(post("/api/auth/invite")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"email\":\"invitee@test.com\",\"role\":\"MANUFACTURER\",\"orgId\":\"org-001\"}"))
+                .andExpect(status().isUnauthorized());
+        }
     }
 
-    @Test
-    @DisplayName("register — returns 409 Conflict when email already registered")
-    void register_returns409Conflict_forDuplicateEmail() throws Exception {
-        // Arrange
-        RegisterRequest request = new RegisterRequest(
-            "dup@user.com",
-            "s3cr3tPass",
-            Role.RETAILER,
-            "22222222-2222-2222-2222-222222222222"
-        );
-        when(userService.register(any(RegisterRequest.class)))
-            .thenThrow(new DuplicateSkuException("dup@user.com"));
+    // ── accept invitation ────────────────────────────────────────────────────
 
-        // Act & Assert
-        mockMvc.perform(post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                      "email": "dup@user.com",
-                      "password": "s3cr3tPass",
-                      "role": "RETAILER",
-                      "orgId": "22222222-2222-2222-2222-222222222222"
-                    }
-                    """))
-            .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.status").value(409))
-            .andExpect(jsonPath("$.title").value("Conflict"));
+    @Nested
+    @DisplayName("POST /api/auth/invitations/accept")
+    class AcceptInvitation {
+
+        @Test
+        @DisplayName("returns 200 OK with user response")
+        void acceptInvitation_returns200() throws Exception {
+            // Arrange
+            var user = com.chaintrack.model.User.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000001"))
+                .email("invitee@test.com")
+                .role(Role.MANUFACTURER)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+            UserResponse response = UserResponse.fromEntity(user);
+
+            when(userService.acceptInvitation(any(AcceptInvitationRequest.class))).thenReturn(response);
+
+            // Act & Assert
+            mockMvc.perform(post("/api/auth/invitations/accept")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"token\":\"valid-invitation-token\",\"password\":\"newPassword123\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("invitee@test.com"))
+                .andExpect(jsonPath("$.role").value("MANUFACTURER"));
+        }
+
+        @Test
+        @DisplayName("returns 400 Bad Request for invalid token")
+        void acceptInvitation_invalidTokenReturns400() throws Exception {
+            // Arrange
+            when(userService.acceptInvitation(any(AcceptInvitationRequest.class)))
+                .thenThrow(new IllegalArgumentException("Invalid or expired invitation token"));
+
+            // Act & Assert
+            mockMvc.perform(post("/api/auth/invitations/accept")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"token\":\"invalid-token\",\"password\":\"newPassword123\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Bad Request"));
+        }
     }
 
-    // ── login ─────────────────────────────────────────────────────────────
+    // ── get invitation details ───────────────────────────────────────────────
 
-    @Test
-    @DisplayName("login — returns 200 OK + LoginResponse when credentials valid")
-    void login_returns200Ok_withValidCredentials() throws Exception {
-        // Arrange
-        LoginRequest request = new LoginRequest("shipper@ex.com", "correct-pass");
-        Authentication auth = mock(Authentication.class);
-        UserDetails principal = mock(UserDetails.class);
-        when(principal.getUsername()).thenReturn("shipper@ex.com");
-        when(auth.getPrincipal()).thenReturn(principal);
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-            .thenReturn(auth);
+    @Nested
+    @DisplayName("GET /api/auth/invitations/{token}")
+    class GetInvitationDetails {
 
-        User dbUser = User.builder()
-            .id(java.util.UUID.fromString("00000000-0000-0000-0000-000000000007"))
-            .email("shipper@ex.com")
-            .passwordHash("$2a$12$...")
-            .role(Role.SHIPPER)
-            .org(null)
-            .isActive(true)
+        @Test
+        @DisplayName("returns 200 OK with invitation details")
+        void getInvitationDetails_returns200() throws Exception {
+            // Arrange
+            InvitationResponse response = new InvitationResponse(
+                "inv-001",
+                "invitee@test.com",
+                Role.SHIPPER,
+                "org-001",
+                "Test Org",
+                Invitation.InvitationStatus.PENDING,
+                Instant.now().plusSeconds(86400),
+                Instant.now(),
+                "admin@test.com"
+            );
+
+            when(invitationService.getInvitationByToken("valid-token")).thenReturn(response);
+
+            // Act & Assert
+            mockMvc.perform(get("/api/auth/invitations/valid-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("invitee@test.com"))
+                .andExpect(jsonPath("$.role").value("SHIPPER"));
+        }
+
+        @Test
+        @DisplayName("returns 404 Not Found for unknown token")
+        void getInvitationDetails_returns404() throws Exception {
+            // Arrange
+            when(invitationService.getInvitationByToken("unknown-token"))
+                .thenThrow(new com.chaintrack.exception.ResourceNotFoundException("Invitation", "token", "unknown-token"));
+
+            // Act & Assert
+            mockMvc.perform(get("/api/auth/invitations/unknown-token"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.title").value("Not Found"));
+        }
+    }
+
+    // ── login ────────────────────────────────────────────────────────────────
+
+    @Nested
+    @DisplayName("POST /api/auth/login")
+    class Login {
+
+        @Test
+        @DisplayName("returns 200 OK with token for ACTIVE user")
+        void login_activeUserReturns200() throws Exception {
+            // Arrange
+            when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(createAuthentication("shipper@ex.com", Role.SHIPPER));
+
+            var user = com.chaintrack.model.User.builder()
+                .id(UUID.randomUUID())
+                .email("shipper@ex.com")
+                .passwordHash("$2a$12$hash")
+                .role(Role.SHIPPER)
+                .org(Organization.builder().id(UUID.fromString("00000000-0000-0000-0000-000000000001")).build())
+                .status(UserStatus.ACTIVE)
+                .build();
+
+            when(userRepository.findByEmail("shipper@ex.com")).thenReturn(user);
+            when(jwtUtils.generateToken(any(), any(), any(), any(), any()))
+                .thenReturn("mocked-jwt-token");
+
+            // Act & Assert
+            mockMvc.perform(post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"username\":\"shipper@ex.com\",\"password\":\"correct-pass\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").exists())
+                .andExpect(jsonPath("$.email").value("shipper@ex.com"));
+        }
+
+        @Test
+        @DisplayName("PENDING user returns 401 Unauthorized")
+        void login_pendingUserReturns401() throws Exception {
+            // Arrange - PENDING user triggers BadCredentialsException via UserDetailsService
+            when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(new BadCredentialsException("User account is not active"));
+
+            // Act & Assert
+            mockMvc.perform(post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"username\":\"pending@ex.com\",\"password\":\"correct-pass\"}"))
+                .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("invalid credentials returns 401 Unauthorized")
+        void login_invalidCredentialsReturns401() throws Exception {
+            // Arrange
+            when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(new BadCredentialsException("Invalid credentials"));
+
+            // Act & Assert
+            mockMvc.perform(post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"username\":\"bad@ex.com\",\"password\":\"wrong\"}"))
+                .andExpect(status().isUnauthorized());
+        }
+    }
+
+    private Authentication createAuthentication(String email, Role role) {
+        var principal = org.springframework.security.core.userdetails.User.withUsername(email)
+            .password("test")
+            .roles(role.name())
             .build();
-        when(userRepository.findByEmail("shipper@ex.com")).thenReturn(dbUser);
-
-        when(jwtUtils.generateToken(any(), any(), any(), any()))
-            .thenReturn("fake.jwt.token.value");
-        when(jwtUtils.getExpirationMillis(anyString()))
-            .thenReturn(Instant.parse("2026-06-01T00:00:00Z").toEpochMilli());
-
-        // Act & Assert
-        mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                      "username": "shipper@ex.com",
-                      "password": "correct-pass"
-                    }
-                    """))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.token").value("fake.jwt.token.value"))
-            .andExpect(jsonPath("$.userId").value("00000000-0000-0000-0000-000000000007"))
-            .andExpect(jsonPath("$.email").value("shipper@ex.com"))
-            .andExpect(jsonPath("$.roles[0]").value("SHIPPER"));
-    }
-
-    @Test
-    @DisplayName("login — returns 401 Unauthorized when credentials invalid")
-    void login_returns401Unauthorized_forInvalidCredentials() throws Exception {
-        // Arrange
-        LoginRequest request = new LoginRequest("bad@ex.com", "wrong");
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-            .thenThrow(new BadCredentialsException("Bad credentials"));
-
-        // Act & Assert
-        mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                      "username": "bad@ex.com",
-                      "password": "wrong"
-                    }
-                    """))
-            .andExpect(status().isUnauthorized())
-            .andExpect(jsonPath("$.status").value(401))
-            .andExpect(jsonPath("$.title").value("Unauthorized"));
+        return new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
     }
 }

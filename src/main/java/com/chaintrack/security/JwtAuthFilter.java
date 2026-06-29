@@ -35,6 +35,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                      FilterChain filterChain) throws ServletException, IOException {
         logger.info("JwtAuthFilter called");
 
+        // Check if already authenticated (e.g., via @WithMockUser or other test setup)
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            logger.info("Already authenticated, proceeding");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (isExempt(request)) {
             logger.info("Exempt path: {}, method: {}", request.getRequestURI(), request.getMethod());
             filterChain.doFilter(request, response);
@@ -83,13 +90,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private boolean isExempt(HttpServletRequest request) {
         String path = request.getRequestURI();
         String method = request.getMethod();
-        if (path.startsWith("/api/auth/")) {
+
+        // Exempt public endpoints - login, accept invitation, get invitation details
+        // Note: /api/auth/invite is NOT exempt - it requires ADMIN role via @PreAuthorize
+        if (path.equals("/api/auth/login")) {
+            return true;
+        }
+        if (path.equals("/api/auth/invitations/accept")) {
+            return true;
+        }
+        if (method.equals("GET") && path.matches("/api/auth/invitations/[^/]+")) {
             return true;
         }
         if (path.startsWith("/v3/api-docs/") || path.equals("/swagger-ui.html") || path.startsWith("/swagger-ui/")) {
             return true;
         }
-        if (path.startsWith("/actuator/")) {
+        if (path.startsWith("/actuator/health")) {
             return true;
         }
         if ("GET".equals(method) && path.startsWith("/api/verify/")) {

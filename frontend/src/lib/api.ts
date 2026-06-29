@@ -52,9 +52,24 @@ api.interceptors.response.use(
       return axios.request(originalRequest);
     }
     
-    if (error.response?.status === 401) {
+    // Redirect only if not on login page and there's an error response
+    const currentPath = window.location.pathname;
+    const isOnLoginPage = currentPath.includes('login');
+    const isOnInvitePage = currentPath.includes('invite');
+    
+    if (error.response?.status === 401 && !isOnLoginPage && !isOnInvitePage) {
       clearToken();
       window.location.assign(`${import.meta.env.BASE_URL}login`);
+    }
+    if (error.response?.status === 403) {
+      window.location.assign(`${import.meta.env.BASE_URL}forbidden`);
+    }
+    if (error.response?.status === 404) {
+      window.location.assign(`${import.meta.env.BASE_URL}not-found`);
+    }
+    if (error.response?.status >= 500) {
+      const msg = encodeURIComponent(error.response?.data?.message || 'Something went wrong');
+      window.location.assign(`${import.meta.env.BASE_URL}error?msg=${msg}`);
     }
     return Promise.reject(error);
   }

@@ -25,6 +25,11 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    env:
+      JWT_SECRET: ci-test-secret-key-at-least-32-chars-long
+      FRONTEND_URL: http://localhost:3000
+      MAVEN_OPTS: -Xmx2g -Xms1g
+
     steps:
     - uses: actions/checkout@v4
 
@@ -37,7 +42,3 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B package
-      env:
-        JWT_SECRET: ci-test-secret-key-at-least-32-chars-long
-        FRONTEND_URL: http://localhost:3000
-        MAVEN_OPTS: -Xmx2g -Xms1g

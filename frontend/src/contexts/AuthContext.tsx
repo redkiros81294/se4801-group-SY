@@ -7,6 +7,7 @@ interface JwtPayload {
   sub: string;
   role: string;
   orgId?: string;
+  status?: string;
   iat?: number;
   exp?: number;
 }
@@ -16,6 +17,7 @@ interface User {
   email: string;
   roles: string[];
   orgId?: string;
+  status?: string;
 }
 
 interface AuthContextType {
@@ -52,6 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email: decoded.sub,
         roles: [decoded.role],
         orgId: decoded.orgId,
+        status: decoded.status || 'ACTIVE',
       });
     } catch {
       setUser(null);
