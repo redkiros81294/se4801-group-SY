@@ -1,5 +1,6 @@
 import { clsx } from 'clsx'
 import { HashDisplay } from './HashDisplay'
+import { getEventTypeMeta } from '../lib/eventTypes'
 
 interface TransactionCardProps {
   tx: {
@@ -18,35 +19,7 @@ interface TransactionCardProps {
 }
 
 export const TransactionCard = ({ tx, index, className = '' }: TransactionCardProps) => {
-  const getEventTypeColor = (eventType: string) => {
-    switch (eventType) {
-      case 'CREATED':
-        return 'bg-[var(--teal)]/20 text-[var(--teal)]'
-      case 'SHIPPED':
-        return 'bg-[var(--orange)]/20 text-[var(--orange)]'
-      case 'RECEIVED':
-        return 'bg-[var(--pink)]/20 text-[var(--pink)]'
-      case 'PRODUCED':
-        return 'bg-[var(--blue)]/20 text-[var(--blue)]'
-      default:
-        return 'bg-[var(--t2)]/20 text-[var(--t2)]'
-    }
-  }
-
-  const getEventTypeLabel = (eventType: string) => {
-    switch (eventType) {
-      case 'CREATED':
-        return 'Created'
-      case 'SHIPPED':
-        return 'Shipped'
-      case 'RECEIVED':
-        return 'Received'
-      case 'PRODUCED':
-        return 'Produced'
-      default:
-        return eventType
-    }
-  }
+  const meta = getEventTypeMeta(tx.eventType);
 
   return (
       <div className={clsx(
@@ -57,12 +30,12 @@ export const TransactionCard = ({ tx, index, className = '' }: TransactionCardPr
       <div className="mb-4 flex items-center space-x-3">
         <div className={clsx(
           'flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--bg2)]/50',
-          getEventTypeColor(tx.eventType)
+          `bg-[var(--${meta.colorVar})]/20 text-[var(--${meta.colorVar})]`
         )}>
-          <i className="ti ti-truck" aria-hidden="true" />
+          <i className={`ti ${meta.icon}`} aria-hidden="true" />
         </div>
         <div>
-          <p className="text-[var(--t1)] font-semibold">{getEventTypeLabel(tx.eventType)}</p>
+          <p className="text-[var(--t1)] font-semibold">{meta.label}</p>
           <p className="text-[var(--t2)] text-sm">{new Date(tx.timestamp).toLocaleString()}</p>
         </div>
       </div>

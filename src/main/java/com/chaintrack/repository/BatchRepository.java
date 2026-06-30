@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface BatchRepository extends JpaRepository<Batch, UUID> {
     List<Batch> findByProductAndStatus(Product product, BatchStatus status);
 
-    List<Batch> findByManufacturer(Organization manufacturer);
+    List<Batch> findByManufacturer(Organization organization);
 
     long countByStatus(BatchStatus status);
 }

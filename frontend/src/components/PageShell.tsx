@@ -82,9 +82,9 @@ export const PageShell = ({ title, children, showSidebar = true }: {
         </div>
       )}
 
-      <div className={`flex-1 flex flex-col ${showSidebar ? 'lg:ml-64' : ''}`}>
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Topbar */}
-        <header className="bg-[var(--bg1)] text-[var(--t1)] px-4 lg:px-6 py-4 flex items-center justify-between border-b border-[var(--border)] sticky top-0 z-30">
+        <header className="bg-[var(--bg1)] text-[var(--t1)] px-4 lg:px-6 py-4 flex items-center justify-between border-b border-[var(--border)] sticky top-0 z-30 w-full">
           <div className="flex items-center space-x-4">
             {showSidebar && (
               <button

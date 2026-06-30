@@ -1,6 +1,7 @@
 -- V7__seed_dev_data.sql
 -- Seeds development data: 3 organizations and 1 ADMIN user
 -- Password is BCrypt(12) hash of "Admin@123!" — NEVER use plaintext in production
+-- This hash is correct and does not need repair (V18 only fixes V11/V13).
 
 INSERT INTO organizations (id, name, org_type, created_at, updated_at)
 VALUES

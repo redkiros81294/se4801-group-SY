@@ -10,9 +10,12 @@ interface ToastProps {
 export const Toast = ({ message, type, onClose }: ToastProps) => {
   // Auto-close after 5 seconds
   useEffect(() => {
+    if (!message) return
     const timer = setTimeout(onClose, 5000)
     return () => clearTimeout(timer)
-  }, [onClose])
+  }, [message, onClose])
+
+  if (!message) return null
 
   const getVariant = (type: ToastProps['type']) => {
     switch (type) {

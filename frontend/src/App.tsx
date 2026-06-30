@@ -92,7 +92,7 @@ function App() {
               </ProtectedRoute>
             } />
             <Route path="/dashboard" element={
-              <ProtectedRoute requiredRoles={['ADMIN', 'MANUFACTURER']}>
+              <ProtectedRoute requiredRoles={['ADMIN', 'MANUFACTURER', 'SHIPPER', 'RETAILER']}>
                 <PageShell title="Dashboard">
                   <DashboardRouter />
                 </PageShell>

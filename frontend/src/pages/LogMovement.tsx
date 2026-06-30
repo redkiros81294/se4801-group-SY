@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../lib/api';
-import { PageShell } from '../components/PageShell';
 import { Toast } from '../components/Toast';
 import { StatusBadge } from '../components/StatusBadge';
 import { HashDisplay } from '../components/HashDisplay';
@@ -122,7 +121,6 @@ export const LogMovement = () => {
   };
 
   return (
-    <PageShell title="Log Movement">
       <div className="max-w-2xl mx-auto">
         {(error || success) && (
           <Toast type={error ? 'error' : 'success'} message={error || success} onClose={() => { setError(''); setSuccess(''); }} />
@@ -304,6 +302,5 @@ export const LogMovement = () => {
           </div>
         )}
       </div>
-    </PageShell>
   );
 };

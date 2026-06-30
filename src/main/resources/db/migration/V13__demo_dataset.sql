@@ -3,12 +3,15 @@
 -- Shows all roles, statuses, and supply chain states
 -- Uses existing V7 org IDs (a1a1a1a1..., b2b2b2b2..., c3c3c3c3...) to avoid FK failures
 -- If this migration fails, run V14 for repair
+-- NOTE: Original seed hashes for V13 users were copy-pasted from V7 (matched Admin@123!).
+-- V18 migration corrects these hashes. Assigned passwords are documented below.
 
 -- ============================================================
 -- ADMIN users
 -- ============================================================
 -- Note: admin@chaintrack.com already exists from V7 (ID: 00000000-0000-0000-0000-000000000000)
 -- Skip - email already exists, use instructor@chaintrack.com instead
+-- Password: Instructor@123 (fixed by V18)
 INSERT INTO users (id, email, password_hash, role, org_id, status, created_at, updated_at, last_login)
 VALUES 
     ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'instructor@chaintrack.com', 
@@ -19,6 +22,8 @@ ON CONFLICT DO NOTHING;
 -- ============================================================
 -- MANUFACTURER users (active and pending)
 -- ============================================================
+-- manufacturer@pharmacorp.com  -> Password: Manufacturer@123 (fixed by V18)
+-- pending.manufacturer@pharmacorp.com -> Password: Pending@123 (fixed by V18)
 INSERT INTO users (id, email, password_hash, role, org_id, status, invitation_token, invited_at, created_at, updated_at, last_login)
 VALUES 
     ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'manufacturer@pharmacorp.com', 
@@ -33,6 +38,8 @@ ON CONFLICT DO NOTHING;
 -- ============================================================
 -- SHIPPER users
 -- ============================================================
+-- shipper@globallogistics.com -> Password: Shipper@123 (fixed by V18)
+-- deactivated.shipper@globallogistics.com -> Password: Deactivated@123 (fixed by V18)
 INSERT INTO users (id, email, password_hash, role, org_id, status, created_at, updated_at, last_login)
 VALUES 
     ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'shipper@globallogistics.com', 
@@ -47,6 +54,7 @@ ON CONFLICT DO NOTHING;
 -- RETAILER users
 -- ============================================================
 -- Note: 11111111-1111-1111-1111-111111111111 already used by V11 test user
+-- retailer@mediretail.com -> Password: Retailer@123 (fixed by V18)
 INSERT INTO users (id, email, password_hash, role, org_id, status, created_at, updated_at, last_login)
 VALUES 
     ('eeeeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'retailer@mediretail.com', 

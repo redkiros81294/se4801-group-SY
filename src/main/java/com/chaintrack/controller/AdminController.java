@@ -69,7 +69,7 @@ public class AdminController {
     @ApiResponse(responseCode = "404", description = "User not found")
     @ApiResponse(responseCode = "400", description = "User is not in PENDING status")
     public ResponseEntity<UserResponse> approveUser(@PathVariable String id,
-                                                     @Valid @RequestBody ApproveUserRequest request) {
+                                                    @Valid @RequestBody ApproveUserRequest request) {
         UserResponse response = userService.approveUser(id, request);
         return ResponseEntity.ok(response);
     }
@@ -82,7 +82,7 @@ public class AdminController {
     @ApiResponse(responseCode = "404", description = "User not found")
     @ApiResponse(responseCode = "400", description = "User is not in PENDING status")
     public ResponseEntity<UserResponse> rejectUser(@PathVariable String id,
-                                                    @Valid @RequestBody ApproveUserRequest request) {
+                                                   @Valid @RequestBody ApproveUserRequest request) {
         UserResponse response = userService.rejectUser(id, request);
         return ResponseEntity.ok(response);
     }
@@ -104,7 +104,7 @@ public class AdminController {
     @ApiResponse(responseCode = "200", description = "Invitation revoked successfully")
     @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required")
     @ApiResponse(responseCode = "404", description = "Invitation not found")
-    @ApiResponse(responseCode = "400", description = "Invitation is not in PENDING status")
+    @ApiResponse(responseCode = "400", description = "Invalid request")
     public ResponseEntity<InvitationResponse> revokeInvitation(@PathVariable String id) {
         InvitationResponse response = invitationService.revokeInvitation(id);
         return ResponseEntity.ok(response);
@@ -114,10 +114,9 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get system analytics", description = "Returns system-wide statistics (ADMIN only)")
     @ApiResponse(responseCode = "200", description = "Analytics retrieved successfully")
-    @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required")
-    @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<AdminAnalyticsResponse> getAnalytics() {
         AdminAnalyticsResponse analytics = adminAnalyticsService.getAnalytics();
         return ResponseEntity.ok(analytics);
     }
+
 }

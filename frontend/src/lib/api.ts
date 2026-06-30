@@ -57,20 +57,25 @@ api.interceptors.response.use(
     const isOnLoginPage = currentPath.includes('login');
     const isOnInvitePage = currentPath.includes('invite');
     
+    const baseUrl = import.meta.env.BASE_URL.endsWith('/')
+      ? import.meta.env.BASE_URL
+      : `${import.meta.env.BASE_URL}/`;
+
     if (error.response?.status === 401 && !isOnLoginPage && !isOnInvitePage) {
       clearToken();
-      window.location.assign(`${import.meta.env.BASE_URL}login`);
+      // Using window.location.assign causes a full page reload, wiping in-memory auth state
+      // This is safe here because 401 means we're unauthorized anyway
+      window.location.assign(`${baseUrl}login`);
     }
+
     if (error.response?.status === 403) {
-      window.location.assign(`${import.meta.env.BASE_URL}forbidden`);
+      const currentPath = window.location.pathname;
+      if (!currentPath.includes('forbidden')) {
+        window.location.assign(`${baseUrl}forbidden`);
+      }
     }
-    if (error.response?.status === 404) {
-      window.location.assign(`${import.meta.env.BASE_URL}not-found`);
-    }
-    if (error.response?.status >= 500) {
-      const msg = encodeURIComponent(error.response?.data?.message || 'Something went wrong');
-      window.location.assign(`${import.meta.env.BASE_URL}error?msg=${msg}`);
-    }
+    // We remove the auto-redirect for 404/500 to prevent wiping state on transient errors or BOLA checks
+    // The components should handle these errors themselves
     return Promise.reject(error);
   }
 );

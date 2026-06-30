@@ -28,14 +28,17 @@ public class InvitationServiceImpl implements InvitationService {
     private final InvitationRepository invitationRepository;
     private final UserRepository userRepository;
     private final OrganizationRepository organizationRepository;
+    private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
 
     public InvitationServiceImpl(InvitationRepository invitationRepository,
                                   UserRepository userRepository,
-                                  OrganizationRepository organizationRepository) {
+                                  OrganizationRepository organizationRepository,
+                                  EmailService emailService) {
         this.invitationRepository = invitationRepository;
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
+        this.emailService = emailService;
         this.passwordEncoder = new BCryptPasswordEncoder(12);
     }
 
@@ -68,6 +71,15 @@ public class InvitationServiceImpl implements InvitationService {
             .build();
 
         Invitation saved = invitationRepository.save(invitation);
+
+        // Send invitation email
+        emailService.sendInvitationEmail(
+            saved.getEmail(),
+            saved.getToken(),
+            admin.getEmail(),
+            org.getName()
+        );
+
         return InvitationResponse.fromEntity(saved);
     }
 

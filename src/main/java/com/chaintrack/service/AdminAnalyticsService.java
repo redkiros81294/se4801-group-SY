@@ -37,7 +37,7 @@ public class AdminAnalyticsService {
         long totalBatches = batchRepository.count();
         long totalTransactions = transactionRepository.count();
 
-        // Batch status counts
+        // Batch status counts - using repository method for cross-DB compatibility
         long batchesCreated = batchRepository.countByStatus(BatchStatus.CREATED);
         long batchesInTransit = batchRepository.countByStatus(BatchStatus.IN_TRANSIT);
         long batchesDelivered = batchRepository.countByStatus(BatchStatus.DELIVERED);

@@ -27,7 +27,8 @@
 }
 
 body {
-  @apply bg-[var(--bg0)] text-[var(--t1)];
+  background: var(--bg0);
+  color: var(--t1);
   font-family: var(--font-body);
 }
 @keyframes toast-in {

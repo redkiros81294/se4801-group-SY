@@ -58,7 +58,7 @@ export const QRDisplay = ({ base64, batchNumber, className = '' }: QRDisplayProp
   return (
     <div className={clsx('bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-6 text-center', className)}>
       <h3 className="text-[var(--t1)] font-semibold mb-4">
-        Batch ${batchNumber} QR Code
+        {`Batch ${batchNumber} QR Code`}
       </h3>
       
       <div className="relative inline-block mb-6">
@@ -92,7 +92,7 @@ export const QRDisplay = ({ base64, batchNumber, className = '' }: QRDisplayProp
       </div>
       
       <p className="mt-4 text-[var(--t2)] text-sm">
-        Scan this QR code to verify the provenance of batch ${batchNumber}
+        {`Scan this QR code to verify the provenance of batch ${batchNumber}`}
       </p>
     </div>
   )

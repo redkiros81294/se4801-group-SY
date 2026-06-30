@@ -150,7 +150,8 @@ class AuthControllerTest {
                 Invitation.InvitationStatus.PENDING,
                 Instant.now().plusSeconds(86400),
                 Instant.now(),
-                "admin@test.com"
+                "admin@test.com",
+                "valid-token"
             );
 
             when(invitationService.getInvitationByToken("valid-token")).thenReturn(response);

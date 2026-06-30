@@ -1,6 +1,8 @@
 -- V11__seed_test_users.sql
 -- Seeds test users for each role: MANUFACTURER, SHIPPER, RETAILER
 -- Password is BCrypt(12) hash of "Test@123!" for all test users
+-- NOTE: The original hashes in this file were copy-pasted from V7 and matched "Admin@123!" instead.
+-- V18 migration corrects these hashes on database startup.
 
 -- Test MANUFACTURER user (belongs to PharmaCorp Manufacturing)
 INSERT INTO users (id, email, password_hash, role, org_id, is_active, created_at, updated_at, last_login)
