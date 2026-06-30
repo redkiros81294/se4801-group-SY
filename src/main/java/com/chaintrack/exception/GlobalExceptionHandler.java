@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleAll(Exception ex) {
-        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error: " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
     }
 
     private ProblemDetail createProblemDetail(HttpStatus status, String detail) {

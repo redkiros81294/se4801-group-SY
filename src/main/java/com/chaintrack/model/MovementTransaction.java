@@ -65,7 +65,7 @@ public class MovementTransaction {
     @Column(name = "signature_hash", nullable = false, length = 64)
     private String signatureHash;
 
-    @Column(name = "previous_hash", nullable = false, length = 64)
+    @Column(name = "previous_hash", length = 64)
     private String previousHash;
 
     @CreationTimestamp

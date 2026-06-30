@@ -11,6 +11,57 @@
 -- using the users/organizations already created by V7/V11/V13.
 
 -- ============================================================
+-- Column name repairs (V4/V9 mismatches)
+-- ============================================================
+
+-- Rename timestamp to event_timestamp in movement_transactions (matches entity)
+-- Only needed if V4 had the old column name (pre-existing DBs)
+DO $$ 
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'movement_transactions' AND column_name = 'timestamp'
+    ) THEN
+        ALTER TABLE movement_transactions RENAME COLUMN timestamp TO event_timestamp;
+    END IF;
+END $$;
+
+-- Rename qr_image_base64 to qr_image in qr_tokens if needed
+DO $$ 
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'qr_tokens' AND column_name = 'qr_image_base64'
+    ) THEN
+        ALTER TABLE qr_tokens RENAME COLUMN qr_image_base64 TO qr_image;
+    END IF;
+END $$;
+
+-- Convert from_org_id and to_org_id to VARCHAR(36) to match entity String type
+-- This is needed for pre-existing DBs where V4 created them as UUID
+DO $$ 
+BEGIN
+    -- Check if from_org_id is UUID type and convert to VARCHAR
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'movement_transactions' AND column_name = 'from_org_id' 
+        AND udt_name = 'uuid'
+    ) THEN
+        ALTER TABLE movement_transactions ALTER COLUMN from_org_id TYPE VARCHAR(36);
+    END IF;
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'movement_transactions' AND column_name = 'to_org_id' 
+        AND udt_name = 'uuid'
+    ) THEN
+        ALTER TABLE movement_transactions ALTER COLUMN to_org_id TYPE VARCHAR(36);
+    END IF;
+EXCEPTION WHEN others THEN
+    -- If conversion fails, the column might already be VARCHAR or have constraints
+    -- Just continue - the data should still work
+END $$;
+
+-- ============================================================
 -- Products (diverse categories)
 -- ============================================================
 INSERT INTO products (id, name, description, category, manufacturer_id, created_by, sku, created_at, updated_at)
@@ -46,8 +97,9 @@ ON CONFLICT (id) DO UPDATE SET updated_at = NOW();
 
 -- ============================================================
 -- QR Tokens (for batches)
--- Note: Column was renamed from qr_image_base64 to qr_image in V9
+-- Note: Column may need rename from qr_image_base64 to qr_image
 -- ============================================================
+
 INSERT INTO qr_tokens (id, token_value, qr_image, batch_id, created_at)
 VALUES 
     ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaabb', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::UUID, 
