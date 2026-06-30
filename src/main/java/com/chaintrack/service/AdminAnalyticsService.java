@@ -8,7 +8,6 @@ import com.chaintrack.repository.OrganizationRepository;
 import com.chaintrack.repository.ProductRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,10 +43,10 @@ public class AdminAnalyticsService {
         long totalTransactions = transactionRepository.count();
 
         // Batch status counts - use native SQL query with explicit enum cast
-        long batchesCreated = countBatchesByStatus(BatchStatus.CREATED.name());
-        long batchesInTransit = countBatchesByStatus(BatchStatus.IN_TRANSIT.name());
-        long batchesDelivered = countBatchesByStatus(BatchStatus.DELIVERED.name());
-        long batchesCompromised = countBatchesByStatus(BatchStatus.COMPROMISED.name());
+        long batchesCreated = countByStatusNative(BatchStatus.CREATED.name());
+        long batchesInTransit = countByStatusNative(BatchStatus.IN_TRANSIT.name());
+        long batchesDelivered = countByStatusNative(BatchStatus.DELIVERED.name());
+        long batchesCompromised = countByStatusNative(BatchStatus.COMPROMISED.name());
 
         return new AdminAnalyticsResponse(
             totalOrganizations,
@@ -61,10 +60,11 @@ public class AdminAnalyticsService {
         );
     }
     
-    private long countBatchesByStatus(String statusName) {
-        // Use native SQL with explicit enum cast to fix PostgreSQL type mismatch
-        Query query = entityManager.createNativeQuery("SELECT COUNT(id) FROM batches WHERE status::text = ?1");
-        query.setParameter(1, statusName);
-        return ((Number) query.getSingleResult()).longValue();
+    private long countByStatusNative(String statusName) {
+        // Cast string to PostgreSQL enum type explicitly
+        return ((Number) entityManager.createNativeQuery(
+            "SELECT COUNT(id) FROM batches WHERE status = CAST(? AS batch_status)")
+            .setParameter(1, statusName)
+            .getSingleResult()).longValue();
     }
 }
