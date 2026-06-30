@@ -13,7 +13,7 @@ public class EmailServiceImpl implements EmailService {
     @Value("${frontend.url}")
     private String frontendUrl;
 
-    @Value("${spring.mail.username:noreply@chaintrack.com}")
+    @Value("${spring.mail.username:ab1rham5ethiopian@gmail.com}")
     private String fromEmail;
 
     public EmailServiceImpl(JavaMailSender mailSender) {

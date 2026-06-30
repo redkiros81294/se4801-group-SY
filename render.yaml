@@ -23,6 +23,10 @@ services:
         generateValue: true
       - key: FRONTEND_URL
         value: https://redkiros81294.github.io/se4801-group-SY/
+      - key: MAIL_USERNAME
+        value: ab1rham5ethiopian@gmail.com
+      - key: MAIL_PASSWORD
+        sync: false
     healthCheckPath: /actuator/health
     buildCommand: mvn -B -DskipTests package
 
