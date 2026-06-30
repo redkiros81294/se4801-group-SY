@@ -4,6 +4,7 @@ import api from '../lib/api';
 import { ChainStatusBanner } from '../components/ChainStatusBanner';
 import { HashDisplay } from '../components/HashDisplay';
 import { StatusBadge } from '../components/StatusBadge';
+import { getEventTypeMeta } from '../lib/eventTypes';
 
 interface Movement {
   id: string;
@@ -157,7 +158,9 @@ export const ProvenanceViewer = () => {
             </div>
           ) : (
             <div className="space-y-0">
-              {result.chain.map((tx, index) => (
+              {result.chain.map((tx, index) => {
+                const meta = getEventTypeMeta(tx.eventType);
+                return (
                 <div key={tx.id} className="relative pl-10 pb-8 last:pb-0" style={{ animation: `toast-in 400ms ease-out ${index * 120}ms both` }}>
                   {index < result.chain.length - 1 && (
                     <div className="absolute left-3 top-5 bottom-0 w-px bg-[var(--border)]/30" />
@@ -168,11 +171,11 @@ export const ProvenanceViewer = () => {
                   <div className="bg-[var(--bg2)]/30 rounded-xl border border-[var(--border)]/20 p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-3">
-                        <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${getEventColor(tx.eventType)}`}>
-                          <i className={getEventIcon(tx.eventType)} aria-hidden="true" />
+                        <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--${meta.colorVar})]/20 text-[var(--${meta.colorVar})]`}>
+                          <i className={`ti ${meta.icon}`} aria-hidden="true" />
                         </div>
                         <div>
-                          <p className="text-[var(--t1)] font-semibold">{formatEventType(tx.eventType)}</p>
+                          <p className="text-[var(--t1)] font-semibold">{meta.label}</p>
                           <p className="text-[var(--t2)] text-xs">{new Date(tx.timestamp).toLocaleString()}</p>
                         </div>
                       </div>
@@ -204,7 +207,8 @@ export const ProvenanceViewer = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -219,33 +223,3 @@ export const ProvenanceViewer = () => {
     </div>
   );
 };
-
-function getEventColor(eventType: string): string {
-  switch (eventType) {
-    case 'MANUFACTURED': return 'bg-[var(--teal)]/20 text-[var(--teal)]';
-    case 'SHIPPED': return 'bg-[var(--orange)]/20 text-[var(--orange)]';
-    case 'IN_TRANSIT': return 'bg-[var(--amber)]/20 text-[var(--amber)]';
-    case 'RECEIVED': return 'bg-[var(--pink)]/20 text-[var(--pink)]';
-    default: return 'bg-[var(--t2)]/20 text-[var(--t2)]';
-  }
-}
-
-function formatEventType(eventType: string): string {
-  switch (eventType) {
-    case 'MANUFACTURED': return 'Manufactured';
-    case 'SHIPPED': return 'Shipped';
-    case 'IN_TRANSIT': return 'In Transit';
-    case 'RECEIVED': return 'Received';
-    default: return eventType;
-  }
-}
-
-function getEventIcon(eventType: string): string {
-  switch (eventType) {
-    case 'MANUFACTURED': return 'ti ti-building-factory-2';
-    case 'SHIPPED': return 'ti ti-package-export';
-    case 'IN_TRANSIT': return 'ti ti-truck';
-    case 'RECEIVED': return 'ti ti-building-store';
-    default: return 'ti ti-circle-check';
-  }
-}

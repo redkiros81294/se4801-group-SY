@@ -27,6 +27,7 @@ interface Invitation {
 }
 
 export const AdminInviteUsers = () => {
+  const { user } = useAuth();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [orgsLoading, setOrgsLoading] = useState(true);
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
@@ -133,7 +134,7 @@ export const AdminInviteUsers = () => {
 
   const handleApprove = async (userId: string) => {
     try {
-      await api.post(`/admin/users/${userId}/approve`, { adminId: '' });
+      await api.post(`/admin/users/${userId}/approve`, { adminId: user?.userId || '' });
       loadPendingUsers();
     } catch (err: any) {
       console.error('Failed to approve user:', err);
@@ -142,7 +143,7 @@ export const AdminInviteUsers = () => {
 
   const handleReject = async (userId: string, reason: string) => {
     try {
-      await api.post(`/admin/users/${userId}/reject`, { adminId: '', rejectionReason: reason });
+      await api.post(`/admin/users/${userId}/reject`, { adminId: user?.userId || '', rejectionReason: reason });
       loadPendingUsers();
     } catch (err: any) {
       console.error('Failed to reject user:', err);

@@ -6,9 +6,6 @@ import com.chaintrack.repository.BatchRepository;
 import com.chaintrack.repository.MovementTransactionRepository;
 import com.chaintrack.repository.OrganizationRepository;
 import com.chaintrack.repository.ProductRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +17,6 @@ public class AdminAnalyticsService {
     private final ProductRepository productRepository;
     private final BatchRepository batchRepository;
     private final MovementTransactionRepository transactionRepository;
-    
-    @PersistenceContext
-    private EntityManager entityManager;
 
     public AdminAnalyticsService(OrganizationRepository organizationRepository,
                                  ProductRepository productRepository,
@@ -43,11 +37,11 @@ public class AdminAnalyticsService {
         long totalBatches = batchRepository.count();
         long totalTransactions = transactionRepository.count();
 
-        // Batch status counts - use native SQL query with explicit enum cast
-        long batchesCreated = countBatchesByStatus(BatchStatus.CREATED.name());
-        long batchesInTransit = countBatchesByStatus(BatchStatus.IN_TRANSIT.name());
-        long batchesDelivered = countBatchesByStatus(BatchStatus.DELIVERED.name());
-        long batchesCompromised = countBatchesByStatus(BatchStatus.COMPROMISED.name());
+        // Batch status counts - using repository method for cross-DB compatibility
+        long batchesCreated = batchRepository.countByStatus(BatchStatus.CREATED);
+        long batchesInTransit = batchRepository.countByStatus(BatchStatus.IN_TRANSIT);
+        long batchesDelivered = batchRepository.countByStatus(BatchStatus.DELIVERED);
+        long batchesCompromised = batchRepository.countByStatus(BatchStatus.COMPROMISED);
 
         return new AdminAnalyticsResponse(
             totalOrganizations,
@@ -59,12 +53,5 @@ public class AdminAnalyticsService {
             batchesDelivered,
             batchesCompromised
         );
-    }
-    
-    private long countBatchesByStatus(String statusName) {
-        // Use native SQL with explicit enum cast to fix PostgreSQL type mismatch
-        Query query = entityManager.createNativeQuery("SELECT COUNT(id) FROM batches WHERE status::text = ?1");
-        query.setParameter(1, statusName);
-        return ((Number) query.getSingleResult()).longValue();
     }
 }

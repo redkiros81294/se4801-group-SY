@@ -110,11 +110,11 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/test-analytics")
+    @GetMapping("/analytics")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get system analytics", description = "Returns system-wide statistics (ADMIN only)")
     @ApiResponse(responseCode = "200", description = "Analytics retrieved successfully")
-    public ResponseEntity<AdminAnalyticsResponse> testAnalytics() {
+    public ResponseEntity<AdminAnalyticsResponse> getAnalytics() {
         AdminAnalyticsResponse analytics = adminAnalyticsService.getAnalytics();
         return ResponseEntity.ok(analytics);
     }

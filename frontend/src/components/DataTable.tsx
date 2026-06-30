@@ -32,7 +32,36 @@ export const DataTable = <T extends object>({
   emptyState,
   className = ''
 }: DataTableProps<T>) => {
-  // Handle empty state
+  // Sorting logic - Hooks run unconditionally
+  const [sortConfig, setSortConfig] = useState<{ key: keyof T | null; direction: 'asc' | 'desc' }>({
+    key: null,
+    direction: 'asc'
+  })
+
+  const sortedData = useMemo(() => {
+    if (!data || data.length === 0) return []
+    if (!sortConfig.key) return data
+
+    return [...data].sort((a, b) => {
+      const key = sortConfig.key as keyof T;
+      const aValue = a[key];
+      const bValue = b[key];
+
+      // Handle different types of values
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return aValue.localeCompare(bValue) * (sortConfig.direction === 'asc' ? 1 : -1);
+      }
+
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return (aValue - bValue) * (sortConfig.direction === 'asc' ? 1 : -1);
+      }
+
+      // Fallback for other types
+      return String(aValue).localeCompare(String(bValue)) * (sortConfig.direction === 'asc' ? 1 : -1);
+    })
+  }, [data, sortConfig])
+
+  // Handle empty state - AFTER hooks
   if (!data || data.length === 0) {
     return (
       <div className={clsx(
@@ -60,34 +89,6 @@ export const DataTable = <T extends object>({
       </div>
     )
   }
-
-  // Sorting logic
-  const [sortConfig, setSortConfig] = useState<{ key: keyof T | null; direction: 'asc' | 'desc' }>({
-    key: null,
-    direction: 'asc'
-  })
-
-  const sortedData = useMemo(() => {
-    if (!sortConfig.key) return data
-    
-    return [...data].sort((a, b) => {
-      const key = sortConfig.key as keyof T;
-      const aValue = a[key];
-      const bValue = b[key];
-      
-      // Handle different types of values
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return aValue.localeCompare(bValue) * (sortConfig.direction === 'asc' ? 1 : -1);
-      }
-      
-      if (typeof aValue === 'number' && typeof bValue === 'number') {
-        return (aValue - bValue) * (sortConfig.direction === 'asc' ? 1 : -1);
-      }
-      
-      // Fallback for other types
-      return String(aValue).localeCompare(String(bValue)) * (sortConfig.direction === 'asc' ? 1 : -1);
-    })
-  }, [data, sortConfig])
 
   // Pagination logic
   const itemsPerPage = pagination?.itemsPerPage ?? 10

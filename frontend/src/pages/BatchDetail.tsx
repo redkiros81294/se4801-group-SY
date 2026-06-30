@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../lib/api';
-import { PageShell } from '../components/PageShell';
 import { StatusBadge } from '../components/StatusBadge';
 import { ProvenanceTimeline } from '../components/ProvenanceTimeline';
 import { ChainStatusBanner } from '../components/ChainStatusBanner';
@@ -69,20 +68,17 @@ export const BatchDetail = () => {
 
   if (loading) {
     return (
-      <PageShell title="Batch Detail">
         <div className="flex items-center justify-center py-12">
           <div className="flex items-center space-x-3">
             <div className="h-5 w-5 border-2 border-[var(--cyan)] border-t-transparent rounded-full animate-spin" />
             <span className="text-[var(--t2)]">Loading batch details...</span>
           </div>
         </div>
-      </PageShell>
     );
   }
 
   if (error || !batch) {
     return (
-      <PageShell title="Batch Detail">
         <div className="text-center py-12">
           <i className="ti ti-alert-circle text-[var(--red)] text-4xl mb-4" aria-hidden="true" />
           <h2 className="text-2xl font-bold text-[var(--t1)] mb-2">Batch Not Found</h2>
@@ -94,12 +90,10 @@ export const BatchDetail = () => {
             Go Back
           </button>
         </div>
-      </PageShell>
     );
   }
 
   return (
-    <PageShell title={`Batch ${batch.batchNumber}`}>
       <div className="space-y-6">
         {/* Chain Status Banner */}
         {chainValid !== null && (
@@ -152,7 +146,7 @@ export const BatchDetail = () => {
           {transactions.length > 0 ? (
             <ProvenanceTimeline 
               transactions={transactions} 
-              chainValid={chainValid ?? true}
+              chainValid={chainValid ?? false}
             />
           ) : (
             <div className="text-center py-8">
@@ -162,6 +156,5 @@ export const BatchDetail = () => {
           )}
         </div>
       </div>
-    </PageShell>
   );
 };

@@ -78,8 +78,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         } else {
             logger.info("Token: null, Username: null, Auth before filter: {}", SecurityContextHolder.getContext().getAuthentication());
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing or invalid Authorization header");
-            return;
         }
 
         logger.info("Auth after filter (before chain): {}", SecurityContextHolder.getContext().getAuthentication());

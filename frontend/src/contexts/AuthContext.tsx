@@ -29,10 +29,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-let tokenStore: string | null = null;
+const TOKEN_KEY = 'chaintrack_token';
 
-export const getToken = (): string | null => tokenStore;
-export const clearToken = (): void => { tokenStore = null; };
+export const getToken = (): string | null => sessionStorage.getItem(TOKEN_KEY);
+export const clearToken = (): void => { sessionStorage.removeItem(TOKEN_KEY); };
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -41,11 +41,28 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(() => getToken());
+  const [user, setUser] = useState<User | null>(() => {
+    const savedToken = getToken();
+    if (savedToken) {
+      try {
+        const decoded = jwtDecode<JwtPayload>(savedToken);
+        return {
+          userId: decoded.userId,
+          email: decoded.sub,
+          roles: [decoded.role],
+          orgId: decoded.orgId,
+          status: decoded.status || 'ACTIVE',
+        };
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
 
   const login = (newToken: string) => {
-    tokenStore = newToken;
+    sessionStorage.setItem(TOKEN_KEY, newToken);
     setToken(newToken);
     try {
       const decoded = jwtDecode<JwtPayload>(newToken);
@@ -62,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    tokenStore = null;
+    clearToken();
     setToken(null);
     setUser(null);
   };
