@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../lib/api';
-import { PageShell } from '../components/PageShell';
 import { Toast } from '../components/Toast';
 
 export const CreateProduct = () => {
@@ -73,16 +72,17 @@ export const CreateProduct = () => {
   };
 
   return (
-    <PageShell title="Create Product">
       <div className="max-w-2xl mx-auto">
-        <Toast
-          type={error ? 'error' : 'success'}
-          message={error || success}
-          onClose={() => {
-            setError('');
-            setSuccess('');
-          }}
-        />
+        {(error || success) && (
+          <Toast
+            type={error ? 'error' : 'success'}
+            message={error || success}
+            onClose={() => {
+              setError('');
+              setSuccess('');
+            }}
+          />
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-6">
@@ -208,6 +208,5 @@ export const CreateProduct = () => {
           </div>
         </form>
       </div>
-    </PageShell>
   );
 };

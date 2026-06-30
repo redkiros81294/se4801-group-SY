@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import api from '../lib/api';
-import { PageShell } from '../components/PageShell';
 import { DataTable } from '../components/DataTable';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -56,7 +55,6 @@ export const ProductsList = () => {
   ];
 
   return (
-    <PageShell title="Products">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -139,6 +137,5 @@ export const ProductsList = () => {
           )}
         </div>
       </div>
-    </PageShell>
   );
 };

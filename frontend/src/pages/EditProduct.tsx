@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../lib/api';
-import { PageShell } from '../components/PageShell';
 import { Toast } from '../components/Toast';
 
 export const EditProduct = () => {
@@ -70,20 +69,17 @@ export const EditProduct = () => {
 
   if (loading) {
     return (
-      <PageShell title="Edit Product">
         <div className="flex items-center justify-center py-12">
           <div className="flex items-center space-x-3">
             <div className="h-5 w-5 border-2 border-[var(--cyan)] border-t-transparent rounded-full animate-spin" />
             <span className="text-[var(--t2)]">Loading product...</span>
           </div>
         </div>
-      </PageShell>
     );
   }
 
   if (notFound) {
     return (
-      <PageShell title="Edit Product">
         <div className="text-center py-12">
           <i className="ti ti-alert-circle text-[var(--red)] text-4xl mb-4" aria-hidden="true" />
           <h2 className="text-2xl font-bold text-[var(--t1)] mb-2">Product Not Found</h2>
@@ -95,21 +91,21 @@ export const EditProduct = () => {
             Back to Products
           </button>
         </div>
-      </PageShell>
     );
   }
 
   return (
-    <PageShell title="Edit Product">
       <div className="max-w-2xl mx-auto">
-        <Toast
-          type={error ? 'error' : 'success'}
-          message={error || success}
-          onClose={() => {
-            setError('');
-            setSuccess('');
-          }}
-        />
+        {(error || success) && (
+          <Toast
+            type={error ? 'error' : 'success'}
+            message={error || success}
+            onClose={() => {
+              setError('');
+              setSuccess('');
+            }}
+          />
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-6">
@@ -199,6 +195,5 @@ export const EditProduct = () => {
           </div>
         </form>
       </div>
-    </PageShell>
   );
 };

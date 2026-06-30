@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../lib/api';
-import { PageShell } from '../components/PageShell';
 import { Toast } from '../components/Toast';
 import { QRDisplay } from '../components/QRDisplay';
 
@@ -89,9 +88,10 @@ export const CreateBatch = () => {
   };
 
   return (
-    <PageShell title="Create Batch">
       <div className="max-w-3xl mx-auto">
-        <Toast type={error ? 'error' : 'success'} message={error || success} onClose={() => { setError(''); setSuccess(''); }} />
+        {(error || success) && (
+          <Toast type={error ? 'error' : 'success'} message={error || success} onClose={() => { setError(''); setSuccess(''); }} />
+        )}
 
         <div className="flex items-center justify-center space-x-4 mb-8">
           <div className={`flex items-center space-x-2 ${step === 'select' ? 'text-[var(--cyan)]' : 'text-[var(--t3)]'}`}>
@@ -157,6 +157,5 @@ export const CreateBatch = () => {
           </div>
         )}
       </div>
-    </PageShell>
   );
 };

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../lib/api';
-import { PageShell } from '../components/PageShell';
 import { ChainStatusBanner } from '../components/ChainStatusBanner';
 import { StatusBadge } from '../components/StatusBadge';
 import { HashDisplay } from '../components/HashDisplay';
@@ -63,32 +62,27 @@ export const TransactionHistory = () => {
 
   if (loading) {
     return (
-      <PageShell title="Transaction History">
         <div className="flex items-center justify-center py-12">
           <div className="flex items-center space-x-3">
             <div className="h-5 w-5 border-2 border-[var(--cyan)] border-t-transparent rounded-full animate-spin" />
             <span className="text-[var(--t2)]">Loading history...</span>
           </div>
         </div>
-      </PageShell>
     );
   }
 
   if (error || !batch) {
     return (
-      <PageShell title="Transaction History">
         <div className="text-center py-12">
           <i className="ti ti-alert-circle text-[var(--red)] text-4xl mb-4" aria-hidden="true" />
           <h2 className="text-2xl font-bold text-[var(--t1)] mb-2">Not Found</h2>
           <p className="text-[var(--t2)] mb-6">{error || 'The requested batch does not exist.'}</p>
           <button onClick={() => window.history.back()} className="px-6 py-3 rounded-lg bg-[var(--blue)] text-[var(--t1)] font-medium hover:bg-[var(--blue)]/90 transition-colors duration-200">Go Back</button>
         </div>
-      </PageShell>
     );
   }
 
   return (
-    <PageShell title="Transaction History">
       <div className="space-y-6">
         <div className="bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-6">
           <h2 className="text-2xl font-bold text-[var(--t1)] mb-2">Batch #{batch.batchNumber || batch.id}</h2>
@@ -165,6 +159,5 @@ export const TransactionHistory = () => {
           )}
         </div>
       </div>
-    </PageShell>
   );
 };
