@@ -14,7 +14,8 @@ public record InvitationResponse(
     Invitation.InvitationStatus status,
     Instant expiresAt,
     Instant createdAt,
-    String invitedByEmail
+    String invitedByEmail,
+    String token
 ) {
     public static InvitationResponse fromEntity(Invitation invitation) {
         return new InvitationResponse(
@@ -26,7 +27,8 @@ public record InvitationResponse(
             invitation.getStatus(),
             invitation.getExpiresAt(),
             invitation.getCreatedAt(),
-            invitation.getInvitedBy() != null ? invitation.getInvitedBy().getEmail() : null
+            invitation.getInvitedBy() != null ? invitation.getInvitedBy().getEmail() : null,
+            invitation.getToken()
         );
     }
 }
