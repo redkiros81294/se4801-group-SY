@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useFormValidation } from '../hooks/useFormValidation';
+import { useAuth } from '../contexts/AuthContext';
 import { clsx } from 'clsx';
 import api from '../lib/api';
 
