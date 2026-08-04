@@ -171,7 +171,7 @@ export const ProvenanceViewer = () => {
                   <div className="bg-[var(--bg2)]/30 rounded-xl border border-[var(--border)]/20 p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-3">
-                        <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--${meta.colorVar})]/20 text-[var(--${meta.colorVar})]`}>
+                        <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${meta.colorClasses}`}>
                           <i className={`ti ${meta.icon}`} aria-hidden="true" />
                         </div>
                         <div>

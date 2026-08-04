@@ -131,12 +131,12 @@ export const Login = () => {
                 validateField('email', validationRules.email);
               }}
               className={clsx(
-                'w-full px-4 py-3 border rounded-lg text-[#F1F5F9]',
-                'bg-[#111827] border-[#1E3A5F]',
-                'placeholder:text-[#475569]',
-                'focus:outline-none focus:ring-2 focus:ring-[#06B6D4]/50',
+                'w-full px-4 py-3 border rounded-lg text-[var(--t1)]',
+                'bg-[var(--bg2)] border-[var(--border)]',
+                'placeholder:text-[var(--t3)]',
+                'focus:outline-none focus:ring-2 focus:ring-[var(--cyan)]/50',
                 'transition-all duration-200',
-                errors.email ? 'border-[#EF4444]/50' : 'border-[#1E3A5F]'
+                errors.email ? 'border-[var(--red)]/50' : 'border-[var(--border)]'
               )}
               required
               placeholder="Enter your email"
@@ -163,12 +163,12 @@ export const Login = () => {
                 validateField('password', validationRules.password);
               }}
               className={clsx(
-                'w-full px-4 py-3 border rounded-lg text-[#F1F5F9]',
-                'bg-[#111827] border-[#1E3A5F]',
-                'placeholder:text-[#475569]',
-                'focus:outline-none focus:ring-2 focus:ring-[#06B6D4]/50',
+                'w-full px-4 py-3 border rounded-lg text-[var(--t1)]',
+                'bg-[var(--bg2)] border-[var(--border)]',
+                'placeholder:text-[var(--t3)]',
+                'focus:outline-none focus:ring-2 focus:ring-[var(--cyan)]/50',
                 'transition-all duration-200',
-                errors.password ? 'border-[#EF4444]/50' : 'border-[#1E3A5F]'
+                errors.password ? 'border-[var(--red)]/50' : 'border-[var(--border)]'
               )}
               required
               placeholder="Enter your password"

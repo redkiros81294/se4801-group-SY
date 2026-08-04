@@ -22,15 +22,17 @@ export const TransactionCard = ({ tx, index, className = '' }: TransactionCardPr
   const meta = getEventTypeMeta(tx.eventType);
 
   return (
-      <div className={clsx(
-        'bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-6 hover:bg-[var(--bg1)]/70 transition-colors',
-        `transition-delay-[${(index || 0) * 50}ms]`,
-        className
-      )}>
+      <div
+        className={clsx(
+          'bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-6 hover:bg-[var(--bg1)]/70 transition-colors',
+          className
+        )}
+        style={{ transitionDelay: `${(index || 0) * 50}ms` }}
+      >
       <div className="mb-4 flex items-center space-x-3">
         <div className={clsx(
           'flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--bg2)]/50',
-          `bg-[var(--${meta.colorVar})]/20 text-[var(--${meta.colorVar})]`
+          meta.colorClasses
         )}>
           <i className={`ti ${meta.icon}`} aria-hidden="true" />
         </div>

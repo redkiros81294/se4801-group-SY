@@ -5,8 +5,14 @@ import { getToken, clearToken } from '../contexts/AuthContext';
 const PRIMARY_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 const FALLBACK_API_URL = import.meta.env.VITE_API_FALLBACK_URL || 'https://chaintrack-backend.onrender.com/api';
 
-let currentBaseURL = PRIMARY_API_URL;
-let fallbackAttempted = false;
+// When running on a deployed/preview origin (not localhost) without an explicit
+// VITE_API_URL, the localhost primary can never work — start on the hosted API
+// directly instead of failing one request before falling back.
+const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const startOnFallback = !import.meta.env.VITE_API_URL && !isLocal;
+
+let currentBaseURL = startOnFallback ? FALLBACK_API_URL : PRIMARY_API_URL;
+let fallbackAttempted = startOnFallback;
 
 const api = axios.create({
   baseURL: currentBaseURL,

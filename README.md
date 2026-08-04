@@ -110,7 +110,7 @@ Base package: `com.chaintrack`
 
 The React frontend has a `/scan` page that uses the browser's camera (via jsQR library) to scan a printed QR code on a product. On successful decode, it calls `GET /api/verify/{token}` and displays the full provenance timeline—green if the chain is valid, red with a COMPROMISED warning if any hash has been tampered with.
 
-This works on mobile Chrome and Safari with no app install required. JWT is stored in React state only (never localStorage). The API base URL comes from the `VITE_API_URL` environment variable.
+This works on mobile Chrome and Safari with no app install required. The JWT is kept in `sessionStorage` (never `localStorage`) — it survives page reloads within a tab but is cleared automatically when the tab closes, which avoids persisting credentials across sessions. The API base URL comes from the `VITE_API_URL` environment variable, with an automatic fallback to `VITE_API_FALLBACK_URL` when the primary backend is unreachable.
 
 ---
 

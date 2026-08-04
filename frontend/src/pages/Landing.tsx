@@ -118,12 +118,8 @@ export const Landing = () => {
                     <h3 className="text-lg font-bold text-[var(--t1)]">Live Dashboard</h3>
                     <p className="text-sm text-[var(--t2)]">Real-time supply chain data</p>
                   </div>
-                  <span className="px-3 py-1 bg-[var(--green)]/10 text-[var(--green)] text-xs rounded-full font-medium flex items-center gap-1.5">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--green)] opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--green)]"></span>
-                    </span>
-                    Live
+                  <span className="px-3 py-1 bg-[var(--amber)]/10 text-[var(--amber)] text-xs rounded-full font-medium">
+                    Sample data
                   </span>
                 </div>
 
@@ -234,9 +230,18 @@ export const Landing = () => {
               © 2026 ChainTrack. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
-              {['ti ti-brand-github', 'ti ti-brand-twitter', 'ti ti-brand-linkedin'].map((icon) => (
-                <a key={icon} href="#" className="w-8 h-8 rounded-lg bg-[var(--bg2)]/50 border border-[var(--border)]/40 flex items-center justify-center text-[var(--t2)] hover:text-[var(--cyan)] hover:border-[var(--cyan)]/30 transition-colors">
-                  <i className={`${icon} text-sm`}></i>
+              {[
+                { icon: 'ti ti-brand-github', label: 'GitHub' },
+                { icon: 'ti ti-brand-twitter', label: 'Twitter' },
+                { icon: 'ti ti-brand-linkedin', label: 'LinkedIn' },
+              ].map(({ icon, label }) => (
+                <a
+                  key={icon}
+                  href="#"
+                  aria-label={label}
+                  className="w-8 h-8 rounded-lg bg-[var(--bg2)]/50 border border-[var(--border)]/40 flex items-center justify-center text-[var(--t2)] hover:text-[var(--cyan)] hover:border-[var(--cyan)]/30 transition-colors"
+                >
+                  <i className={`${icon} text-sm`} aria-hidden="true"></i>
                 </a>
               ))}
             </div>

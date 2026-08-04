@@ -71,7 +71,7 @@ export const Sidebar = () => {
               `}
               end
             >
-              <i className={`ti ti-${route.icon.split(' ')[1]} mr-3 text-[var(--cyan)]`} aria-hidden="true" />
+              <i className={`${route.icon} mr-3 text-[var(--cyan)]`} aria-hidden="true" />
               <span>{route.label}</span>
             </NavLink>
           ))}

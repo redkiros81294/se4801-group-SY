@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import jsQR from 'jsqr';
+import type jsQRType from 'jsqr';
 import api from '../lib/api';
 import { StatusBadge } from '../components/StatusBadge';
 
@@ -20,19 +20,42 @@ interface VerifyResult {
 export const Scan = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef = useRef<number | null>(null);
+  const verifyingRef = useRef(false);
+  const jsqrRef = useRef<typeof jsQRType | null>(null);
   const [result, setResult] = useState<VerifyResult | null>(null);
   const [manualToken, setManualToken] = useState('');
   const [cameraError, setCameraError] = useState('');
   const [cameraStatus, setCameraStatus] = useState<'idle' | 'requesting' | 'active' | 'denied'>('idle');
   const [stream, setStream] = useState<MediaStream | null>(null);
 
+  const stopScanLoop = () => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+  };
+
+  // Stop the camera stream and cancel the scan loop
+  const stopCamera = () => {
+    stopScanLoop();
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      setStream(null);
+    }
+    setCameraStatus('idle');
+    setResult(null);
+  };
+
   useEffect(() => {
     // Don't auto-start camera — wait for user permission
     return () => {
+      stopScanLoop();
       if (stream) {
         stream.getTracks().forEach(t => t.stop());
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stream]);
 
   const requestCameraPermission = async () => {
@@ -45,6 +68,12 @@ export const Scan = () => {
     }
     setCameraStatus('requesting');
     try {
+      // Load the QR decoder only when the camera is actually being used.
+      // jsQR is ~130 KB — deferring it keeps the /scan page lightweight.
+      if (!jsqrRef.current) {
+        const { default: jsQR } = await import('jsqr');
+        jsqrRef.current = jsQR;
+      }
       // Note: Camera API requires HTTPS or localhost
       const mediaStream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment' } 
@@ -78,27 +107,35 @@ export const Scan = () => {
       if (ctx) {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height);
-        if (code) {
-          verifyToken(code.data);
+        if (jsqrRef.current) {
+          const code = jsqrRef.current(imageData.data, imageData.width, imageData.height);
+          if (code && !verifyingRef.current) {
+            verifyToken(code.data);
+          }
         }
       }
     }
-    requestAnimationFrame(scanFrame);
+    rafRef.current = requestAnimationFrame(scanFrame);
   };
 
   useEffect(() => {
     if (stream) {
-      requestAnimationFrame(scanFrame);
+      rafRef.current = requestAnimationFrame(scanFrame);
     }
+    return () => stopScanLoop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stream]);
 
   const verifyToken = async (token: string) => {
+    if (verifyingRef.current) return;
+    verifyingRef.current = true;
     try {
       const response = await api.get(`/verify/${token}`);
       setResult(response.data);
     } catch (err: any) {
       setCameraError('Invalid token or batch not found');
+    } finally {
+      verifyingRef.current = false;
     }
   };
 
@@ -186,14 +223,7 @@ export const Scan = () => {
 
           <div className="flex justify-center mb-4">
             <button
-              onClick={() => {
-                if (stream) {
-                  stream.getTracks().forEach(t => t.stop());
-                  setStream(null);
-                }
-                setCameraStatus('idle');
-                setResult(null);
-              }}
+              onClick={stopCamera}
               className="px-4 py-2 rounded-lg border border-[var(--border)]/40 bg-[var(--bg2)]/50 text-[var(--t2)] hover:text-[var(--t1)] hover:bg-[var(--bg3)]/50 transition-colors duration-200 text-sm"
             >
               <i className="ti ti-x mr-1" aria-hidden="true" />

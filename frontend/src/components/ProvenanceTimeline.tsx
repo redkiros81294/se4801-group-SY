@@ -44,15 +44,17 @@ export const ProvenanceTimeline = ({ transactions, chainValid, className = '' }:
           return (
           <div key={tx.id} className={`mb-6`}>
             {/* Transaction card with stagger animation */}
-            <div className={clsx(
-              'bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-6',
-              `transition-all duration-300 ease-out`,
-              `delay-[${index * 100}ms]`
-            )}>
+            <div
+              className={clsx(
+                'bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-6',
+                'transition-all duration-300 ease-out'
+              )}
+              style={{ transitionDelay: `${index * 100}ms` }}
+            >
               <div className="mb-3 flex items-center space-x-3">
                 <div className={clsx(
                   'flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--bg2)]/50',
-                  `bg-[var(--${meta.colorVar})]/20 text-[var(--${meta.colorVar})]`
+                  meta.colorClasses
                 )}>
                   <i className={`ti ${meta.icon}`} aria-hidden="true" />
                 </div>

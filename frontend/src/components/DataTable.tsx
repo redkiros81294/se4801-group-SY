@@ -7,6 +7,7 @@ interface DataTableProps<T> {
     label: string
     sortable?: boolean
     sortDirection?: 'asc' | 'desc'
+    render?: (value: T[keyof T], row: T) => React.ReactNode
   }>
   data: T[]
   pagination?: {
@@ -147,7 +148,7 @@ export const DataTable = <T extends object>({
                   key={String(column.key)}
                   className="px-6 py-4 text-[var(--t1)] whitespace-nowrap"
                 >
-                  {String(row[column.key])}
+                  {column.render ? column.render(row[column.key], row) : String(row[column.key])}
                 </td>
               ))}
             </tr>
@@ -168,6 +169,7 @@ export const DataTable = <T extends object>({
             <button
               onClick={() => pagination.onPageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage <= 1}
+              aria-label="Previous page"
               className={clsx(
                 'flex h-9 px-4 items-center justify-center rounded-lg border border-[var(--border)]/40',
                 currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[var(--bg3)]/50 transition-colors'
@@ -183,6 +185,7 @@ export const DataTable = <T extends object>({
             <button
               onClick={() => pagination.onPageChange(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage >= totalPages}
+              aria-label="Next page"
               className={clsx(
                 'flex h-9 px-4 items-center justify-center rounded-lg border border-[var(--border)]/40',
                 currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[var(--bg3)]/50 transition-colors'

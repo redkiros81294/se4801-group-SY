@@ -1,6 +1,7 @@
 import { useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Sidebar } from './Sidebar';
+import { ThemeToggle } from './ThemeToggle';
 import React from 'react';
 
 export const PageShell = ({ title, children, showSidebar = true }: { 
@@ -15,9 +16,11 @@ export const PageShell = ({ title, children, showSidebar = true }: {
   // Generate breadcrumb based on current path
   const getBreadcrumbItems = () => {
     const path = location.pathname;
-    const items = [{ label: 'Home', path: '/' }];
+    // Signed-in users should land on the dashboard, not the public landing page
+    const homePath = user ? '/dashboard' : '/';
+    const items = [{ label: 'Home', path: homePath }];
 
-    if (path === '/') return items;
+    if (path === '/' || path === '/dashboard') return items;
 
     const paths = path.split('/').filter(Boolean);
     let accumulatedPath = '';
@@ -99,12 +102,13 @@ export const PageShell = ({ title, children, showSidebar = true }: {
           </div>
           
           <div className="flex items-center space-x-4">
+            <ThemeToggle />
             {user ? (
               <>
                 <div className="w-8 h-8 bg-[var(--bg2)] rounded-full flex items-center justify-center">
                   <i className="ti ti-user text-[var(--t2)]"></i>
                 </div>
-                <span className="text-[var(--t2)]">{user.email.split('@')[0]}</span>
+                <span className="text-[var(--t2)] hidden sm:inline">{user.email.split('@')[0]}</span>
               </>
             ) : (
               <span className="text-[var(--t2)]">Guest</span>

@@ -10,7 +10,7 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
-    cssMinify: false,
+    cssMinify: true,
   },
   preview: {
     port: 4173,
