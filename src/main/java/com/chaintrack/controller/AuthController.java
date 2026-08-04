@@ -33,6 +33,12 @@ public class AuthController {
 
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthController.class);
 
+    @org.springframework.beans.factory.annotation.Value("${app.sso.enabled:false}")
+    private boolean ssoEnabled;
+
+    @org.springframework.beans.factory.annotation.Value("${app.sso.registration-id:chaintrack}")
+    private String ssoRegistrationId;
+
     private final UserService userService;
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
@@ -128,6 +134,15 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new LoginResponse(null, null, request.username(), null, null));
         }
+    }
+
+    @GetMapping("/sso/config")
+    @Operation(summary = "SSO configuration", description = "Reports whether OIDC/SSO login is enabled and which registration id to use (public)")
+    public java.util.Map<String, Object> ssoConfig() {
+        return java.util.Map.of(
+            "enabled", ssoEnabled,
+            "registrationId", ssoRegistrationId
+        );
     }
 
     @PostMapping("/change-password")

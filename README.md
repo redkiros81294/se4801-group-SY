@@ -152,6 +152,18 @@ cd frontend && npm install && npm run dev
 | `MAIL_HOST/PORT/USERNAME/PASSWORD` | SMTP fallback | no |
 | `EMAIL_PROVIDER` | `auto` (default) / `resend` / `smtp` | no |
 | `TRACING_SAMPLING_PROBABILITY` | Trace sampling (default `1.0`) | no |
+| `SSO_ENABLED` | `true` to show the SSO login button | no |
+| `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` | OIDC client credentials (see below) | no |
+| `OIDC_ISSUER_URI` | IdP issuer (Keycloak/Auth0/Okta/Google) | no |
+
+### SSO / OIDC setup (optional)
+
+1. Set `SSO_ENABLED=true` and the OIDC env vars (Keycloak/Auth0/Okta all work):
+   - `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_CHAINTRACK_CLIENT_ID` (or `OIDC_CLIENT_ID` if you uncomment the placeholders in `application.properties`)
+   - `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_CHAINTRACK_CLIENT_SECRET`
+   - `SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_CHAINTRACK_ISSUER_URI`
+2. Register a redirect URI in the IdP: `{BACKEND_URL}/login/oauth2/code/chaintrack`.
+3. The login page shows **Sign in with SSO**. A successful OIDC login issues the same ChainTrack JWT; the account must already exist and be ACTIVE (SSO authenticates identity, ChainTrack governs roles/provisioning).
 
 **Frontend**
 | Var | Purpose |

@@ -25,10 +25,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter,
                                                    com.chaintrack.security.rate.RateLimitingFilter rateLimitingFilter,
-                                                   com.chaintrack.security.CorrelationIdFilter correlationIdFilter) throws Exception {
+                                                   com.chaintrack.security.CorrelationIdFilter correlationIdFilter,
+                                                   OidcLoginSuccessHandler oidcLoginSuccessHandler) throws Exception {
         http
             .addFilterBefore(correlationIdFilter, com.chaintrack.security.rate.RateLimitingFilter.class)
             .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
+            .oauth2Login(oauth2 -> oauth2
+                // SSO is opt-in: with no OIDC client configured this simply never matches.
+                .successHandler(oidcLoginSuccessHandler)
+            )
             .headers(headers -> headers
                 .xssProtection(org.springframework.security.config.Customizer.withDefaults())
                 .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; frame-ancestors 'none';"))
@@ -57,6 +62,8 @@ corsConfig.setAllowedOrigins(java.util.List.of(
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/api/auth/invitations/accept").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/invitations/**").permitAll()
+                .requestMatchers("/api/auth/sso/config").permitAll()
+                .requestMatchers("/login", "/oauth2/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/actuator/health/**").permitAll()

@@ -28,6 +28,7 @@ export const Sidebar = () => {
       { path: '/batches/new', label: 'Create Batch', icon: 'ti ti-tag', roles: ['MANUFACTURER'] },
       { path: '/transactions/new', label: 'Log Movement', icon: 'ti ti-truck', roles: ['MANUFACTURER', 'SHIPPER', 'RETAILER'] },
       { path: '/scan', label: 'Scan QR', icon: 'ti ti-scan', roles: ['ADMIN', 'MANUFACTURER', 'SHIPPER', 'RETAILER'] },
+      { path: '/change-password', label: 'Change Password', icon: 'ti ti-key', roles: ['ADMIN', 'MANUFACTURER', 'SHIPPER', 'RETAILER'] },
     ];
 
     // Filter routes based on user roles

@@ -27,6 +27,7 @@ const DashboardRouter = lazy(() => import('./pages/DashboardRouter').then(m => (
 const AdminInviteUsers = lazy(() => import('./pages/AdminInviteUsers').then(m => ({ default: m.AdminInviteUsers })));
 const AuditLog = lazy(() => import('./pages/AuditLog').then(m => ({ default: m.AuditLog })));
 const PublicVerify = lazy(() => import('./pages/PublicVerify').then(m => ({ default: m.PublicVerify })));
+const ChangePassword = lazy(() => import('./pages/ChangePassword').then(m => ({ default: m.ChangePassword })));
 
 const PageFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-[var(--bg0)]">
@@ -125,6 +126,13 @@ function App() {
                 <ProtectedRoute requiredRoles={['ADMIN']}>
                   <PageShell title="Audit Log">
                     <AuditLog />
+                  </PageShell>
+                </ProtectedRoute>
+              } />
+              <Route path="/change-password" element={
+                <ProtectedRoute>
+                  <PageShell title="Change Password">
+                    <ChangePassword />
                   </PageShell>
                 </ProtectedRoute>
               } />
