@@ -33,6 +33,8 @@ import java.time.Instant;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -128,6 +130,54 @@ class AuthControllerTest {
                     .content("{\"token\":\"invalid-token\",\"password\":\"newPassword123\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.title").value("Bad Request"));
+        }
+    }
+
+    // ── change password ───────────────────────────────────────────────────────
+
+    @Nested
+    @DisplayName("POST /api/auth/change-password")
+    class ChangePassword {
+
+        @Test
+        @DisplayName("returns 200 and revokes the current token")
+        void changePassword_returns200() throws Exception {
+            var user = com.chaintrack.model.User.builder()
+                .id(UUID.randomUUID())
+                .email("user@test.com")
+                .role(Role.SHIPPER)
+                .status(UserStatus.ACTIVE)
+                .build();
+            UserResponse response = UserResponse.fromEntity(user);
+
+            when(jwtUtils.extractUsername(any())).thenReturn("user@test.com");
+            when(userService.changePassword(eq("user@test.com"), eq("OldPass123!"), eq("NewPass456!")))
+                .thenReturn(response);
+            when(jwtUtils.getExpirationMillis(any())).thenReturn(86400000L);
+
+            mockMvc.perform(post("/api/auth/change-password")
+                    .header("Authorization", "Bearer some-token")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"currentPassword\":\"OldPass123!\",\"newPassword\":\"NewPass456!\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("user@test.com"));
+
+            // The old token must be blacklisted so the user signs in again
+            verify(blacklistService).addToBlacklist(eq("some-token"), eq(86400000L));
+        }
+
+        @Test
+        @DisplayName("returns 400 when the current password is wrong")
+        void changePassword_wrongCurrentPasswordReturns400() throws Exception {
+            when(jwtUtils.extractUsername(any())).thenReturn("user@test.com");
+            when(userService.changePassword(eq("user@test.com"), eq("WrongPass999!"), eq("NewPass456!")))
+                .thenThrow(new IllegalArgumentException("Current password is incorrect"));
+
+            mockMvc.perform(post("/api/auth/change-password")
+                    .header("Authorization", "Bearer some-token")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"currentPassword\":\"WrongPass999!\",\"newPassword\":\"NewPass456!\"}"))
+                .andExpect(status().isBadRequest());
         }
     }
 

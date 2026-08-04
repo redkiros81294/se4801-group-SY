@@ -25,6 +25,8 @@ const LogMovement = lazy(() => import('./pages/LogMovement').then(m => ({ defaul
 const TransactionHistory = lazy(() => import('./pages/TransactionHistory').then(m => ({ default: m.TransactionHistory })));
 const DashboardRouter = lazy(() => import('./pages/DashboardRouter').then(m => ({ default: m.DashboardRouter })));
 const AdminInviteUsers = lazy(() => import('./pages/AdminInviteUsers').then(m => ({ default: m.AdminInviteUsers })));
+const AuditLog = lazy(() => import('./pages/AuditLog').then(m => ({ default: m.AuditLog })));
+const PublicVerify = lazy(() => import('./pages/PublicVerify').then(m => ({ default: m.PublicVerify })));
 
 const PageFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-[var(--bg0)]">
@@ -119,6 +121,14 @@ function App() {
                   </PageShell>
                 </ProtectedRoute>
               } />
+              <Route path="/admin/audit" element={
+                <ProtectedRoute requiredRoles={['ADMIN']}>
+                  <PageShell title="Audit Log">
+                    <AuditLog />
+                  </PageShell>
+                </ProtectedRoute>
+              } />
+              <Route path="/verify" element={<PublicVerify />} />
               <Route path="*" element={<Navigate to="/not-found" replace state={{ from: window.location.pathname }} />} />
             </Routes>
           </Suspense>

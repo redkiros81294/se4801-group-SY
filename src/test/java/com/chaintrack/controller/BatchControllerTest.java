@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -91,7 +92,7 @@ class BatchControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/batches — returns paginated list")
+    @DisplayName("GET /api/batches — non-admin sees only own organization's batches")
     void listBatches_returnsPage() throws Exception {
         Batch batch = Batch.builder()
             .id(java.util.UUID.fromString("00000000-0000-0000-0000-000000000001"))
@@ -99,15 +100,17 @@ class BatchControllerTest {
             .status(BatchStatus.CREATED)
             .build();
         Page<Batch> page = new PageImpl<>(List.of(batch));
-        
-        when(batchService.listBatches(any())).thenReturn(page);
 
-        mockMvc.perform(get("/api/batches"))
+        when(jwtUtils.extractRole(any())).thenReturn("MANUFACTURER");
+        when(jwtUtils.extractOrgId(any())).thenReturn("org-1");
+        when(batchService.listBatchesForOrg(eq("org-1"), any())).thenReturn(page);
+
+        mockMvc.perform(get("/api/batches").header("Authorization", "Bearer token"))
             .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("POST /api/batches/{batchId}/qr — returns QR token")
+    @DisplayName("POST /api/batches/{batchId}/qr — returns QR token for own batch")
     void generateQR_returnsToken() throws Exception {
         GenerateBatchTokenResponse resp = new GenerateBatchTokenResponse(
             "batch-1",
@@ -115,10 +118,11 @@ class BatchControllerTest {
             "base64qr",
             Instant.now()
         );
-        
-        when(batchService.generateQR("batch-1")).thenReturn(resp);
 
-        mockMvc.perform(post("/api/batches/batch-1/qr"))
+        when(jwtUtils.extractOrgId(any())).thenReturn("org-1");
+        when(batchService.generateQR(eq("batch-1"), eq("org-1"))).thenReturn(resp);
+
+        mockMvc.perform(post("/api/batches/batch-1/qr").header("Authorization", "Bearer token"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.batchId").value("batch-1"));
         }

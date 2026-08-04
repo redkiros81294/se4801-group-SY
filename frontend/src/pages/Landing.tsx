@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { DemoTour } from '../components/DemoTour';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export const Landing = () => {
   const navigate = useNavigate();
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [tourOpen, setTourOpen] = useState(false);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -16,7 +19,12 @@ export const Landing = () => {
   return (
     <div className="min-h-screen bg-[var(--bg0)] text-[var(--t1)] overflow-hidden relative">
       <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#1E3A5F]/40 via-[#0A0F1E] to-[#0A0F1E]"></div>
+        <div
+          className="absolute inset-0 transition-colors duration-300"
+          style={{
+            background: 'radial-gradient(ellipse at top, rgba(30,58,95,0.45) 0%, transparent 55%), var(--bg0)'
+          }}
+        ></div>
         <div className="absolute inset-0 opacity-30">
           <div className="animate-grid-bg"></div>
         </div>
@@ -42,6 +50,14 @@ export const Landing = () => {
           </div>
 
           <nav className="flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              type="button"
+              onClick={() => navigate('/verify')}
+              className="px-5 py-2 text-[var(--t2)] hover:text-[var(--cyan)] transition-colors text-sm font-medium"
+            >
+              Verify a Product
+            </button>
             <button
               type="button"
               onClick={() => navigate('/login')}
@@ -94,6 +110,22 @@ export const Landing = () => {
                 >
                   View Demo
                   <i className="ti ti-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/verify')}
+                  className="h-14 px-6 border border-[var(--border)]/40 text-[var(--t1)] rounded-xl hover:border-[var(--cyan)]/40 hover:bg-[var(--cyan)]/5 transition-all font-medium flex items-center justify-center gap-2"
+                >
+                  <i className="ti ti-qrcode text-[var(--cyan)]"></i>
+                  Verify a Product
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTourOpen(true)}
+                  className="h-14 px-6 border border-[var(--border)]/40 text-[var(--t1)] rounded-xl hover:border-[var(--amber)]/40 hover:bg-[var(--amber)]/5 transition-all font-medium flex items-center justify-center gap-2"
+                >
+                  <i className="ti ti-tournament text-[var(--amber)]"></i>
+                  Take the tour
                 </button>
               </div>
 
@@ -175,6 +207,8 @@ export const Landing = () => {
           </div>
         </div>
       </main>
+
+      {tourOpen && <DemoTour onClose={() => setTourOpen(false)} />}
 
       <footer className="border-t border-[var(--border)]/40 bg-[var(--bg1)]/30 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 py-12">

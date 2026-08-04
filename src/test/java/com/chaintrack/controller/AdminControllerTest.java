@@ -30,6 +30,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -151,6 +152,61 @@ class AdminControllerTest {
             mockMvc.perform(get("/api/admin/analytics")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + generateToken("SHIPPER"))
                     .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+        }
+    }
+
+    @Nested
+    @DisplayName("createUser")
+    class CreateUser {
+
+        @Test
+        @DisplayName("ADMIN 201 — creates user directly")
+        void createUser_adminReturnsCreated() throws Exception {
+            UserResponse created = new UserResponse(
+                "user-new",
+                "new@test.com",
+                Role.MANUFACTURER,
+                "org-1",
+                UserStatus.ACTIVE,
+                null,
+                null,
+                null,
+                Instant.now(),
+                Instant.now()
+            );
+
+            when(blacklistService.isBlacklisted(any())).thenReturn(false);
+            when(userDetailsService.loadUserByUsername("admin@test.com"))
+                .thenReturn(org.springframework.security.core.userdetails.User.withUsername("admin@test.com")
+                    .password("test")
+                    .roles("ADMIN")
+                    .build());
+            when(userService.createUser(any())).thenReturn(created);
+
+            mockMvc.perform(post("/api/admin/users")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + generateToken("ADMIN"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"email\":\"new@test.com\",\"role\":\"MANUFACTURER\",\"orgId\":\"org-1\",\"password\":\"TempPass123!\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.email").value("new@test.com"))
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
+        }
+
+        @Test
+        @DisplayName("non-ADMIN 403")
+        void createUser_nonAdminReturns403() throws Exception {
+            when(blacklistService.isBlacklisted(any())).thenReturn(false);
+            when(userDetailsService.loadUserByUsername("manufacturer@test.com"))
+                .thenReturn(org.springframework.security.core.userdetails.User.withUsername("manufacturer@test.com")
+                    .password("test")
+                    .roles("MANUFACTURER")
+                    .build());
+
+            mockMvc.perform(post("/api/admin/users")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + generateToken("MANUFACTURER"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"email\":\"new@test.com\",\"role\":\"MANUFACTURER\",\"orgId\":\"org-1\",\"password\":\"TempPass123!\"}"))
                 .andExpect(status().isForbidden());
         }
     }

@@ -1,5 +1,6 @@
 package com.chaintrack.controller;
 
+import com.chaintrack.audit.Audited;
 import com.chaintrack.dto.request.LogMovementRequest;
 import com.chaintrack.dto.response.MovementCreateResponse;
 import com.chaintrack.dto.response.MovementResponse;
@@ -35,6 +36,7 @@ public class TransactionController {
 
     @PostMapping
     @PreAuthorize("hasRole('MANUFACTURER') or hasRole('SHIPPER') or hasRole('RETAILER')")
+    @Audited(action = "CREATE", entityType = "MOVEMENT", entityIdExpr = "#result?.id()")
     @Operation(summary = "Log movement event", description = "Records a supply chain event")
     @ApiResponse(responseCode = "201", description = "Event logged successfully")
     @ApiResponse(responseCode = "400", description = "Invalid request or event transition")

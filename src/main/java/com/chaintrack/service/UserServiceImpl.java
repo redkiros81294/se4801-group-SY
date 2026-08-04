@@ -2,17 +2,21 @@ package com.chaintrack.service;
 
 import com.chaintrack.dto.request.AcceptInvitationRequest;
 import com.chaintrack.dto.request.ApproveUserRequest;
+import com.chaintrack.dto.request.CreateUserRequest;
 import com.chaintrack.dto.request.InviteUserRequest;
 import com.chaintrack.dto.response.InvitationResponse;
 import com.chaintrack.dto.response.UserResponse;
 import com.chaintrack.exception.ResourceNotFoundException;
+import com.chaintrack.model.Organization;
 import com.chaintrack.model.User;
 import com.chaintrack.model.UserStatus;
 import com.chaintrack.repository.InvitationRepository;
+import com.chaintrack.repository.OrganizationRepository;
 import com.chaintrack.repository.UserRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,14 +30,65 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final InvitationRepository invitationRepository;
+    private final OrganizationRepository organizationRepository;
     private final InvitationService invitationService;
 
     public UserServiceImpl(UserRepository userRepository,
                            InvitationRepository invitationRepository,
+                           OrganizationRepository organizationRepository,
                            InvitationService invitationService) {
         this.userRepository = userRepository;
         this.invitationRepository = invitationRepository;
+        this.organizationRepository = organizationRepository;
         this.invitationService = invitationService;
+    }
+
+    @Override
+    @Transactional
+    public UserResponse createUser(CreateUserRequest request) {
+        if (StringUtils.isBlank(request.email())) {
+            throw new IllegalArgumentException("Email must not be blank");
+        }
+        if (userRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("User already exists with email: " + request.email());
+        }
+
+        Organization org = organizationRepository.findById(UUID.fromString(request.orgId()))
+            .orElseThrow(() -> new ResourceNotFoundException("Organization", "id", request.orgId()));
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        User user = User.builder()
+            .email(request.email())
+            .passwordHash(encoder.encode(request.password()))
+            .role(request.role())
+            .org(org)
+            .status(UserStatus.ACTIVE) // active immediately — no approval step
+            .build();
+
+        User saved = userRepository.save(user);
+        return UserResponse.fromEntity(saved);
+    }
+
+    @Override
+    @Transactional
+    public UserResponse changePassword(String email, String currentPassword, String newPassword) {
+        if (StringUtils.isBlank(email)) {
+            throw new IllegalArgumentException("Email must not be blank");
+        }
+
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new ResourceNotFoundException("User", "email", email);
+        }
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        if (!encoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        user.setPasswordHash(encoder.encode(newPassword));
+        User saved = userRepository.save(user);
+        return UserResponse.fromEntity(saved);
     }
 
     @Override

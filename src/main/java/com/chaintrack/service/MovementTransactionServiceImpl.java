@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -66,11 +67,19 @@ public class MovementTransactionServiceImpl implements MovementTransactionServic
             previousHash = previousTx.getSignatureHash();
         }
 
-        // Compute the signature hash
-        String timestamp = Instant.now().toString();
+        /*
+         * The signature hash is computed over the timestamp string, and the chain
+         * verifier recomputes it from the value read back out of the database.
+         * PostgreSQL stores timestamps with microsecond precision, while
+         * Instant.now() can carry nanoseconds. If the hash were computed over the
+         * nano-precision string, every legitimately recorded movement would fail
+         * verification after the DB round-trip (COMPROMISED). Truncate to
+         * microseconds first so the stored value is exactly what was hashed.
+         */
+        Instant timestamp = Instant.now().truncatedTo(ChronoUnit.MICROS);
         String signatureHash = hashService.chainHash(
             request.eventType(),
-            timestamp,
+            timestamp.toString(),
             request.fromOrgId(),
             request.toOrgId(),
             previousHash
@@ -78,7 +87,7 @@ public class MovementTransactionServiceImpl implements MovementTransactionServic
 
         MovementTransaction movement = MovementTransaction.builder()
             .eventType(MovementTransaction.EventType.valueOf(request.eventType()))
-            .eventTimestamp(Instant.parse(timestamp))
+            .eventTimestamp(timestamp)
             .fromOrgId(request.fromOrgId())
             .toOrgId(request.toOrgId())
             .batch(batch)
@@ -86,7 +95,20 @@ public class MovementTransactionServiceImpl implements MovementTransactionServic
             .previousHash(previousHash)
             .build();
 
-        return transactionRepository.save(movement);
+        MovementTransaction saved = transactionRepository.save(movement);
+
+        // Keep the batch status in sync with the supply-chain lifecycle
+        BatchStatus nextStatus = switch (saved.getEventType()) {
+            case SHIPPED, IN_TRANSIT -> BatchStatus.IN_TRANSIT;
+            case RECEIVED -> BatchStatus.DELIVERED;
+            case MANUFACTURED -> BatchStatus.CREATED; // already the initial status
+        };
+        if (batch.getStatus() != nextStatus) {
+            batch.setStatus(nextStatus);
+            batchRepository.save(batch);
+        }
+
+        return saved;
     }
 
     @Override
@@ -97,19 +119,5 @@ public class MovementTransactionServiceImpl implements MovementTransactionServic
         Batch batch = batchRepository.findById(java.util.UUID.fromString(batchId))
             .orElseThrow(() -> new ResourceNotFoundException("Batch", "id", batchId));
         return transactionRepository.findByBatchOrderByEventTimestampAsc(batch);
-    }
-
-    @Override
-    public List<Integer> verifyChain(UUID batchId, Object session) {
-        // Delegate to ChainVerificationService for consistency
-        // For now, return empty list (chain valid) as this duplicates ChainVerificationService
-        return List.of();
-    }
-
-    @Override
-    @Transactional
-    public MovementTransaction seedGenesis(CreateMovementRequest request) {
-        // Genesis is essentially the first recordMovement call
-        return recordMovement(request);
     }
 }

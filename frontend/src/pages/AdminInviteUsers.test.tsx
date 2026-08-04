@@ -11,6 +11,7 @@ vi.mock('../lib/api', () => ({
 }));
 
 vi.mock('../contexts/AuthContext', () => ({
+  useAuth: () => ({ user: { userId: 'admin-1' } }),
   getToken: vi.fn(() => null),
   clearToken: vi.fn()
 }));
@@ -65,45 +66,43 @@ describe('AdminInviteUsers', () => {
     it('renders all three tabs', async () => {
       render(<AdminInviteUsers />);
       await waitFor(() => {
-        expect(screen.getByText('Invite User')).toBeInTheDocument();
+        expect(screen.getByText('Create User')).toBeInTheDocument();
       });
-      expect(screen.getByText(/Pending Users/)).toBeInTheDocument();
+      expect(screen.getByText(/Pending Approvals/)).toBeInTheDocument();
       expect(screen.getByText(/Sent Invitations/)).toBeInTheDocument();
     });
 
-    it('shows invite tab content by default', async () => {
+    it('shows the create-user form by default', async () => {
       render(<AdminInviteUsers />);
       await waitFor(() => {
-        expect(screen.getByRole('heading', { name: 'Invite New User' })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'Create User Account' })).toBeInTheDocument();
       });
     });
 
-    it('switches to pending users tab when clicked', async () => {
+    it('switches to pending approvals tab when clicked', async () => {
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByText('Create User'));
 
-      const pendingTab = screen.getByText(/Pending Users/);
-      fireEvent.click(pendingTab);
+      fireEvent.click(screen.getByText(/Pending Approvals/));
 
       expect(screen.getByRole('columnheader', { name: 'Email' })).toBeInTheDocument();
       expect(screen.getByRole('columnheader', { name: 'Role' })).toBeInTheDocument();
     });
 
-    it('switches to invitations tab when clicked', async () => {
+    it('switches to sent invitations tab when clicked', async () => {
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByText('Create User'));
 
-      const invitationsTab = screen.getByText(/Sent Invitations/);
-      fireEvent.click(invitationsTab);
+      fireEvent.click(screen.getByText(/Sent Invitations/));
 
       expect(screen.getByText('invited@example.com')).toBeInTheDocument();
     });
   });
 
-  describe('form validation', () => {
+  describe('create user form validation', () => {
     it('shows email validation error when email is invalid', async () => {
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByRole('heading', { name: 'Create User Account' }));
 
       const emailInput = screen.getByLabelText('Email Address');
       fireEvent.change(emailInput, { target: { name: 'email', value: 'invalid-email' } });
@@ -116,7 +115,7 @@ describe('AdminInviteUsers', () => {
 
     it('shows role validation error when role is not selected', async () => {
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByRole('heading', { name: 'Create User Account' }));
 
       const roleSelect = screen.getByLabelText('Role');
       fireEvent.focus(roleSelect);
@@ -129,7 +128,7 @@ describe('AdminInviteUsers', () => {
 
     it('shows organization validation error when org is not selected', async () => {
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByRole('heading', { name: 'Create User Account' }));
 
       const orgSelect = screen.getByLabelText('Organization');
       fireEvent.focus(orgSelect);
@@ -139,99 +138,116 @@ describe('AdminInviteUsers', () => {
         expect(screen.getByText('Organization is required')).toBeInTheDocument();
       });
     });
-  });
 
-  describe('form submission for inviting users', () => {
-    it('submits invite form with valid data', async () => {
-      (api.post as any).mockResolvedValue({ data: {} });
-
+    it('shows password strength error for a weak password', async () => {
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByRole('heading', { name: 'Create User Account' }));
 
-      const emailInput = screen.getByLabelText('Email Address');
-      const roleSelect = screen.getByLabelText('Role');
-      const orgSelect = screen.getByLabelText('Organization');
-
-      fireEvent.change(emailInput, { target: { name: 'email', value: 'newuser@example.com' } });
-      fireEvent.change(roleSelect, { target: { name: 'role', value: 'MANUFACTURER' } });
-      fireEvent.change(orgSelect, { target: { name: 'orgId', value: '1' } });
-
-      const submitButton = screen.getByRole('button', { name: 'Send Invitation' });
-      fireEvent.click(submitButton);
+      const passwordInput = screen.getByLabelText('Temporary Password');
+      fireEvent.change(passwordInput, { target: { name: 'password', value: 'short' } });
+      fireEvent.blur(passwordInput);
 
       await waitFor(() => {
-        expect(api.post).toHaveBeenCalledWith('/auth/invite', {
+        expect(screen.getByText('Password must be at least 8 characters')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('create user submission', () => {
+    const fillCreateForm = () => {
+      fireEvent.change(screen.getByLabelText('Email Address'), { target: { name: 'email', value: 'newuser@example.com' } });
+      fireEvent.change(screen.getByLabelText('Role'), { target: { name: 'role', value: 'MANUFACTURER' } });
+      fireEvent.change(screen.getByLabelText('Organization'), { target: { name: 'orgId', value: '1' } });
+      fireEvent.change(screen.getByLabelText('Temporary Password'), { target: { name: 'password', value: 'TempPass123!' } });
+      fireEvent.change(screen.getByLabelText('Confirm Password'), { target: { name: 'confirmPassword', value: 'TempPass123!' } });
+    };
+
+    it('creates the user via /admin/users with the password', async () => {
+      render(<AdminInviteUsers />);
+      await waitFor(() => screen.getByRole('heading', { name: 'Create User Account' }));
+
+      fillCreateForm();
+      fireEvent.click(screen.getByRole('button', { name: 'Create Account' }));
+
+      await waitFor(() => {
+        expect(api.post).toHaveBeenCalledWith('/admin/users', {
           email: 'newuser@example.com',
           role: 'MANUFACTURER',
-          orgId: '1'
+          orgId: '1',
+          password: 'TempPass123!'
         });
       });
     });
 
-    it('shows success message after successful invite', async () => {
-      (api.post as any).mockResolvedValue({ data: {} });
-
+    it('shows success message after creating a user', async () => {
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByRole('heading', { name: 'Create User Account' }));
 
-      const emailInput = screen.getByLabelText('Email Address');
-      const roleSelect = screen.getByLabelText('Role');
-      const orgSelect = screen.getByLabelText('Organization');
-
-      fireEvent.change(emailInput, { target: { name: 'email', value: 'newuser@example.com' } });
-      fireEvent.change(roleSelect, { target: { name: 'role', value: 'MANUFACTURER' } });
-      fireEvent.change(orgSelect, { target: { name: 'orgId', value: '1' } });
-
-      const submitButton = screen.getByRole('button', { name: 'Send Invitation' });
-      fireEvent.click(submitButton);
+      fillCreateForm();
+      fireEvent.click(screen.getByRole('button', { name: 'Create Account' }));
 
       await waitFor(() => {
-        expect(screen.getByText(/Invitation sent to newuser@example.com/)).toBeInTheDocument();
+        expect(screen.getByText(/User created for newuser@example.com/)).toBeInTheDocument();
       });
     });
 
-    it('shows error message when invite fails', async () => {
+    it('rejects mismatched passwords', async () => {
+      render(<AdminInviteUsers />);
+      await waitFor(() => screen.getByRole('heading', { name: 'Create User Account' }));
+
+      fireEvent.change(screen.getByLabelText('Email Address'), { target: { name: 'email', value: 'newuser@example.com' } });
+      fireEvent.change(screen.getByLabelText('Role'), { target: { name: 'role', value: 'MANUFACTURER' } });
+      fireEvent.change(screen.getByLabelText('Organization'), { target: { name: 'orgId', value: '1' } });
+      fireEvent.change(screen.getByLabelText('Temporary Password'), { target: { name: 'password', value: 'TempPass123!' } });
+      fireEvent.change(screen.getByLabelText('Confirm Password'), { target: { name: 'confirmPassword', value: 'Different123!' } });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Create Account' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
+      });
+      expect(api.post).not.toHaveBeenCalledWith('/admin/users', expect.objectContaining({ email: 'newuser@example.com' }));
+    });
+
+    it('shows error message when creation fails', async () => {
       (api.post as any).mockRejectedValue({
-        response: { data: { message: 'Email already invited' } }
+        response: { data: { message: 'User already exists with email: newuser@example.com' } }
       });
 
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByRole('heading', { name: 'Create User Account' }));
 
-      const emailInput = screen.getByLabelText('Email Address');
-      const roleSelect = screen.getByLabelText('Role');
-      const orgSelect = screen.getByLabelText('Organization');
-
-      fireEvent.change(emailInput, { target: { name: 'email', value: 'existing@example.com' } });
-      fireEvent.change(roleSelect, { target: { name: 'role', value: 'SHIPPER' } });
-      fireEvent.change(orgSelect, { target: { name: 'orgId', value: '2' } });
-
-      const submitButton = screen.getByRole('button', { name: 'Send Invitation' });
-      fireEvent.click(submitButton);
+      fillCreateForm();
+      fireEvent.click(screen.getByRole('button', { name: 'Create Account' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Email already invited')).toBeInTheDocument();
+        expect(screen.getByText('User already exists with email: newuser@example.com')).toBeInTheDocument();
       });
     });
 
-    it('shows loading spinner when submitting', async () => {
+    it('shows loading spinner and disables the button while submitting', async () => {
       (api.post as any).mockImplementation(() => new Promise(() => {}));
 
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByRole('heading', { name: 'Create User Account' }));
 
-      const emailInput = screen.getByLabelText('Email Address');
-      const roleSelect = screen.getByLabelText('Role');
-      const orgSelect = screen.getByLabelText('Organization');
-
-      fireEvent.change(emailInput, { target: { name: 'email', value: 'loading@example.com' } });
-      fireEvent.change(roleSelect, { target: { name: 'role', value: 'RETAILER' } });
-      fireEvent.change(orgSelect, { target: { name: 'orgId', value: '1' } });
-
-      const submitButton = screen.getByRole('button', { name: 'Send Invitation' });
+      fillCreateForm();
+      const submitButton = screen.getByRole('button', { name: 'Create Account' });
       fireEvent.click(submitButton);
 
-      expect(screen.getByRole('button')).toBeDisabled();
+      expect(submitButton).toBeDisabled();
+    });
+
+    it('generate password fills both password fields', async () => {
+      render(<AdminInviteUsers />);
+      await waitFor(() => screen.getByRole('heading', { name: 'Create User Account' }));
+
+      fireEvent.click(screen.getByRole('button', { name: 'Generate Password' }));
+
+      const passwordInput = screen.getByLabelText('Temporary Password') as HTMLInputElement;
+      const confirmInput = screen.getByLabelText('Confirm Password') as HTMLInputElement;
+      expect(passwordInput.value.length).toBeGreaterThanOrEqual(8);
+      expect(confirmInput.value).toBe(passwordInput.value);
     });
 
     it('loads organizations into dropdown', async () => {
@@ -242,13 +258,12 @@ describe('AdminInviteUsers', () => {
     });
   });
 
-  describe('pending users tab actions', () => {
+  describe('pending approvals tab actions', () => {
     it('displays pending users', async () => {
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByText('Create User'));
 
-      const pendingTab = screen.getByText(/Pending Users/);
-      fireEvent.click(pendingTab);
+      fireEvent.click(screen.getByText(/Pending Approvals/));
 
       expect(screen.getByText('pending@example.com')).toBeInTheDocument();
       expect(screen.getByText('MANUFACTURER')).toBeInTheDocument();
@@ -257,26 +272,22 @@ describe('AdminInviteUsers', () => {
 
     it('approves user when approve button clicked', async () => {
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByText('Create User'));
 
-      const pendingTab = screen.getByText(/Pending Users/);
-      fireEvent.click(pendingTab);
+      fireEvent.click(screen.getByText(/Pending Approvals/));
 
-      const approveButton = screen.getByTitle('Approve user');
-      fireEvent.click(approveButton);
+      fireEvent.click(screen.getByTitle('Approve user'));
 
-      expect(api.post).toHaveBeenCalledWith('/admin/users/user-1/approve', expect.objectContaining({ adminId: '' }));
+      expect(api.post).toHaveBeenCalledWith('/admin/users/user-1/approve', expect.objectContaining({ adminId: 'admin-1' }));
     });
 
     it('rejects user when reject button clicked', async () => {
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByText('Create User'));
 
-      const pendingTab = screen.getByText(/Pending Users/);
-      fireEvent.click(pendingTab);
+      fireEvent.click(screen.getByText(/Pending Approvals/));
 
-      const rejectButton = screen.getByTitle('Reject user');
-      fireEvent.click(rejectButton);
+      fireEvent.click(screen.getByTitle('Reject user'));
 
       expect(api.post).toHaveBeenCalledWith('/admin/users/user-1/reject', expect.objectContaining({
         rejectionReason: 'Rejected by admin'
@@ -290,10 +301,9 @@ describe('AdminInviteUsers', () => {
       });
 
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByText('Create User'));
 
-      const pendingTab = screen.getByText(/Pending Users/);
-      fireEvent.click(pendingTab);
+      fireEvent.click(screen.getByText(/Pending Approvals/));
 
       expect(screen.getByText('No Pending Users')).toBeInTheDocument();
       expect(screen.getByText('All invited users have been processed')).toBeInTheDocument();
@@ -301,23 +311,42 @@ describe('AdminInviteUsers', () => {
   });
 
   describe('invitations tab actions', () => {
-    it('displays invitations', async () => {
+    it('displays invitations and the send-invite form', async () => {
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByText('Create User'));
 
-      const invitationsTab = screen.getByText(/Sent Invitations/);
-      fireEvent.click(invitationsTab);
+      fireEvent.click(screen.getByText(/Sent Invitations/));
 
       expect(screen.getByText('invited@example.com')).toBeInTheDocument();
-      expect(screen.getByText('SHIPPER')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Send Invitation' })).toBeInTheDocument();
+    });
+
+    it('sends an email invitation via /auth/invite', async () => {
+      render(<AdminInviteUsers />);
+      await waitFor(() => screen.getByText('Create User'));
+
+      fireEvent.click(screen.getByText(/Sent Invitations/));
+
+      fireEvent.change(screen.getByLabelText('Email Address'), { target: { name: 'email', value: 'invite@example.com' } });
+      fireEvent.change(screen.getByLabelText('Role'), { target: { name: 'role', value: 'SHIPPER' } });
+      fireEvent.change(screen.getByLabelText('Organization'), { target: { name: 'orgId', value: '2' } });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Send Invitation' }));
+
+      await waitFor(() => {
+        expect(api.post).toHaveBeenCalledWith('/auth/invite', {
+          email: 'invite@example.com',
+          role: 'SHIPPER',
+          orgId: '2'
+        });
+      });
     });
 
     it('shows revoke button only for PENDING invitations', async () => {
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByText('Create User'));
 
-      const invitationsTab = screen.getByText(/Sent Invitations/);
-      fireEvent.click(invitationsTab);
+      fireEvent.click(screen.getByText(/Sent Invitations/));
 
       const revokeButtons = screen.getAllByTitle('Revoke invitation');
       expect(revokeButtons).toHaveLength(1);
@@ -325,13 +354,11 @@ describe('AdminInviteUsers', () => {
 
     it('revokes invitation when revoke button clicked', async () => {
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByText('Create User'));
 
-      const invitationsTab = screen.getByText(/Sent Invitations/);
-      fireEvent.click(invitationsTab);
+      fireEvent.click(screen.getByText(/Sent Invitations/));
 
-      const revokeButton = screen.getByTitle('Revoke invitation');
-      fireEvent.click(revokeButton);
+      fireEvent.click(screen.getByTitle('Revoke invitation'));
 
       expect(api.post).toHaveBeenCalledWith('/admin/invitations/inv-1/revoke');
     });
@@ -343,35 +370,12 @@ describe('AdminInviteUsers', () => {
       });
 
       render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
+      await waitFor(() => screen.getByText('Create User'));
 
-      const invitationsTab = screen.getByText(/Sent Invitations/);
-      fireEvent.click(invitationsTab);
+      fireEvent.click(screen.getByText(/Sent Invitations/));
 
       expect(screen.getByText('No Sent Invitations')).toBeInTheDocument();
       expect(screen.getByText('No invitations have been sent yet')).toBeInTheDocument();
-    });
-  });
-
-  describe('status badges', () => {
-    it('shows PENDING status with amber styling', async () => {
-      render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
-
-      const invitationsTab = screen.getByText(/Sent Invitations/);
-      fireEvent.click(invitationsTab);
-
-      expect(screen.getByText('PENDING')).toBeInTheDocument();
-    });
-
-    it('shows ACCEPTED status with green styling', async () => {
-      render(<AdminInviteUsers />);
-      await waitFor(() => screen.getByText('Invite User'));
-
-      const invitationsTab = screen.getByText(/Sent Invitations/);
-      fireEvent.click(invitationsTab);
-
-      expect(screen.getByText('ACCEPTED')).toBeInTheDocument();
     });
   });
 });

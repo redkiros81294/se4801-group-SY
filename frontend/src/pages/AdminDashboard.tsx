@@ -1,4 +1,5 @@
-import { lazy, Suspense, useMemo } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
+import { clsx } from 'clsx';
 import api from '../lib/api';
 import { useApiData } from '../hooks/useApiData';
 import { StatCard } from '../components/StatCard';
@@ -24,6 +25,24 @@ export const AdminDashboard = () => {
   const { data: analytics, loading, error, refetch } = useApiData<AdminAnalytics>(
     () => api.get('/admin/analytics').then(res => res.data),
   );
+  const [confirmingReset, setConfirmingReset] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetMessage, setResetMessage] = useState('');
+
+  const handleResetDemoData = async () => {
+    setResetting(true);
+    setResetMessage('');
+    try {
+      const response = await api.post('/admin/demo/reset');
+      setResetMessage(response.data?.message || 'Demo dataset restored');
+      setConfirmingReset(false);
+      refetch();
+    } catch (err: any) {
+      setResetMessage(err.response?.data?.message || 'Reset failed — try again');
+    } finally {
+      setResetting(false);
+    }
+  };
 
   const pieData = useMemo(
     () => analytics
@@ -69,6 +88,50 @@ export const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* Header with demo reset */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-[var(--t1)]">System Dashboard</h1>
+          <p className="text-[var(--t2)] text-sm mt-1">Live supply-chain analytics across all organizations</p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {resetMessage && (
+            <span className="text-sm text-[var(--green)]">{resetMessage}</span>
+          )}
+          {confirmingReset ? (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-[var(--amber)]">Reset all demo data?</span>
+              <button
+                onClick={handleResetDemoData}
+                disabled={resetting}
+                className="px-3 py-2 rounded-lg bg-[var(--red)]/20 text-[var(--red)] text-sm font-medium hover:bg-[var(--red)]/30 transition-colors disabled:opacity-50"
+              >
+                {resetting ? 'Resetting…' : 'Yes, reset'}
+              </button>
+              <button
+                onClick={() => setConfirmingReset(false)}
+                className="px-3 py-2 rounded-lg bg-[var(--bg2)] text-[var(--t2)] text-sm hover:bg-[var(--bg3)] transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => { setConfirmingReset(true); setResetMessage(''); }}
+              className={clsx(
+                'flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors',
+                'border-[var(--amber)]/30 text-[var(--amber)] hover:bg-[var(--amber)]/10'
+              )}
+              title="Restore the seeded demo dataset (audit log is preserved)"
+            >
+              <i className="ti ti-refresh" aria-hidden="true" />
+              Reset demo data
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard

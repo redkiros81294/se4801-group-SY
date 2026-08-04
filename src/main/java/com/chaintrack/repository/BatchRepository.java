@@ -4,6 +4,8 @@ import com.chaintrack.model.Batch;
 import com.chaintrack.model.BatchStatus;
 import com.chaintrack.model.Organization;
 import com.chaintrack.model.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,6 +17,8 @@ public interface BatchRepository extends JpaRepository<Batch, UUID> {
     List<Batch> findByProductAndStatus(Product product, BatchStatus status);
 
     List<Batch> findByManufacturer(Organization organization);
+
+    Page<Batch> findByManufacturer(Organization organization, Pageable pageable);
 
     long countByStatus(BatchStatus status);
 }

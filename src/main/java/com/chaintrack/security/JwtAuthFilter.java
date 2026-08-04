@@ -1,5 +1,6 @@
 package com.chaintrack.security;
 
+import com.chaintrack.service.JwtBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,27 +24,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
     private final UserDetailsService userDetailsService;
+    private final JwtBlacklistService jwtBlacklistService;
 
-    public JwtAuthFilter(JwtUtils jwtUtils, UserDetailsService userDetailsService) {
+    public JwtAuthFilter(JwtUtils jwtUtils,
+                         UserDetailsService userDetailsService,
+                         JwtBlacklistService jwtBlacklistService) {
         this.jwtUtils = jwtUtils;
         this.userDetailsService = userDetailsService;
+        this.jwtBlacklistService = jwtBlacklistService;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                      HttpServletResponse response,
                                      FilterChain filterChain) throws ServletException, IOException {
-        logger.info("JwtAuthFilter called");
-
         // Check if already authenticated (e.g., via @WithMockUser or other test setup)
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            logger.info("Already authenticated, proceeding");
             filterChain.doFilter(request, response);
             return;
         }
 
         if (isExempt(request)) {
-            logger.info("Exempt path: {}, method: {}", request.getRequestURI(), request.getMethod());
             filterChain.doFilter(request, response);
             return;
         }
@@ -52,6 +53,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
+
+            // Reject revoked tokens — logout adds the token to the blacklist.
+            if (jwtBlacklistService.isBlacklisted(token)) {
+                logger.debug("Rejected blacklisted JWT token (subject unknown)");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has been revoked");
+                return;
+            }
+
             try {
                 String username = jwtUtils.extractUsername(token);
                 if (username != null) {
@@ -60,29 +69,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         UsernamePasswordAuthenticationToken authToken =
                                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                         SecurityContextHolder.getContext().setAuthentication(authToken);
-                        logger.info("Set authentication: {}", authToken);
+                        logger.debug("Authenticated user: {}", username);
                     } else {
-                        logger.info("Token validation failed for token: {}", token);
+                        logger.debug("Token validation failed");
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
                         return;
                     }
                 } else {
-                    logger.info("Username null in token: {}", token);
+                    logger.debug("Username null in token");
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
                     return;
                 }
             } catch (Exception e) {
-                logger.warn("Failed to extract username from token", e);
+                logger.debug("Failed to extract username from token: {}", e.getMessage());
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
                 return;
             }
-        } else {
-            logger.info("Token: null, Username: null, Auth before filter: {}", SecurityContextHolder.getContext().getAuthentication());
         }
 
-        logger.info("Auth after filter (before chain): {}", SecurityContextHolder.getContext().getAuthentication());
         filterChain.doFilter(request, response);
-        logger.info("Auth after filter (after chain): {}", SecurityContextHolder.getContext().getAuthentication());
     }
 
     private boolean isExempt(HttpServletRequest request) {

@@ -1,14 +1,15 @@
 package com.chaintrack.controller;
 
+import com.chaintrack.audit.Audited;
 import com.chaintrack.dto.response.VerifyResult;
 import com.chaintrack.dto.response.MovementResponse;
+import com.chaintrack.exception.ResourceNotFoundException;
 import com.chaintrack.model.*;
+import com.chaintrack.repository.BatchRepository;
 import com.chaintrack.repository.QRTokenRepository;
 import com.chaintrack.service.ChainVerificationService;
 import com.chaintrack.service.MovementTransactionService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -24,48 +25,61 @@ import java.util.UUID;
 public class VerifyController {
 
     private final QRTokenRepository qrTokenRepository;
+    private final BatchRepository batchRepository;
     private final MovementTransactionService movementService;
     private final ChainVerificationService chainVerificationService;
 
     public VerifyController(QRTokenRepository qrTokenRepository,
+                            BatchRepository batchRepository,
                             MovementTransactionService movementService,
                             ChainVerificationService chainVerificationService) {
         this.qrTokenRepository = qrTokenRepository;
+        this.batchRepository = batchRepository;
         this.movementService = movementService;
         this.chainVerificationService = chainVerificationService;
     }
 
     @GetMapping("/verify/{token}")
+    @Audited(action = "VERIFY", entityType = "QR_TOKEN", entityIdExpr = "#arg0")
     @Operation(summary = "Verify batch by QR token", description = "Public endpoint - validates chain and returns provenance")
     @ApiResponse(responseCode = "200", description = "Verification result returned")
     @ApiResponse(responseCode = "404", description = "Token not found")
     public ResponseEntity<VerifyResult> verifyByToken(@PathVariable String token) {
+        UUID tokenValue;
         try {
-            UUID tokenValue = UUID.fromString(token);
-            QRToken qrToken = qrTokenRepository.findByTokenValue(tokenValue)
-                    .orElseThrow(() -> new IllegalArgumentException("Token not found"));
-            
-            Batch batch = qrToken.getBatch();
-            Product product = batch.getProduct();
-            ChainStatus chainStatus = chainVerificationService.verifyChain(batch.getId().toString());
-            
-            List<MovementTransaction> movements = movementService.getChainForBatch(batch.getId().toString());
-            List<MovementResponse> chain = movements.stream()
-                    .map(MovementResponse::fromEntity)
-                    .toList();
-            
-            VerifyResult result = new VerifyResult(
-                    chainStatus == ChainStatus.VALID,
-                    product != null ? product.getName() : null,
-                    product != null ? product.getSku() : null,
-                    batch.getBatchNumber(),
-                    batch.getStatus().name(),
-                    chain
-            );
-            return ResponseEntity.ok(result);
+            tokenValue = UUID.fromString(token);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
+
+        QRToken qrToken = qrTokenRepository.findByTokenValue(tokenValue)
+            .orElseThrow(() -> new ResourceNotFoundException("QR token", "value", token));
+
+        Batch batch = qrToken.getBatch();
+        Product product = batch.getProduct();
+        ChainStatus chainStatus = chainVerificationService.verifyChain(batch.getId().toString());
+
+        // Tamper evidence: persist the COMPROMISED status so downstream consumers
+        // and analytics see it, not just the one-off verification response.
+        if (chainStatus == ChainStatus.COMPROMISED && batch.getStatus() != BatchStatus.COMPROMISED) {
+            batch.setStatus(BatchStatus.COMPROMISED);
+            batchRepository.save(batch);
+        }
+
+        List<MovementTransaction> movements = movementService.getChainForBatch(batch.getId().toString());
+        List<MovementResponse> chain = movements.stream()
+                .map(MovementResponse::fromEntity)
+                .toList();
+
+        VerifyResult result = new VerifyResult(
+                chainStatus == ChainStatus.VALID,
+                product != null ? product.getName() : null,
+                product != null ? product.getSku() : null,
+                batch.getBatchNumber(),
+                batch.getStatus().name(),
+                chain
+        );
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/health-check")

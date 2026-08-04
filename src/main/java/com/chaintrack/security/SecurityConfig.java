@@ -23,8 +23,11 @@ public class SecurityConfig {
     private String frontendUrl;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter, com.chaintrack.security.rate.RateLimitingFilter rateLimitingFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter,
+                                                   com.chaintrack.security.rate.RateLimitingFilter rateLimitingFilter,
+                                                   com.chaintrack.security.CorrelationIdFilter correlationIdFilter) throws Exception {
         http
+            .addFilterBefore(correlationIdFilter, com.chaintrack.security.rate.RateLimitingFilter.class)
             .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
             .headers(headers -> headers
                 .xssProtection(org.springframework.security.config.Customizer.withDefaults())

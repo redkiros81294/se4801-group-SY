@@ -190,7 +190,7 @@ export const Login = () => {
 
           <div className="text-center mt-6">
             <p className="text-[var(--t2)] text-sm">
-              Don't have an account? Contact your administrator to invite you to ChainTrack.
+              Don't have an account? Contact your administrator to create one for you.
             </p>
           </div>
         </form>

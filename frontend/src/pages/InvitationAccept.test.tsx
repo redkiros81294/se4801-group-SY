@@ -77,9 +77,7 @@ describe('InvitationAccept', () => {
   describe('invitation details display', () => {
     it('renders invitation details after successful fetch', async () => {
       render(<InvitationAccept />);
-      await waitFor(() => {
-        expect(screen.getByText('Accept Invitation')).toBeInTheDocument();
-      });
+      await screen.findByRole('heading', { name: 'Accept Invitation' });
       expect(screen.getByText('Invitation Details')).toBeInTheDocument();
       expect(screen.getByText('test@example.com')).toBeInTheDocument();
       expect(screen.getByText('MANUFACTURER')).toBeInTheDocument();
@@ -90,7 +88,7 @@ describe('InvitationAccept', () => {
   describe('form validation', () => {
     it('shows password validation errors on blur', async () => {
       render(<InvitationAccept />);
-      await screen.findByText('Accept Invitation');
+      await screen.findByRole('heading', { name: 'Accept Invitation' });
 
       const passwordInput = screen.getByPlaceholderText('Create a strong password');
       fireEvent.focus(passwordInput);
@@ -103,7 +101,7 @@ describe('InvitationAccept', () => {
 
     it('validates password complexity requirements', async () => {
       render(<InvitationAccept />);
-      await screen.findByText('Accept Invitation');
+      await screen.findByRole('heading', { name: 'Accept Invitation' });
 
       const passwordInput = screen.getByLabelText('Password');
       
@@ -123,13 +121,13 @@ describe('InvitationAccept', () => {
         expect(screen.getByText('Password must contain at least one lowercase letter')).toBeInTheDocument();
       });
 
-      fireEvent.change(passwordInput, { target: { name: 'password', value: 'ABCDEFGH!' } });
+      fireEvent.change(passwordInput, { target: { name: 'password', value: 'ABCDefgh!' } });
       fireEvent.blur(passwordInput);
       await waitFor(() => {
         expect(screen.getByText('Password must contain at least one digit')).toBeInTheDocument();
       });
 
-      fireEvent.change(passwordInput, { target: { name: 'password', value: 'ABCDEFGH1' } });
+      fireEvent.change(passwordInput, { target: { name: 'password', value: 'ABCDefgh1' } });
       fireEvent.blur(passwordInput);
       await waitFor(() => {
         expect(screen.getByText('Password must contain at least one special character')).toBeInTheDocument();
@@ -138,7 +136,7 @@ describe('InvitationAccept', () => {
 
     it('shows password mismatch error when passwords do not match', async () => {
       render(<InvitationAccept />);
-      await screen.findByText('Accept Invitation');
+      await screen.findByRole('heading', { name: 'Accept Invitation' });
 
       const passwordInput = screen.getByLabelText('Password');
       const confirmPasswordInput = screen.getByLabelText('Confirm Password');
@@ -160,7 +158,7 @@ describe('InvitationAccept', () => {
       (api.post as any).mockResolvedValue({ data: {} });
 
       render(<InvitationAccept />);
-      await screen.findByText('Accept Invitation');
+      await screen.findByRole('heading', { name: 'Accept Invitation' });
 
       const passwordInput = screen.getByLabelText('Password');
       const confirmPasswordInput = screen.getByLabelText('Confirm Password');
@@ -185,7 +183,7 @@ describe('InvitationAccept', () => {
       (api.post as any).mockResolvedValue({ data: {} });
 
       render(<InvitationAccept />);
-      await screen.findByText('Accept Invitation');
+      await screen.findByRole('heading', { name: 'Accept Invitation' });
 
       const passwordInput = screen.getByLabelText('Password');
       const confirmPasswordInput = screen.getByLabelText('Confirm Password');
@@ -210,7 +208,7 @@ describe('InvitationAccept', () => {
       });
 
       render(<InvitationAccept />);
-      await screen.findByText('Accept Invitation');
+      await screen.findByRole('heading', { name: 'Accept Invitation' });
 
       const passwordInput = screen.getByLabelText('Password');
       const confirmPasswordInput = screen.getByLabelText('Confirm Password');
@@ -230,7 +228,7 @@ describe('InvitationAccept', () => {
   describe('navigation', () => {
     it('navigates to login when clicking "Already have an account"', async () => {
       render(<InvitationAccept />);
-      await screen.findByText('Accept Invitation');
+      await screen.findByRole('heading', { name: 'Accept Invitation' });
 
       const loginLink = screen.getByText('Already have an account? Login');
       fireEvent.click(loginLink);

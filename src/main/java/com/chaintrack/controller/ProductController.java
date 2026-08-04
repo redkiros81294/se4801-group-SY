@@ -1,5 +1,6 @@
 package com.chaintrack.controller;
 
+import com.chaintrack.audit.Audited;
 import com.chaintrack.dto.request.CreateProductRequest;
 import com.chaintrack.dto.request.UpdateProductRequest;
 import com.chaintrack.dto.response.ProductResponse;
@@ -61,6 +62,7 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasRole('MANUFACTURER')")
+    @Audited(action = "CREATE", entityType = "PRODUCT", entityIdExpr = "#result?.id()")
     @Operation(summary = "Create product", description = "Creates a new product (MANUFACTURER only)")
     @ApiResponse(responseCode = "201", description = "Product created successfully")
     @ApiResponse(responseCode = "400", description = "Invalid request data")
@@ -79,6 +81,7 @@ public class ProductController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('MANUFACTURER')")
+    @Audited(action = "UPDATE", entityType = "PRODUCT", entityIdExpr = "#arg0")
     @Operation(summary = "Update product", description = "Updates product details (MANUFACTURER, own products only)")
     @ApiResponse(responseCode = "200", description = "Product updated successfully")
     @ApiResponse(responseCode = "400", description = "Invalid request data")

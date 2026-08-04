@@ -7,9 +7,6 @@ import com.chaintrack.model.BatchStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-import java.util.UUID;
-
 /**
  * Service for managing product batches across the supply chain.
  * Covers creation, status transitions (manufacturer → shipper → retailer),
@@ -29,9 +26,15 @@ public interface BatchService {
     Batch getBatchById(String batchId);
 
     /**
-     * Paginated list of batches for the authenticated user's organization.
+     * Paginated list of ALL batches (ADMIN only at the controller).
      */
     Page<Batch> listBatches(Pageable pageable);
+
+    /**
+     * Paginated list of batches owned by the caller's organization.
+     * Used to scope batch visibility to the authenticated user's org (BOLA protection).
+     */
+    Page<Batch> listBatchesForOrg(String orgId, Pageable pageable);
 
     /**
      * Advances the batch status to the next supply-chain state.
@@ -40,15 +43,12 @@ public interface BatchService {
     Batch advanceStatus(String batchId, BatchStatus nextStatus, String actorOrgId);
 
     /**
-     * Returns the current stock token list for the batch.
-     */
-    List<String> getStockTokens(UUID batchId);
-
-    /**
-     * Generates a QR token for a batch.
+     * Generates (or returns the existing) QR token for a batch.
+     * Only the owning manufacturer organization may call this.
      *
-     * @param batchId the batch id
+     * @param batchId    the batch id
+     * @param actorOrgId the authenticated caller's organization id
      * @return GenerateBatchTokenResponse with token and QR image
      */
-    GenerateBatchTokenResponse generateQR(String batchId);
+    GenerateBatchTokenResponse generateQR(String batchId, String actorOrgId);
 }

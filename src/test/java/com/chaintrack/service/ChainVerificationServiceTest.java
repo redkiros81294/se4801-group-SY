@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -111,8 +112,10 @@ class ChainVerificationServiceTest {
 
 private MovementTransaction createMovement(Batch batch, MovementTransaction.EventType eventType,
                                                          String fromOrgId, String toOrgId, String previousHash) {
-        // Use the same timestamp for both hash computation and entity to ensure consistency
-        Instant timestamp = Instant.now();
+        // Truncate to microsecond precision (PostgreSQL storage precision) so the
+        // hash computed here survives the DB round-trip unchanged — this mirrors
+        // MovementTransactionServiceImpl.recordMovement.
+        Instant timestamp = Instant.now().truncatedTo(ChronoUnit.MICROS);
         
         String signature = hashService.chainHash(
             eventType.name(),

@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.UUID;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -85,6 +84,20 @@ public class BatchServiceImpl implements BatchService {
         return batchRepository.findAll(pageable);
     }
 
+    /**
+     * Paginated list of batches owned by a single organization.
+     * Used to scope batch visibility to the caller's own org (BOLA protection).
+     */
+    @Override
+    public Page<Batch> listBatchesForOrg(String orgId, Pageable pageable) {
+        if (isBlank(orgId)) {
+            throw new IllegalArgumentException("Organization id must not be blank");
+        }
+        Organization org = organizationRepository.findById(UUID.fromString(orgId))
+            .orElseThrow(() -> new ResourceNotFoundException("Organization", "id", orgId));
+        return batchRepository.findByManufacturer(org, pageable);
+    }
+
     @Override
     @Transactional
     public Batch advanceStatus(String batchId, BatchStatus nextStatus, String actorOrgId) {
@@ -109,20 +122,43 @@ public class BatchServiceImpl implements BatchService {
         return batchRepository.save(batch);
     }
 
-    @Override
-    public List<String> getStockTokens(UUID batchId) {
-        return List.of();
-    }
-
     /**
      * Generates a QR token for a batch. Creates a UUID token and QR code image.
+     * <p>
+     * Only the MANUFACTURER organization that owns the batch may mint a QR
+     * (BOLA check), and a batch has at most one QR token: a second call returns
+     * the existing token instead of hitting the DB unique constraint.
      *
-     * @param batchId the batch id
+     * @param batchId    the batch id
+     * @param actorOrgId the authenticated caller's organization id
      * @return GenerateBatchTokenResponse with token and QR image
      */
     @Transactional
-    public GenerateBatchTokenResponse generateQR(String batchId) {
+    public GenerateBatchTokenResponse generateQR(String batchId, String actorOrgId) {
+        if (isBlank(actorOrgId)) {
+            throw new IllegalArgumentException("Actor org id must not be blank");
+        }
+
         Batch batch = getBatchById(batchId);
+
+        // BOLA check: only the owning manufacturer org may mint a QR for this batch
+        if (batch.getManufacturer() == null ||
+            !batch.getManufacturer().getId().toString().equals(actorOrgId)) {
+            throw new AccessDeniedException(
+                "Organization '" + actorOrgId + "' does not own batch '" + batchId + "'");
+        }
+
+        // Idempotent: a batch has exactly one QR token
+        var existing = qrTokenRepository.findByBatch(batch);
+        if (existing.isPresent()) {
+            QRToken qrToken = existing.get();
+            return new GenerateBatchTokenResponse(
+                batch.getId().toString(),
+                qrToken.getTokenValue(),
+                qrToken.getQrImage(),
+                qrToken.getCreatedAt()
+            );
+        }
 
         UUID tokenValue = UUID.randomUUID();
         String qrContent = tokenValue.toString();

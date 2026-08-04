@@ -1,6 +1,7 @@
 package com.chaintrack.controller;
 
 import com.chaintrack.model.*;
+import com.chaintrack.repository.BatchRepository;
 import com.chaintrack.repository.QRTokenRepository;
 import com.chaintrack.service.ChainVerificationService;
 import com.chaintrack.service.MovementTransactionService;
@@ -31,6 +32,9 @@ class VerifyControllerTest {
 
     @MockBean
     private QRTokenRepository qrTokenRepository;
+
+    @MockBean
+    private BatchRepository batchRepository;
 
     @MockBean
     private MovementTransactionService movementService;

@@ -171,11 +171,34 @@ class BatchServiceTest {
         );
         Batch batch = batchService.createBatch(request);
 
-        GenerateBatchTokenResponse response = ((BatchServiceImpl) batchService).generateQR(batch.getId().toString());
+        GenerateBatchTokenResponse response = ((BatchServiceImpl) batchService)
+            .generateQR(batch.getId().toString(), manufacturerOrg.getId().toString());
 
         assertThat(response.batchId()).isEqualTo(batch.getId().toString());
         assertThat(response.tokenValue()).isNotNull();
         assertThat(response.qrImage()).isNotBlank();
         assertThat(response.qrImage()).startsWith("iVBORw0KGgo");
+    }
+
+    @Test
+    @DisplayName("generateQR — rejects a manufacturer that does not own the batch")
+    void generateQR_rejectsNonOwner() {
+        Organization otherOrg = Organization.builder()
+            .name("Other Company")
+            .orgType(Organization.OrgType.SHIPPER)
+            .build();
+        entityManager.persistAndFlush(otherOrg);
+
+        CreateBatchRequest request = new CreateBatchRequest(
+            product.getId().toString(),
+            "B-001",
+            manufacturerOrg.getId().toString()
+        );
+        Batch batch = batchService.createBatch(request);
+
+        assertThatThrownBy(() -> ((BatchServiceImpl) batchService)
+            .generateQR(batch.getId().toString(), otherOrg.getId().toString()))
+            .isInstanceOf(com.chaintrack.exception.AccessDeniedException.class);
+    }
     }
 }

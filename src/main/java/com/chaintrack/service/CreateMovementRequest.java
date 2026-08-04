@@ -2,7 +2,7 @@ package com.chaintrack.service;
 
 /**
  * Stub for CreateMovementRequest — contains only the fields needed by
- * MovementTransactionService.recordMovement and seedGenesis.
+ * MovementTransactionService.recordMovement.
  */
 public interface CreateMovementRequest {
     String eventType();

@@ -162,7 +162,7 @@ public class ProductService {
         if (request.sku() != null && !request.sku().isBlank()
             && !request.sku().equals(product.getSku())) {
             Product existing = productRepository.findBySku(request.sku());
-            if (existing != null && !existing.getId().equals(productId)) {
+            if (existing != null && !existing.getId().toString().equals(productId)) {
                 throw new DuplicateSkuException(request.sku());
             }
             product.setSku(request.sku());

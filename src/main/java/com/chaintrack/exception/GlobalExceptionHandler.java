@@ -1,14 +1,16 @@
 package com.chaintrack.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.net.URI;
@@ -25,6 +27,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail handleForbidden(AccessDeniedException ex) {
+        return createProblemDetail(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+
+    /**
+     * The project's own {@code com.chaintrack.exception.AccessDeniedException} is a
+     * plain RuntimeException (thrown by BOLA checks in services). Without this handler
+     * it falls through to the catch-all and would be reported as a 500 instead of 403.
+     */
+    @ExceptionHandler(com.chaintrack.exception.AccessDeniedException.class)
+    public ProblemDetail handleCustomForbidden(com.chaintrack.exception.AccessDeniedException ex) {
         return createProblemDetail(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
@@ -61,6 +73,24 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
         return createProblemDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail handleUnreadableBody(HttpMessageNotReadableException ex) {
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "Malformed JSON request body");
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "Invalid value for parameter: " + ex.getName());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleDataIntegrity(DataIntegrityViolationException ex) {
+        String detail = ex.getMostSpecificCause() != null
+            ? ex.getMostSpecificCause().getMessage()
+            : ex.getMessage();
+        return createProblemDetail(HttpStatus.CONFLICT, "Data integrity violation: " + detail);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)

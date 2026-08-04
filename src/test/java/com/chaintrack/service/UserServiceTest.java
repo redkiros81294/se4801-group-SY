@@ -2,6 +2,7 @@ package com.chaintrack.service;
 
 import com.chaintrack.dto.request.AcceptInvitationRequest;
 import com.chaintrack.dto.request.ApproveUserRequest;
+import com.chaintrack.dto.request.CreateUserRequest;
 import com.chaintrack.dto.request.InviteUserRequest;
 import com.chaintrack.dto.response.UserResponse;
 import com.chaintrack.model.Organization;
@@ -23,6 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,6 +76,120 @@ class UserServiceTest {
             .status(UserStatus.ACTIVE)
             .build();
         entityManager.persistAndFlush(admin);
+    }
+
+    // ── createUser ────────────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("createUser — creates an ACTIVE user directly")
+    void createUser_createsActiveUser() {
+        CreateUserRequest request = new CreateUserRequest(
+            "direct@example.com",
+            Role.MANUFACTURER,
+            manufacturerOrg.getId().toString(),
+            "TempPass123!"
+        );
+
+        UserResponse response = userService.createUser(request);
+
+        assertThat(response.email()).isEqualTo("direct@example.com");
+        assertThat(response.role()).isEqualTo(Role.MANUFACTURER);
+        assertThat(response.orgId()).isEqualTo(manufacturerOrg.getId().toString());
+        assertThat(response.status()).isEqualTo(UserStatus.ACTIVE);
+
+        // The password must be BCrypt-hashed, never stored in plain text
+        User stored = userRepository.findByEmail("direct@example.com");
+        assertThat(stored).isNotNull();
+        assertThat(stored.getPasswordHash()).isNotEqualTo("TempPass123!");
+        assertThat(stored.getPasswordHash()).startsWith("$2a$12$");
+    }
+
+    @Test
+    @DisplayName("createUser — throws when the email already exists")
+    void createUser_throws_whenEmailExists() {
+        entityManager.persistAndFlush(User.builder()
+            .email("taken@example.com")
+            .passwordHash("$2a$12$hashedpassword")
+            .role(Role.SHIPPER)
+            .org(manufacturerOrg)
+            .status(UserStatus.ACTIVE)
+            .build());
+
+        CreateUserRequest request = new CreateUserRequest(
+            "taken@example.com",
+            Role.SHIPPER,
+            manufacturerOrg.getId().toString(),
+            "TempPass123!"
+        );
+
+        assertThatThrownBy(() -> userService.createUser(request))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("already exists");
+    }
+
+    @Test
+    @DisplayName("createUser — throws when the organization does not exist")
+    void createUser_throws_whenOrgMissing() {
+        CreateUserRequest request = new CreateUserRequest(
+            "noorganization@example.com",
+            Role.RETAILER,
+            "00000000-0000-0000-0000-000000000000",
+            "TempPass123!"
+        );
+
+        assertThatThrownBy(() -> userService.createUser(request))
+            .isInstanceOf(com.chaintrack.exception.ResourceNotFoundException.class);
+    }
+
+    // ── changePassword ────────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("changePassword — updates the hash when the current password is correct")
+    void changePassword_updatesHash_whenCurrentPasswordCorrect() {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        User user = User.builder()
+            .email("changeme@example.com")
+            .passwordHash(encoder.encode("OldPass123!"))
+            .role(Role.RETAILER)
+            .org(manufacturerOrg)
+            .status(UserStatus.ACTIVE)
+            .build();
+        entityManager.persistAndFlush(user);
+
+        UserResponse response = userService.changePassword(
+            "changeme@example.com", "OldPass123!", "NewPass456!");
+
+        assertThat(response.email()).isEqualTo("changeme@example.com");
+
+        User stored = userRepository.findByEmail("changeme@example.com");
+        assertThat(encoder.matches("NewPass456!", stored.getPasswordHash())).isTrue();
+        assertThat(encoder.matches("OldPass123!", stored.getPasswordHash())).isFalse();
+    }
+
+    @Test
+    @DisplayName("changePassword — rejects a wrong current password")
+    void changePassword_rejectsWrongCurrentPassword() {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        entityManager.persistAndFlush(User.builder()
+            .email("wrongpass@example.com")
+            .passwordHash(encoder.encode("OldPass123!"))
+            .role(Role.SHIPPER)
+            .org(manufacturerOrg)
+            .status(UserStatus.ACTIVE)
+            .build());
+
+        assertThatThrownBy(() -> userService.changePassword(
+            "wrongpass@example.com", "WrongPass999!", "NewPass456!"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Current password is incorrect");
+    }
+
+    @Test
+    @DisplayName("changePassword — throws when the user does not exist")
+    void changePassword_throws_whenUserMissing() {
+        assertThatThrownBy(() -> userService.changePassword(
+            "nobody@example.com", "OldPass123!", "NewPass456!"))
+            .isInstanceOf(com.chaintrack.exception.ResourceNotFoundException.class);
     }
 
     // ── inviteUser ────────────────────────────────────────────────────────────

@@ -37,7 +37,7 @@ export const AdminCharts = ({ pieData }: { pieData: Array<{ name: string; value:
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={lineData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(30,58,95,0.5)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis dataKey="day" stroke="var(--t2)" />
             <YAxis stroke="var(--t2)" />
             <Tooltip

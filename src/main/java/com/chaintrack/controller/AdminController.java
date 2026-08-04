@@ -1,10 +1,13 @@
 package com.chaintrack.controller;
 
+import com.chaintrack.audit.Audited;
 import com.chaintrack.dto.request.ApproveUserRequest;
+import com.chaintrack.dto.request.CreateUserRequest;
 import com.chaintrack.dto.response.AdminAnalyticsResponse;
 import com.chaintrack.dto.response.InvitationResponse;
 import com.chaintrack.dto.response.UserResponse;
 import com.chaintrack.service.AdminAnalyticsService;
+import com.chaintrack.service.DemoDataService;
 import com.chaintrack.service.InvitationService;
 import com.chaintrack.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +19,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -30,13 +34,16 @@ public class AdminController {
     private final UserService userService;
     private final AdminAnalyticsService adminAnalyticsService;
     private final InvitationService invitationService;
+    private final DemoDataService demoDataService;
 
     public AdminController(UserService userService,
                            AdminAnalyticsService adminAnalyticsService,
-                           InvitationService invitationService) {
+                           InvitationService invitationService,
+                           DemoDataService demoDataService) {
         this.userService = userService;
         this.adminAnalyticsService = adminAnalyticsService;
         this.invitationService = invitationService;
+        this.demoDataService = demoDataService;
     }
 
     @GetMapping("/users")
@@ -48,6 +55,19 @@ public class AdminController {
     public ResponseEntity<Page<UserResponse>> listUsers(@PageableDefault(size = 20) Pageable pageable) {
         Page<UserResponse> users = userService.listUsers(pageable);
         return ResponseEntity.ok(users);
+    }
+
+    @PostMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Audited(action = "CREATE", entityType = "USER", entityIdExpr = "#result?.id()")
+    @Operation(summary = "Create user", description = "Creates a user account directly with a temporary password. Account is ACTIVE immediately — no invitation or approval needed (ADMIN only)")
+    @ApiResponse(responseCode = "201", description = "User created successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid request or email already exists")
+    @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
+        UserResponse response = userService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/users/pending")
@@ -63,6 +83,7 @@ public class AdminController {
 
     @PostMapping("/users/{id}/approve")
     @PreAuthorize("hasRole('ADMIN')")
+    @Audited(action = "APPROVE", entityType = "USER", entityIdExpr = "#arg0")
     @Operation(summary = "Approve pending user", description = "Approves a pending user account (ADMIN only)")
     @ApiResponse(responseCode = "200", description = "User approved successfully")
     @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required")
@@ -76,6 +97,7 @@ public class AdminController {
 
     @PostMapping("/users/{id}/reject")
     @PreAuthorize("hasRole('ADMIN')")
+    @Audited(action = "REJECT", entityType = "USER", entityIdExpr = "#arg0")
     @Operation(summary = "Reject pending user", description = "Rejects a pending user account with reason (ADMIN only)")
     @ApiResponse(responseCode = "200", description = "User rejected successfully")
     @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required")
@@ -100,6 +122,7 @@ public class AdminController {
 
     @PostMapping("/invitations/{id}/revoke")
     @PreAuthorize("hasRole('ADMIN')")
+    @Audited(action = "REVOKE", entityType = "INVITATION", entityIdExpr = "#arg0")
     @Operation(summary = "Revoke invitation", description = "Revokes a pending invitation (ADMIN only)")
     @ApiResponse(responseCode = "200", description = "Invitation revoked successfully")
     @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required")
@@ -108,6 +131,16 @@ public class AdminController {
     public ResponseEntity<InvitationResponse> revokeInvitation(@PathVariable String id) {
         InvitationResponse response = invitationService.revokeInvitation(id);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/demo/reset")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Audited(action = "DEMO_RESET", entityType = "SYSTEM")
+    @Operation(summary = "Reset demo data", description = "Truncates business data and re-seeds the deterministic demo dataset (ADMIN only). The audit log is preserved.")
+    @ApiResponse(responseCode = "200", description = "Demo dataset restored")
+    @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required")
+    public java.util.Map<String, Object> resetDemoData() {
+        return demoDataService.resetDemoData();
     }
 
     @GetMapping("/analytics")

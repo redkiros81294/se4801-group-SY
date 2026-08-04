@@ -1,5 +1,6 @@
 package com.chaintrack.controller;
 
+import com.chaintrack.audit.Audited;
 import com.chaintrack.dto.request.*;
 import com.chaintrack.dto.response.*;
 import com.chaintrack.model.User;
@@ -30,6 +31,8 @@ import java.time.Instant;
 @Tag(name = "Authentication", description = "User invitation, login, and logout")
 public class AuthController {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthController.class);
+
     private final UserService userService;
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
@@ -53,6 +56,7 @@ public class AuthController {
 
     @PostMapping("/invite")
     @PreAuthorize("hasRole('ADMIN')")
+    @Audited(action = "INVITE", entityType = "INVITATION", entityIdExpr = "#result?.id()")
     @Operation(summary = "Invite new user", description = "ADMIN creates an invitation for a new user (creates PENDING user)")
     @ApiResponse(responseCode = "201", description = "Invitation created successfully")
     @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required")
@@ -63,6 +67,7 @@ public class AuthController {
     }
 
     @PostMapping("/invitations/accept")
+    @Audited(action = "ACCEPT_INVITATION", entityType = "INVITATION", entityIdExpr = "#result?.id()")
     @Operation(summary = "Accept invitation", description = "Invited user sets password and activates account as PENDING")
     @ApiResponse(responseCode = "200", description = "Invitation accepted, user in PENDING status")
     @ApiResponse(responseCode = "400", description = "Invalid token or expired invitation")
@@ -82,6 +87,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Audited(action = "LOGIN", entityType = "AUTH")
     @Operation(summary = "User login", description = "Authenticates user and returns JWT token (only ACTIVE users)")
     @ApiResponse(responseCode = "200", description = "Login successful, returns JWT token")
     @ApiResponse(responseCode = "401", description = "Invalid credentials or account not approved")
@@ -124,13 +130,45 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/change-password")
+    @Audited(action = "CHANGE_PASSWORD", entityType = "USER", entityIdExpr = "#arg0?.email()")
+    @Operation(summary = "Change own password", description = "Verifies the current password, stores the new one, and revokes the current token so the user must sign in again")
+    @ApiResponse(responseCode = "200", description = "Password changed successfully")
+    @ApiResponse(responseCode = "400", description = "Current password is incorrect or invalid request")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    public ResponseEntity<UserResponse> changePassword(@Valid @RequestBody ChangePasswordRequest request,
+                                                        @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        String token = authHeader != null && authHeader.startsWith("Bearer ") ? authHeader.substring(7) : "";
+        String email = jwtUtils.extractUsername(token);
+
+        UserResponse response = userService.changePassword(email, request.currentPassword(), request.newPassword());
+
+        // Revoke the current session so the user signs in again with the new password
+        try {
+            blacklistService.addToBlacklist(token, jwtUtils.getExpirationMillis(token));
+        } catch (Exception e) {
+            // Best-effort revocation — the password itself is already updated
+            logger.warn("Could not revoke token after password change: {}", e.getMessage());
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/logout")
+    @Audited(action = "LOGOUT", entityType = "AUTH")
     @Operation(summary = "User logout", description = "Blacklists the JWT token")
     @ApiResponse(responseCode = "200", description = "Logout successful")
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            blacklistService.addToBlacklist(token, jwtUtils.getExpirationMillis(token));
+            long expiryMillis;
+            try {
+                expiryMillis = jwtUtils.getExpirationMillis(token);
+            } catch (Exception e) {
+                // Unparseable token — blacklist it for a bounded window anyway
+                expiryMillis = java.time.Instant.now().plusSeconds(86400).toEpochMilli();
+            }
+            blacklistService.addToBlacklist(token, expiryMillis);
         }
         return ResponseEntity.ok().build();
     }
