@@ -85,4 +85,11 @@ public class BatchController {
         String actorOrgId = token != null ? jwtUtils.extractOrgId(token) : null;
         return batchService.generateQR(batchId, actorOrgId);
     }
+
+    @GetMapping("/search")
+    @Operation(summary = "Public batch search", description = "Search batches by batch number (public; no auth required)")
+    @ApiResponse(responseCode = "200", description = "Search results")
+    public Page<BatchResponse> searchPublicBatches(@RequestParam String q, @PageableDefault(size = 20) Pageable pageable) {
+        return batchService.searchPublicBatches(q, pageable).map(BatchResponse::fromEntity);
+    }
 }

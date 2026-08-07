@@ -5,7 +5,7 @@ import { useApiData } from '../hooks/useApiData';
 import { StatCard } from '../components/StatCard';
 import { Skeleton, SkeletonCard } from '../components/Skeleton';
 
-// recharts is large (~110 KB gzipped) — load it only when the charts render.
+// recharts is large (~110 KB gzipped) -- load it only when the charts render.
 const AdminCharts = lazy(() =>
   import('../components/charts/AdminCharts').then(m => ({ default: m.AdminCharts }))
 );
@@ -38,7 +38,7 @@ export const AdminDashboard = () => {
       setConfirmingReset(false);
       refetch();
     } catch (err: any) {
-      setResetMessage(err.response?.data?.message || 'Reset failed — try again');
+      setResetMessage(err.response?.data?.message || 'Reset failed -- try again');
     } finally {
       setResetting(false);
     }
@@ -160,7 +160,7 @@ export const AdminDashboard = () => {
         />
       </div>
 
-      {/* Charts — loaded lazily so recharts only downloads when they render */}
+      {/* Charts -- loaded lazily so recharts only downloads when they render */}
       <Suspense fallback={<Skeleton className="h-96" />}>
         <AdminCharts pieData={pieData} />
       </Suspense>

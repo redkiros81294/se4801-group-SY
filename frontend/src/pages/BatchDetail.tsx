@@ -5,6 +5,7 @@ import { StatusBadge } from '../components/StatusBadge';
 import { ProvenanceTimeline } from '../components/ProvenanceTimeline';
 import { ChainStatusBanner } from '../components/ChainStatusBanner';
 import { HashDisplay } from '../components/HashDisplay';
+import { EmptyState } from '../components/EmptyState';
 
 interface Transaction {
   id: string
@@ -149,10 +150,11 @@ export const BatchDetail = () => {
               chainValid={chainValid ?? false}
             />
           ) : (
-            <div className="text-center py-8">
-              <i className="ti ti-history text-[var(--t3)] text-4xl mb-4" aria-hidden="true" />
-              <p className="text-[var(--t2)]">No transactions recorded yet</p>
-            </div>
+            <EmptyState
+              icon="ti ti-history"
+              title="No transactions recorded yet"
+              message="Movement events for this batch will appear here once they are logged."
+            />
           )}
         </div>
       </div>

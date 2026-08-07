@@ -1,4 +1,4 @@
-// Canonical event types — must match ROLE_EVENT_TYPES in LogMovement.tsx
+// Canonical event types -- must match ROLE_EVENT_TYPES in LogMovement.tsx
 // and whatever the backend's /transactions endpoint accepts.
 export type EventType = 'MANUFACTURED' | 'SHIPPED' | 'IN_TRANSIT' | 'RECEIVED';
 

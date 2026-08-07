@@ -51,4 +51,15 @@ public interface BatchService {
      * @return GenerateBatchTokenResponse with token and QR image
      */
     GenerateBatchTokenResponse generateQR(String batchId, String actorOrgId);
+
+    /**
+     * Public search for batches by batch number.
+     * No authentication required; returns minimal public-safe fields.
+     */
+    Page<Batch> searchPublicBatches(String query, Pageable pageable);
+
+    /**
+     * Revokes the QR token for a batch by deleting it (ADMIN only).
+     */
+    void revokeQRToken(String batchId);
 }

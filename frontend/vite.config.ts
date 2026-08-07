@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
 const base = process.env.VITE_BASE_PATH || '/';
 
@@ -13,5 +13,11 @@ export default defineConfig({
   preview: {
     port: 4173,
     host: '0.0.0.0',
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    css: false,
   },
 });

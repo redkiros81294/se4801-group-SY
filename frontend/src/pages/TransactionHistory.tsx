@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../lib/api';
 import { ChainStatusBanner } from '../components/ChainStatusBanner';
+import { EmptyState } from '../components/EmptyState';
 import { StatusBadge } from '../components/StatusBadge';
 import { HashDisplay } from '../components/HashDisplay';
 
@@ -100,10 +101,11 @@ export const TransactionHistory = () => {
         <div className="bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-6">
           <h3 className="text-xl font-bold text-[var(--t1)] mb-6">Provenance Chain</h3>
           {transactions.length === 0 ? (
-            <div className="text-center py-8">
-              <i className="ti ti-history text-[var(--t3)] text-4xl mb-4" aria-hidden="true" />
-              <p className="text-[var(--t2)]">No transactions recorded yet</p>
-            </div>
+            <EmptyState
+              icon="ti ti-history"
+              title="No transactions recorded yet"
+              message="Movement events for this batch will appear here once they are logged."
+            />
           ) : (
             <div className="space-y-6">
               {transactions.map((tx, index) => (

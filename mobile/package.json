@@ -1,0 +1,28 @@
+{
+  "name": "chaintrack-mobile",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "expo": "~57.0.0",
+    "expo-camera": "~15.0.0",
+    "expo-image-picker": "~16.0.0",
+    "expo-secure-store": "~14.0.0",
+    "expo-router": "~6.0.0",
+    "expo-status-bar": "~2.0.0",
+    "react": "19.1.0",
+    "react-native": "0.76.3",
+    "react-native-safe-area-context": "~5.4.0",
+    "react-native-screens": "~4.10.0",
+    "expo-barcode-scanner": "~13.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.2",
+    "typescript": "~5.3.0"
+  }
+}

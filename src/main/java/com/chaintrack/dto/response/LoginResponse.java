@@ -7,10 +7,11 @@ import java.util.List;
 
 /**
  * Response returned after a successful login.
- * Contains the JWT token and basic user info (no passwordHash).
+ * Contains the JWT token, basic user info (no passwordHash), and an opaque refresh token.
  */
 public record LoginResponse(
     String token,
+    String refreshToken,
     String userId,
     String email,
     List<Role> roles,

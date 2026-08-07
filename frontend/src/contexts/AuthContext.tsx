@@ -1,6 +1,8 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import api from '../lib/api';
+import { setAccessToken } from '../lib/authToken';
 
 interface JwtPayload {
   userId: string;
@@ -23,16 +25,15 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (token: string) => void;
+  refreshToken: string | null;
+  login: (token: string, refreshToken?: string, rememberMe?: boolean) => void;
+  refresh: () => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const TOKEN_KEY = 'chaintrack_token';
-
-export const getToken = (): string | null => sessionStorage.getItem(TOKEN_KEY);
-export const clearToken = (): void => { sessionStorage.removeItem(TOKEN_KEY); };
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -41,51 +42,72 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [token, setToken] = useState<string | null>(() => getToken());
-  const [user, setUser] = useState<User | null>(() => {
-    const savedToken = getToken();
-    if (savedToken) {
-      try {
-        const decoded = jwtDecode<JwtPayload>(savedToken);
-        return {
-          userId: decoded.userId,
-          email: decoded.sub,
-          roles: [decoded.role],
-          orgId: decoded.orgId,
-          status: decoded.status || 'ACTIVE',
-        };
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  });
+  const [token, setToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
-  const login = (newToken: string) => {
-    sessionStorage.setItem(TOKEN_KEY, newToken);
-    setToken(newToken);
+  const decodeUser = useCallback((rawToken: string): User | null => {
     try {
-      const decoded = jwtDecode<JwtPayload>(newToken);
-      setUser({
+      const decoded = jwtDecode<JwtPayload>(rawToken);
+      return {
         userId: decoded.userId,
         email: decoded.sub,
         roles: [decoded.role],
         orgId: decoded.orgId,
         status: decoded.status || 'ACTIVE',
-      });
+      };
     } catch {
-      setUser(null);
+      return null;
     }
-  };
+  }, []);
 
-  const logout = () => {
-    clearToken();
+  const refresh = useCallback(async () => {
+    const stored = typeof window !== 'undefined' ? sessionStorage.getItem(TOKEN_KEY) : null;
+    if (!stored) return;
+    try {
+      const response = await api.post('/auth/refresh', { refreshToken: stored });
+      const next = response.data;
+      if (next?.token) {
+        setToken(next.token);
+        setRefreshToken(next.refreshToken || stored);
+        const decodedUser = decodeUser(next.token);
+        if (decodedUser) setUser(decodedUser);
+      }
+    } catch {
+      logout();
+    }
+  }, [decodeUser]);
+
+  const login = useCallback((newToken: string, newRefreshToken?: string, rememberMe = false) => {
+    setToken(newToken);
+    setRefreshToken(newRefreshToken ?? null);
+    setAccessToken(newToken);
+    const decodedUser = decodeUser(newToken);
+    setUser(decodedUser);
+    if (rememberMe && newRefreshToken) {
+      sessionStorage.setItem(TOKEN_KEY, newRefreshToken);
+    }
+  }, [decodeUser]);
+
+  const logout = useCallback(() => {
+    sessionStorage.removeItem(TOKEN_KEY);
     setToken(null);
+    setRefreshToken(null);
     setUser(null);
-  };
+    setAccessToken(null);
+  }, []);
+
+  // Attempt silent refresh on boot if a refresh token was persisted.
+  useEffect(() => {
+    const stored = typeof window !== 'undefined' ? sessionStorage.getItem(TOKEN_KEY) : null;
+    if (stored) {
+      refresh();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, refreshToken, login, refresh, logout }}>
       {children}
     </AuthContext.Provider>
   );

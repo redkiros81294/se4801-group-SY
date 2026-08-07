@@ -14,6 +14,7 @@ export const Login = () => {
   const [ssoEnabled, setSsoEnabled] = useState(false);
   const [ssoRegistrationId, setSsoRegistrationId] = useState('chaintrack');
   const [ssoMessage, setSsoMessage] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const { login, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,7 +25,7 @@ export const Login = () => {
   const ssoParam = searchParams.get('sso');
   const tokenParam = searchParams.get('token');
 
-  // If SSO completed, the backend redirected here with our JWT — log straight in.
+  // If SSO completed, the backend redirected here with our JWT -- log straight in.
   useEffect(() => {
     if (tokenParam) {
       login(tokenParam);
@@ -51,7 +52,7 @@ export const Login = () => {
         if (res.data?.registrationId) setSsoRegistrationId(res.data.registrationId);
       })
       .catch(() => {
-        // SSO config is optional — ignore failures
+        // SSO config is optional -- ignore failures
       });
   }, []);
 
@@ -88,7 +89,7 @@ export const Login = () => {
 
     try {
       const response = await api.post('/auth/login', { username: values.email, password: values.password });
-      login(response.data.token);
+      login(response.data.token, response.data.refreshToken, rememberMe);
     } catch (err: any) {
       const status = err.response?.status;
       const responseMessage = err.response?.data?.message || '';
@@ -233,6 +234,16 @@ export const Login = () => {
           >
             Login
           </button>
+
+          <label className="flex items-center gap-2 mt-4 text-sm text-[var(--t2)] cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 rounded border-[var(--border)] bg-[var(--bg2)] text-[var(--blue)] focus:ring-[var(--cyan)]"
+            />
+            Remember me
+          </label>
 
           {ssoEnabled && (
             <>

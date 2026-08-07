@@ -101,7 +101,7 @@ export const AuditLog = () => {
         <div>
           <h1 className="text-2xl font-bold text-[var(--t1)]">Audit Log</h1>
           <p className="text-[var(--t2)] text-sm mt-1">
-            Immutable, hash-chained record of every action — tamper-evident by design
+            Immutable, hash-chained record of every action -- tamper-evident by design
           </p>
         </div>
 
@@ -135,7 +135,7 @@ export const AuditLog = () => {
           <p className="text-[var(--red)] font-medium">
             <i className="ti ti-alert-triangle mr-2" aria-hidden="true" />
             The audit hash chain is broken at entry {integrity.firstBrokenIndex + 1} of {integrity.entries}.
-            An entry was modified or removed — investigate immediately.
+            An entry was modified or removed -- investigate immediately.
           </p>
         </div>
       )}
@@ -218,7 +218,7 @@ export const AuditLog = () => {
                           </div>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-[var(--t2)] text-xs font-mono">{entry.ipAddress ?? '—'}</td>
+                      <td className="px-4 py-3 text-[var(--t2)] text-xs font-mono">{entry.ipAddress ?? '--'}</td>
                       <td className="px-4 py-3 text-[var(--t3)] text-[10px] font-mono break-all max-w-[180px]" title={`${entry.previousHash} → ${entry.integrityHash}`}>
                         {entry.integrityHash.slice(0, 16)}…
                       </td>

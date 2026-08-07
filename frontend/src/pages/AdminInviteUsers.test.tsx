@@ -11,9 +11,7 @@ vi.mock('../lib/api', () => ({
 }));
 
 vi.mock('../contexts/AuthContext', () => ({
-  useAuth: () => ({ user: { userId: 'admin-1' } }),
-  getToken: vi.fn(() => null),
-  clearToken: vi.fn()
+  useAuth: () => ({ user: { userId: 'admin-1' }, login: vi.fn(), logout: vi.fn() })
 }));
 
 describe('AdminInviteUsers', () => {

@@ -8,6 +8,7 @@ import com.chaintrack.repository.UserRepository;
 import com.chaintrack.security.JwtUtils;
 import com.chaintrack.service.InvitationService;
 import com.chaintrack.service.JwtBlacklistService;
+import com.chaintrack.service.RefreshTokenService;
 import com.chaintrack.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -45,19 +46,22 @@ public class AuthController {
     private final JwtBlacklistService blacklistService;
     private final AuthenticationManager authenticationManager;
     private final InvitationService invitationService;
+    private final RefreshTokenService refreshTokenService;
 
     public AuthController(UserService userService,
                           UserRepository userRepository,
                           JwtUtils jwtUtils,
                           JwtBlacklistService blacklistService,
                           AuthenticationManager authenticationManager,
-                          InvitationService invitationService) {
+                          InvitationService invitationService,
+                          RefreshTokenService refreshTokenService) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.jwtUtils = jwtUtils;
         this.blacklistService = blacklistService;
         this.authenticationManager = authenticationManager;
         this.invitationService = invitationService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @PostMapping("/invite")
@@ -110,7 +114,7 @@ public class AuthController {
             
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new LoginResponse(null, null, null, null, null));
+                    .body(new LoginResponse(null, null, null, null, null, null));
             }
             
             String token = jwtUtils.generateToken(
@@ -120,9 +124,12 @@ public class AuthController {
                 user.getRole().name(),
                 user.getStatus().name()
             );
+
+            com.chaintrack.model.RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
             
             return ResponseEntity.ok(new LoginResponse(
                 token,
+                refreshToken.getTokenValue(),
                 user.getId().toString(),
                 user.getEmail(),
                 java.util.List.of(user.getRole()),
@@ -132,7 +139,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (org.springframework.security.authentication.DisabledException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new LoginResponse(null, null, request.username(), null, null));
+                .body(new LoginResponse(null, null, null, request.username(), null, null));
         }
     }
 
@@ -171,20 +178,63 @@ public class AuthController {
 
     @PostMapping("/logout")
     @Audited(action = "LOGOUT", entityType = "AUTH")
-    @Operation(summary = "User logout", description = "Blacklists the JWT token")
+    @Operation(summary = "User logout", description = "Blacklists the JWT token and revokes refresh tokens for the user")
     @ApiResponse(responseCode = "200", description = "Logout successful")
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader) {
+        String email = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             long expiryMillis;
             try {
                 expiryMillis = jwtUtils.getExpirationMillis(token);
+                email = jwtUtils.extractUsername(token);
             } catch (Exception e) {
-                // Unparseable token — blacklist it for a bounded window anyway
                 expiryMillis = java.time.Instant.now().plusSeconds(86400).toEpochMilli();
             }
             blacklistService.addToBlacklist(token, expiryMillis);
         }
+
+        if (email != null) {
+            User found = userRepository.findByEmail(email);
+            if (found != null) {
+                refreshTokenService.revokeAllForUser(found.getId());
+            }
+        }
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh access token", description = "Issues a new JWT using a valid refresh token")
+    @ApiResponse(responseCode = "200", description = "Token refreshed successfully")
+    @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
+    public ResponseEntity<LoginResponse> refresh(@RequestBody java.util.Map<String, String> payload) {
+        String refreshTokenValue = payload.get("refreshToken");
+        if (refreshTokenValue == null || refreshTokenValue.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            com.chaintrack.model.RefreshToken refreshToken = refreshTokenService.rotate(refreshTokenValue);
+            com.chaintrack.model.User user = refreshToken.getUser();
+
+            String newAccessToken = jwtUtils.generateToken(
+                new org.springframework.security.core.userdetails.User(user.getEmail(), "", java.util.List.of()),
+                user.getId().toString(),
+                user.getOrg() != null ? user.getOrg().getId().toString() : null,
+                user.getRole().name(),
+                user.getStatus().name()
+            );
+
+            return ResponseEntity.ok(new LoginResponse(
+                newAccessToken,
+                refreshToken.getTokenValue(),
+                user.getId().toString(),
+                user.getEmail(),
+                java.util.List.of(user.getRole()),
+                Instant.ofEpochMilli(jwtUtils.getExpirationMillis(newAccessToken))
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }

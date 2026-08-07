@@ -10,15 +10,15 @@
 
 ## 🌟 What ChainTrack Is
 
-**ChainTrack is a B2B SaaS platform that proves where a product came from — and that nobody tampered with it along the way.**
+**ChainTrack is a B2B SaaS platform that proves where a product came from -- and that nobody tampered with it along the way.**
 
 Counterfeit goods cost the global economy **$500B+/year**, and recall response times (3+ days in most companies) cost lives and revenue. ChainTrack gives manufacturers, shippers, and retailers a single tamper-evident ledger:
 
 1. **Manufacturer** registers a product and batch, and mints a QR code.
-2. Every movement (manufactured → shipped → in-transit → received) is recorded as a **SHA-256 hash-chained transaction** — each hash includes the previous one.
-3. **Anyone** — consumer, regulator, buyer — scans the QR and sees the full verified journey. If any record was altered, the chain breaks and the batch is flagged **COMPROMISED**.
+2. Every movement (manufactured → shipped → in-transit → received) is recorded as a **SHA-256 hash-chained transaction** -- each hash includes the previous one.
+3. **Anyone** -- consumer, regulator, buyer -- scans the QR and sees the full verified journey. If any record was altered, the chain breaks and the batch is flagged **COMPROMISED**.
 
-This is the same architecture class used by pharma serialization (DSCSA) and food traceability (FSMA 204) — delivered as an API-first SaaS product with role-based multi-org access.
+This is the same architecture class used by pharma serialization (DSCSA) and food traceability (FSMA 204) -- delivered as an API-first SaaS product with role-based multi-org access.
 
 > 🎯 **For investors/buyers:** see [`docs/PITCH.md`](docs/PITCH.md) for the one-pager, market, and roadmap. Full threat model & compliance posture in [`docs/SECURITY.md`](docs/SECURITY.md).
 
@@ -29,7 +29,7 @@ This is the same architecture class used by pharma serialization (DSCSA) and foo
 | Capability | Detail |
 |---|---|
 | 🔗 **Tamper-evident ledger** | SHA-256 hash chain over every movement; re-verified on every QR scan |
-| 📸 **Public verification portal** | `/verify` — no login needed; consumers can verify any product QR (network-effect distribution) |
+| 📸 **Public verification portal** | `/verify` -- no login needed; consumers can verify any product QR (network-effect distribution) |
 | 🔐 **RBAC + multi-org** | ADMIN / MANUFACTURER / SHIPPER / RETAILER, org-scoped data access (BOLA-protected) |
 | 🛡️ **Immutable audit log** | Every CRUD action hash-chained + admin-verifiable (`GET /api/admin/audit/verify`) |
 | 🔑 **Enterprise auth** | JWT (blacklist-enabled logout), rate limiting, change-password, admin-provisioned accounts |
@@ -61,8 +61,8 @@ Full detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/SECURITY.m
 
 ## 👥 Team
 
-- **Yared Kiros** — Backend & Frontend
-- **Simon Mesfin** — Backend & Frontend
+- **Yared Kiros** -- Backend & Frontend
+- **Simon Mesfin** -- Backend & Frontend
 
 ---
 
@@ -84,10 +84,10 @@ Full detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/SECURITY.m
 
 ## 🎭 User Roles
 
-- **ADMIN** — manages users/orgs, views analytics, reads the immutable audit log.
-- **MANUFACTURER** — creates products/batches, mints QR codes, logs MANUFACTURED.
-- **SHIPPER** — logs SHIPPED / IN_TRANSIT.
-- **RETAILER** — logs RECEIVED, verifies authenticity at the shelf.
+- **ADMIN** -- manages users/orgs, views analytics, reads the immutable audit log.
+- **MANUFACTURER** -- creates products/batches, mints QR codes, logs MANUFACTURED.
+- **SHIPPER** -- logs SHIPPED / IN_TRANSIT.
+- **RETAILER** -- logs RECEIVED, verifies authenticity at the shelf.
 
 ---
 
@@ -113,10 +113,10 @@ Full detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/SECURITY.m
 - `GET/POST /api/products` · `GET/PATCH /api/products/{id}` · `GET /api/products/search`
 - `POST /api/batches` · `GET /api/batches` · `GET /api/batches/{id}` · `POST /api/batches/{id}/qr`
 - `POST /api/transactions` · `GET /api/transactions/batch/{batchId}`
-- `GET /api/verify/{token}` — **public** provenance verification
+- `GET /api/verify/{token}` -- **public** provenance verification
 - `GET/POST /api/admin/users` · `POST /api/admin/users/{id}/approve|reject`
-- `GET /api/admin/audit` · `GET /api/admin/audit/verify` — immutable audit log
-- `GET /api/admin/analytics` · `POST /api/admin/demo/reset` — restore the demo dataset before a pitch
+- `GET /api/admin/audit` · `GET /api/admin/audit/verify` -- immutable audit log
+- `GET /api/admin/analytics` · `POST /api/admin/demo/reset` -- restore the demo dataset before a pitch
 - `GET /health` · `GET /actuator/health`
 
 ---
@@ -175,14 +175,14 @@ cd frontend && npm install && npm run dev
 
 ## 🧪 Quality
 
-- `mvn test` — backend unit + integration tests (JaCoCo report: `target/site/jacoco/index.html`)
-- `cd frontend && npx vitest run` — component tests (jsdom)
-- `cd frontend && npx tsc -b --noEmit` — TypeScript check
+- `mvn test` -- backend unit + integration tests (JaCoCo report: `target/site/jacoco/index.html`)
+- `cd frontend && npx vitest run` -- component tests (jsdom)
+- `cd frontend && npx tsc -b --noEmit` -- TypeScript check
 
 ---
 
 ## 📄 Documentation
 
-- [`docs/PITCH.md`](docs/PITCH.md) — investor one-pager: problem, market, product, roadmap
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — system design, data model, hash-chain math
-- [`docs/SECURITY.md`](docs/SECURITY.md) — threat model, security controls, SOC 2 readiness
+- [`docs/PITCH.md`](docs/PITCH.md) -- investor one-pager: problem, market, product, roadmap
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) -- system design, data model, hash-chain math
+- [`docs/SECURITY.md`](docs/SECURITY.md) -- threat model, security controls, SOC 2 readiness

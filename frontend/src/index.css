@@ -42,7 +42,7 @@
   --font-mono: 'JetBrains Mono', monospace;
 }
 
-/* Light theme — mapped through the same variables so every component follows */
+/* Light theme -- mapped through the same variables so every component follows */
 [data-theme='light'] {
   color-scheme: light;
 
@@ -63,7 +63,7 @@
 
   --t1: #0F172A;   /* Primary text */
   --t2: #475569;   /* Secondary text */
-  --t3: #64748B;   /* Muted text — AA on white */
+  --t3: #64748B;   /* Muted text -- AA on white */
 
   --border:  #CBD9EE;
   --border2: #2563EB;
@@ -75,7 +75,7 @@
   --ring: rgba(8, 145, 178, 0.35);
 }
 
-/* Light theme — mapped through the same variables so every component follows */
+/* Light theme -- mapped through the same variables so every component follows */
 [data-theme='light'] {
   --bg0: #F3F6FC;   /* Main page background */
   --bg1: #FFFFFF;   /* Sidebar, topbar, card panels */

@@ -63,6 +63,7 @@ corsConfig.setAllowedOrigins(java.util.List.of(
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/health", "/health/**").permitAll()
                 .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/refresh").permitAll()
                 .requestMatchers("/api/auth/invitations/accept").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/invitations/**").permitAll()
                 .requestMatchers("/api/auth/sso/config").permitAll()
@@ -72,6 +73,7 @@ corsConfig.setAllowedOrigins(java.util.List.of(
                 .requestMatchers("/actuator/health/**").permitAll()
                 .requestMatchers("/actuator/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/verify/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/batches/search").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated()
             )

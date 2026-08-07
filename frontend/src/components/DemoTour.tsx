@@ -15,24 +15,24 @@ const STEPS: TourStep[] = [
   {
     icon: 'ti ti-building-factory',
     title: '1 · A manufacturer registers a product',
-    body: 'PharmaCorp creates a product (e.g. Paracetamol 500mg), then a batch — one production run with a unique batch number. The system is role-based: only MANUFACTURER organizations can do this.',
+    body: 'PharmaCorp creates a product (e.g. Paracetamol 500mg), then a batch -- one production run with a unique batch number. The system is role-based: only MANUFACTURER organizations can do this.',
     accent: 'var(--cyan)',
   },
   {
     icon: 'ti ti-qrcode',
     title: '2 · A QR code is minted',
-    body: 'Each batch gets a unique QR token. Print it, stick it on the packaging — anyone can now verify this product.',
+    body: 'Each batch gets a unique QR token. Print it, stick it on the packaging -- anyone can now verify this product.',
     accent: 'var(--blue)',
   },
   {
     icon: 'ti ti-truck',
     title: '3 · Every movement is hash-chained',
-    body: 'Shipper logs SHIPPED / IN_TRANSIT, retailer logs RECEIVED. Each event stores a SHA-256 hash of its data plus the previous event\u2019s hash — a tamper-evident chain.',
+    body: 'Shipper logs SHIPPED / IN_TRANSIT, retailer logs RECEIVED. Each event stores a SHA-256 hash of its data plus the previous event\u2019s hash -- a tamper-evident chain.',
     accent: 'var(--amber)',
   },
   {
     icon: 'ti ti-scan',
-    title: '4 · Scan to verify — in seconds',
+    title: '4 · Scan to verify -- in seconds',
     body: 'Open the public verification portal, paste the token (or scan the QR with your phone camera), and see the full provenance timeline instantly. No login required.',
     accent: 'var(--green)',
     cta: 'Try the public portal',
@@ -41,7 +41,7 @@ const STEPS: TourStep[] = [
   {
     icon: 'ti ti-shield-alert',
     title: '5 · Tampering is detected',
-    body: 'If anyone edits a record, the chain breaks and the batch is flagged COMPROMISED — exactly what a compliance officer or regulator needs to see. The demo seed includes a tampered batch to show this.',
+    body: 'If anyone edits a record, the chain breaks and the batch is flagged COMPROMISED -- exactly what a compliance officer or regulator needs to see. The demo seed includes a tampered batch to show this.',
     accent: 'var(--red)',
   },
 ];

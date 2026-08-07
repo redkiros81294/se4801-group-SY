@@ -90,3 +90,4 @@ user-b-rules.md
 # Kilo configuration
 .kilo/
 .mvn/wrapper/
+node_modules

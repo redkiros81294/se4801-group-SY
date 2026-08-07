@@ -1,4 +1,4 @@
-# ChainTrack — Security & Compliance Posture
+# ChainTrack -- Security & Compliance Posture
 
 This document is the security story buyers and investors ask for. It maps implemented controls to common frameworks (OWASP ASVS / SOC 2) and lists what remains for certification.
 
@@ -48,7 +48,7 @@ This document is the security story buyers and investors ask for. It maps implem
 - Access control (RBAC), audit logging (immutable), integrity verification, transport encryption, rate limiting, backup-able PostgreSQL (Docker/CI).
 
 **Needed for SOC 2 Type I (typically 1–3 months):**
-1. **SSO / SAML / OIDC** + SCIM provisioning (Okta, Entra ID) — *top buyer ask*.
+1. **SSO / SAML / OIDC** + SCIM provisioning (Okta, Entra ID) -- *top buyer ask*.
 2. **Data residency / region pinning** + customer-managed keys (CMEK).
 3. **Incident response & vulnerability management docs** (SBOM generation, dependency scanning in CI).
 4. **Formal policies**: password/access policies, data retention schedule, backup & restore testing evidence.

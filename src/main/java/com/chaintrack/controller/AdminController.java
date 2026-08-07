@@ -7,6 +7,7 @@ import com.chaintrack.dto.response.AdminAnalyticsResponse;
 import com.chaintrack.dto.response.InvitationResponse;
 import com.chaintrack.dto.response.UserResponse;
 import com.chaintrack.service.AdminAnalyticsService;
+import com.chaintrack.service.BatchService;
 import com.chaintrack.service.DemoDataService;
 import com.chaintrack.service.InvitationService;
 import com.chaintrack.service.UserService;
@@ -35,15 +36,18 @@ public class AdminController {
     private final AdminAnalyticsService adminAnalyticsService;
     private final InvitationService invitationService;
     private final DemoDataService demoDataService;
+    private final BatchService batchService;
 
     public AdminController(UserService userService,
                            AdminAnalyticsService adminAnalyticsService,
                            InvitationService invitationService,
-                           DemoDataService demoDataService) {
+                           DemoDataService demoDataService,
+                           BatchService batchService) {
         this.userService = userService;
         this.adminAnalyticsService = adminAnalyticsService;
         this.invitationService = invitationService;
         this.demoDataService = demoDataService;
+        this.batchService = batchService;
     }
 
     @GetMapping("/users")
@@ -141,6 +145,18 @@ public class AdminController {
     @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required")
     public java.util.Map<String, Object> resetDemoData() {
         return demoDataService.resetDemoData();
+    }
+
+    @PostMapping("/qr-tokens/{batchId}/revoke")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Audited(action = "REVOKE_QR", entityType = "QR_TOKEN", entityIdExpr = "#arg0")
+    @Operation(summary = "Revoke QR token", description = "Revokes the QR token for a batch by deleting it (ADMIN only)")
+    @ApiResponse(responseCode = "200", description = "QR token revoked successfully")
+    @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required")
+    @ApiResponse(responseCode = "404", description = "Batch not found")
+    public ResponseEntity<Void> revokeQRToken(@PathVariable String batchId) {
+        batchService.revokeQRToken(batchId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/analytics")

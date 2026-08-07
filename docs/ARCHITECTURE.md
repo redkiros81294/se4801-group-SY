@@ -1,4 +1,4 @@
-# ChainTrack — Architecture
+# ChainTrack -- Architecture
 
 ## System Overview
 
@@ -35,9 +35,9 @@ signatureHash = SHA-256( eventType | eventTimestamp | fromOrgId | toOrgId | prev
 previousHash  = signatureHash of the previous event for that batch ("GENESIS" for the first)
 ```
 
-- **Immutability by construction** — a `MovementTransaction` is never updated or deleted.
-- **Tamper detection** — `ChainVerificationService` re-walks the chain on every `GET /api/verify/{token}` and recomputes each hash. A mismatch → the batch is persisted as `COMPROMISED`.
-- **Precision contract** — timestamps are truncated to microseconds (`Instant` truncated to `MICROS`) *before* hashing because PostgreSQL stores microseconds; this guarantees the hash computed at write time matches the hash recomputed at read time.
+- **Immutability by construction** -- a `MovementTransaction` is never updated or deleted.
+- **Tamper detection** -- `ChainVerificationService` re-walks the chain on every `GET /api/verify/{token}` and recomputes each hash. A mismatch → the batch is persisted as `COMPROMISED`.
+- **Precision contract** -- timestamps are truncated to microseconds (`Instant` truncated to `MICROS`) *before* hashing because PostgreSQL stores microseconds; this guarantees the hash computed at write time matches the hash recomputed at read time.
 
 ## The Audit Log (enterprise governance)
 
@@ -47,7 +47,7 @@ previousHash  = signatureHash of the previous event for that batch ("GENESIS" fo
 integrityHash = SHA-256( actor | action | entityType | entityId | summary | ip | requestId | createdAt | previousHash )
 ```
 
-- The `@Audited` annotation on controllers triggers an AOP aspect (`AuditAspect`) that records the authenticated actor, action, target entity, client IP, and correlation id after the method returns — including `_FAILED` entries when a call throws.
+- The `@Audited` annotation on controllers triggers an AOP aspect (`AuditAspect`) that records the authenticated actor, action, target entity, client IP, and correlation id after the method returns -- including `_FAILED` entries when a call throws.
 - `GET /api/admin/audit/verify` recomputes the chain and reports the first broken index, detecting both **edits** (hash mismatch on the row itself) and **deletions** (link to the next row breaks).
 - Scope today: login/logout, user admin (create/approve/reject), invites, products, batches, QR minting, movements, verification, password changes. See `@Audited` usages in `controller/`.
 
@@ -89,11 +89,11 @@ integrityHash = SHA-256( actor | action | entityType | entityId | summary | ip |
 ## Deployment
 
 - **Docker**: multi-stage build, non-root runtime; `docker-compose.yml` for local.
-- **CI**: GitHub Actions — `backend-ci.yml` (build + tests), `deploy-frontend.yml`.
-- **Prod**: Spring profile `prod` — Flyway-managed schema (`ddl-auto=none`), probes enabled, health checks.
+- **CI**: GitHub Actions -- `backend-ci.yml` (build + tests), `deploy-frontend.yml`.
+- **Prod**: Spring profile `prod` -- Flyway-managed schema (`ddl-auto=none`), probes enabled, health checks.
 
 ## Performance Notes
 
 - Indexes on hot paths: `movement_transactions(batch_id, event_timestamp)`, `qr_tokens(token_value)`, `users(email)`, `audit_log(created_at desc)`.
-- The frontend is route-level code-split (lazy imports) — the main bundle drops from ~909 KB to ~290 KB.
+- The frontend is route-level code-split (lazy imports) -- the main bundle drops from ~909 KB to ~290 KB.
 - Scale path (documented, not yet built): connection pooling tuning, read replicas, Redis caching of verify results, and partitioning `movement_transactions` by batch.

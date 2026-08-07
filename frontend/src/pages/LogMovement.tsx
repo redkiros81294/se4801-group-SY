@@ -146,7 +146,7 @@ export const LogMovement = () => {
                 <option value="">Select a batch</option>
                 {batches.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.batchNumber} — {b.productName}
+                    {b.batchNumber} -- {b.productName}
                   </option>
                 ))}
               </select>

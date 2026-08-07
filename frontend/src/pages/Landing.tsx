@@ -40,14 +40,18 @@ export const Landing = () => {
 
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--border)]/40 bg-[var(--bg0)]/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-3"
+          >
             <div className="w-9 h-9 bg-gradient-to-br from-[var(--cyan)] to-[var(--blue)] rounded-lg flex items-center justify-center shadow-lg shadow-[var(--cyan)]/20">
               <i className="ti ti-shield-check text-white text-lg"></i>
             </div>
             <span className="text-lg font-bold bg-gradient-to-r from-[var(--cyan)] to-[var(--blue)] bg-clip-text text-transparent">
               ChainTrack
             </span>
-          </div>
+          </button>
 
           <nav className="flex items-center gap-2">
             <ThemeToggle />
@@ -214,12 +218,16 @@ export const Landing = () => {
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-3 mb-4">
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                className="flex items-center gap-3 mb-4"
+              >
                 <div className="w-8 h-8 bg-gradient-to-br from-[var(--cyan)] to-[var(--blue)] rounded-lg flex items-center justify-center">
                   <i className="ti ti-shield-check text-white text-sm"></i>
                 </div>
                 <span className="text-lg font-bold text-[var(--t1)]">ChainTrack</span>
-              </div>
+              </button>
               <p className="text-sm text-[var(--t2)] leading-relaxed">
                 Smart supply chain provenance platform ensuring authenticity from source to shelf.
               </p>

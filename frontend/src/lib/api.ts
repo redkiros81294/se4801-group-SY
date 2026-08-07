@@ -1,13 +1,10 @@
 import axios from 'axios';
-import { getToken, clearToken } from '../contexts/AuthContext';
+import { getAccessToken, setAccessToken } from './authToken';
 
 // Primary and fallback API URLs
 const PRIMARY_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 const FALLBACK_API_URL = import.meta.env.VITE_API_FALLBACK_URL || 'https://chaintrack-backend.onrender.com/api';
 
-// When running on a deployed/preview origin (not localhost) without an explicit
-// VITE_API_URL, the localhost primary can never work — start on the hosted API
-// directly instead of failing one request before falling back.
 const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
 const startOnFallback = !import.meta.env.VITE_API_URL && !isLocal;
 
@@ -28,7 +25,7 @@ const switchToFallback = () => {
 };
 
 api.interceptors.request.use((config) => {
-  const token = getToken();
+  const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -36,52 +33,42 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (response) => {
-    // Reset fallback on successful request
-    if (fallbackAttempted && currentBaseURL === FALLBACK_API_URL) {
-      // Optionally switch back to primary after some successful requests
-      // For now, stick with fallback once switched
-    }
-    return response;
-  },
-  (error) => {
-    // Check if it's a network/CORS error (not a 4xx/5xx response)
+  (response) => response,
+  async (error) => {
     const isNetworkError = !error.response && (error.code === 'ECONNABORTED' || error.message.includes('Network Error') || error.message.includes('CORS'));
-    
     if (isNetworkError && !fallbackAttempted && currentBaseURL === PRIMARY_API_URL) {
       console.warn('Network error detected, attempting fallback API...');
       switchToFallback();
-      
-      // Retry the original request with fallback
       const originalRequest = error.config;
       originalRequest.baseURL = FALLBACK_API_URL;
       return axios.request(originalRequest);
     }
-    
-    // Redirect only if not on login page and there's an error response
-    const currentPath = window.location.pathname;
-    const isOnLoginPage = currentPath.includes('login');
-    const isOnInvitePage = currentPath.includes('invite');
-    
-    const baseUrl = import.meta.env.BASE_URL.endsWith('/')
-      ? import.meta.env.BASE_URL
-      : `${import.meta.env.BASE_URL}/`;
 
-    if (error.response?.status === 401 && !isOnLoginPage && !isOnInvitePage) {
-      clearToken();
-      // Using window.location.assign causes a full page reload, wiping in-memory auth state
-      // This is safe here because 401 means we're unauthorized anyway
-      window.location.assign(`${baseUrl}login`);
-    }
-
-    if (error.response?.status === 403) {
-      const currentPath = window.location.pathname;
-      if (!currentPath.includes('forbidden')) {
-        window.location.assign(`${baseUrl}forbidden`);
+    if (error.response?.status === 401 && !error.config._retry) {
+      error.config._retry = true;
+      try {
+        const refreshToken = sessionStorage.getItem('chaintrack_token');
+        if (!refreshToken) {
+          return Promise.reject(error);
+        }
+        const refreshResponse = await axios.post(`${currentBaseURL}/auth/refresh`, { refreshToken });
+        const newToken = refreshResponse.data?.token;
+        const newRefreshToken = refreshResponse.data?.refreshToken;
+        if (newToken) {
+          setAccessToken(newToken);
+          if (newRefreshToken) {
+            sessionStorage.setItem('chaintrack_token', newRefreshToken);
+          }
+          error.config.headers.Authorization = `Bearer ${newToken}`;
+          return axios.request(error.config);
+        }
+      } catch {
+        setAccessToken(null);
+        sessionStorage.removeItem('chaintrack_token');
+        window.location.assign('/login');
       }
     }
-    // We remove the auto-redirect for 404/500 to prevent wiping state on transient errors or BOLA checks
-    // The components should handle these errors themselves
+
     return Promise.reject(error);
   }
 );

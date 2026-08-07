@@ -9,7 +9,7 @@ interface UseApiDataOptions {
  * Small shared data-fetching hook. Wraps the loading / error / data state
  * that every page was hand-rolling so fetches behave consistently.
  *
- * Returns a `refetch` that re-runs the loader — pass it to a Retry button.
+ * Returns a `refetch` that re-runs the loader -- pass it to a Retry button.
  */
 export const useApiData = <T,>(loader: () => Promise<T>, deps: unknown[] = [], options: UseApiDataOptions = {}) => {
   const [data, setData] = useState<T | null>(null);

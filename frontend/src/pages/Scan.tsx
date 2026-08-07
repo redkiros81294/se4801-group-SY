@@ -48,7 +48,7 @@ export const Scan = () => {
   };
 
   useEffect(() => {
-    // Don't auto-start camera — wait for user permission
+    // Don't auto-start camera -- wait for user permission
     return () => {
       stopScanLoop();
       if (stream) {
@@ -69,7 +69,7 @@ export const Scan = () => {
     setCameraStatus('requesting');
     try {
       // Load the QR decoder only when the camera is actually being used.
-      // jsQR is ~130 KB — deferring it keeps the /scan page lightweight.
+      // jsQR is ~130 KB -- deferring it keeps the /scan page lightweight.
       if (!jsqrRef.current) {
         const { default: jsQR } = await import('jsqr');
         jsqrRef.current = jsQR;
@@ -148,7 +148,7 @@ export const Scan = () => {
     <div className="p-4 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-4 text-[var(--t1)]">QR Verification</h1>
       
-      {/* Camera permission prompt — shown when idle */}
+      {/* Camera permission prompt -- shown when idle */}
       {cameraStatus === 'idle' && (
         <div className="bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-8 text-center">
           <div className="flex justify-center mb-4">
@@ -173,7 +173,7 @@ export const Scan = () => {
         </div>
       )}
 
-      {/* Requesting permission — loading state */}
+      {/* Requesting permission -- loading state */}
       {cameraStatus === 'requesting' && (
         <div className="bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-8 text-center">
           <div className="flex items-center justify-center py-12">
@@ -185,7 +185,7 @@ export const Scan = () => {
         </div>
       )}
 
-      {/* Active scanner — camera granted */}
+      {/* Active scanner -- camera granted */}
       {cameraStatus === 'active' && (
         <>
           <div className="relative mb-4 overflow-hidden rounded-xl">
@@ -214,7 +214,7 @@ export const Scan = () => {
         </>
       )}
 
-      {/* Permission denied — graceful fallback */}
+      {/* Permission denied -- graceful fallback */}
       {cameraStatus === 'denied' && (
         <div className="bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--amber)]/20 p-6 mb-4">
           <div className="flex items-start space-x-4">
@@ -245,7 +245,7 @@ export const Scan = () => {
         </div>
       )}
 
-      {/* Manual token entry — always visible, more prominent fallback */}
+      {/* Manual token entry -- always visible, more prominent fallback */}
       <div className={`bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-6 ${cameraStatus === 'active' ? 'mt-4' : ''}`}>
         <h3 className="text-[var(--t1)] font-semibold mb-4">
           <i className="ti ti-keyboard mr-2 text-[var(--t2)]" aria-hidden="true" />

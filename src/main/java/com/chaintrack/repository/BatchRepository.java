@@ -21,4 +21,6 @@ public interface BatchRepository extends JpaRepository<Batch, UUID> {
     Page<Batch> findByManufacturer(Organization organization, Pageable pageable);
 
     long countByStatus(BatchStatus status);
+
+    Page<Batch> findByBatchNumberContainingIgnoreCase(String batchNumber, Pageable pageable);
 }

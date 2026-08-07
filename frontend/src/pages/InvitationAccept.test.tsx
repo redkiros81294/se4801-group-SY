@@ -20,8 +20,7 @@ vi.mock('../lib/api', () => ({
 }));
 
 vi.mock('../contexts/AuthContext', () => ({
-  getToken: vi.fn(() => null),
-  clearToken: vi.fn()
+  useAuth: () => ({ user: null, login: vi.fn(), logout: vi.fn() })
 }));
 
 import api from '../lib/api';

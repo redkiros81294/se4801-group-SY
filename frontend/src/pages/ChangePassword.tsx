@@ -64,10 +64,10 @@ export const ChangePassword = () => {
       });
       setSuccess('Password changed successfully');
       resetForm({ currentPassword: '', password: '', confirmPassword: '' });
-      // The backend revokes the current session token — sign out and require a fresh login.
+      // The backend revokes the current session token -- sign out and require a fresh login.
       setTimeout(() => {
         logout();
-        navigate('/login', { state: { message: 'Password changed — please sign in with your new password.' } });
+        navigate('/login', { state: { message: 'Password changed -- please sign in with your new password.' } });
       }, 1200);
     } catch (err: any) {
       const status = err.response?.status;
@@ -96,14 +96,14 @@ export const ChangePassword = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-lg space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-[var(--t1)]">Change Password</h1>
-        <p className="text-[var(--t2)] text-sm mt-1">
-          Signed in as <span className="text-[var(--cyan)]">{user?.email}</span> — you'll be asked to sign in again after changing it.
-        </p>
-      </div>
+        <div>
+          <h1 className="text-2xl font-bold text-[var(--t1)]">Change Password</h1>
+          <p className="text-[var(--t2)] text-sm mt-1">
+            Signed in as <span className="text-[var(--cyan)]">{user?.email}</span> -- you'll be asked to sign in again after changing it.
+          </p>
+        </div>
 
-      <div className="bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-6 max-w-lg">
+        <div className="bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-6 max-w-lg">
         {success && (
           <div className="mb-4 p-4 bg-[var(--green)]/10 border border-[var(--green)]/20 rounded-lg flex items-start gap-3">
             <i className="ti ti-shield-check text-[var(--green)] mt-0.5" aria-hidden="true" />
@@ -199,6 +199,7 @@ export const ChangePassword = () => {
             )}
           </button>
         </form>
+      </div>
       </div>
     </div>
   );

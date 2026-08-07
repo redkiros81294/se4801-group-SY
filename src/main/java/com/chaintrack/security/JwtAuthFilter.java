@@ -105,6 +105,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (path.equals("/api/auth/login")) {
             return true;
         }
+        if (path.equals("/api/auth/refresh")) {
+            return true;
+        }
         if (path.equals("/api/auth/invitations/accept")) {
             return true;
         }

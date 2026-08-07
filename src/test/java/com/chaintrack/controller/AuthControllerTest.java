@@ -12,6 +12,7 @@ import com.chaintrack.repository.UserRepository;
 import com.chaintrack.security.JwtUtils;
 import com.chaintrack.service.InvitationService;
 import com.chaintrack.service.JwtBlacklistService;
+import com.chaintrack.service.RefreshTokenService;
 import com.chaintrack.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -67,6 +68,9 @@ class AuthControllerTest {
 
     @MockBean
     private UserDetailsService userDetailsService;
+
+    @MockBean
+    private RefreshTokenService refreshTokenService;
 
     // ── invite ─────────────────────────────────────────────────────────────
     // Note: /api/auth/invite requires JWT authentication with ADMIN role.
@@ -264,6 +268,15 @@ class AuthControllerTest {
             when(userRepository.findByEmail("shipper@ex.com")).thenReturn(user);
             when(jwtUtils.generateToken(any(), any(), any(), any(), any()))
                 .thenReturn("mocked-jwt-token");
+
+            var refreshToken = com.chaintrack.model.RefreshToken.builder()
+                .id(UUID.randomUUID())
+                .tokenValue("mocked-refresh-token")
+                .user(user)
+                .expiryTime(Instant.now().plusSeconds(86400))
+                .revoked(false)
+                .build();
+            when(refreshTokenService.createRefreshToken(user)).thenReturn(refreshToken);
 
             // Act & Assert
             mockMvc.perform(post("/api/auth/login")

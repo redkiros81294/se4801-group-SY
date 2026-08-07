@@ -71,6 +71,24 @@ public class BatchServiceImpl implements BatchService {
     }
 
     @Override
+    public Page<Batch> searchPublicBatches(String query, Pageable pageable) {
+        if (isBlank(query)) {
+            return batchRepository.findAll(pageable);
+        }
+        return batchRepository.findByBatchNumberContainingIgnoreCase(query, pageable);
+    }
+
+    @Override
+    @Transactional
+    public void revokeQRToken(String batchId) {
+        if (isBlank(batchId)) {
+            throw new IllegalArgumentException("Batch id must not be blank");
+        }
+        Batch batch = getBatchById(batchId);
+        qrTokenRepository.findByBatch(batch).ifPresent(qrTokenRepository::delete);
+    }
+
+    @Override
     public Batch getBatchById(String batchId) {
         if (isBlank(batchId)) {
             throw new IllegalArgumentException("Batch id must not be blank");

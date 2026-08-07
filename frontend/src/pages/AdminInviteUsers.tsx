@@ -3,6 +3,7 @@ import { useFormValidation } from '../hooks/useFormValidation';
 import { useAuth } from '../contexts/AuthContext';
 import { clsx } from 'clsx';
 import api from '../lib/api';
+import { EmptyState } from '../components/EmptyState';
 
 interface Organization {
   id: string;
@@ -376,7 +377,7 @@ export const AdminInviteUsers = () => {
         <div className="bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 p-6">
           <h2 className="text-lg font-bold text-[var(--t1)] mb-1">Create User Account</h2>
           <p className="text-[var(--t2)] text-sm mb-4">
-            The account is activated immediately — the user can log in with the temporary password right away. No email or approval needed.
+            The account is activated immediately -- the user can log in with the temporary password right away. No email or approval needed.
           </p>
 
           {createSuccess && (
@@ -572,11 +573,11 @@ export const AdminInviteUsers = () => {
 
           <div className="bg-[var(--bg1)]/50 backdrop-blur-sm rounded-xl border border-[var(--border)]/20 overflow-hidden">
             {invitations.length === 0 ? (
-              <div className="text-center py-12">
-                <i className="ti ti-mail text-[var(--t3)] text-4xl mb-4" aria-hidden="true" />
-                <h3 className="text-[var(--t1)] font-semibold mb-2">No Sent Invitations</h3>
-                <p className="text-[var(--t2)]">No invitations have been sent yet</p>
-              </div>
+              <EmptyState
+                icon="ti ti-mail"
+                title="No Sent Invitations"
+                message="No invitations have been sent yet"
+              />
             ) : (
               <table className="w-full border-collapse">
                 <thead>

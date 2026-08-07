@@ -6,7 +6,7 @@ import { useApiData } from '../hooks/useApiData';
 import { StatCard } from '../components/StatCard';
 import { Skeleton, SkeletonCard } from '../components/Skeleton';
 
-// recharts is large (~110 KB gzipped) — load it only when this chart renders.
+// recharts is large (~110 KB gzipped) -- load it only when this chart renders.
 const BatchProductionChart = lazy(() =>
   import('../components/charts/BatchProductionChart').then(m => ({ default: m.BatchProductionChart }))
 );
