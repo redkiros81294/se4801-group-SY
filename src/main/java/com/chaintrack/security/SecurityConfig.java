@@ -45,12 +45,15 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(request -> {
                 var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-corsConfig.setAllowedOrigins(java.util.List.of(
-                     "http://localhost:5173",
-                     "https://redkiros81294.github.io",
-                     "https://redkiros81294.github.io/se4801-group-SY",
-                     frontendUrl
-                 ));
+                corsConfig.setAllowedOrigins(java.util.List.of(
+                    "http://localhost:5173",
+                    "http://192.168.1.3:5173",
+                    "https://redkiros81294.github.io",
+                    "https://redkiros81294.github.io/se4801-group-SY",
+                    "exp://192.168.1.3:19000",
+                    "exp://192.168.1.3:8081",
+                    frontendUrl
+                ));
                 corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
                 corsConfig.setAllowedHeaders(java.util.List.of("*"));
                 corsConfig.setAllowCredentials(true);
