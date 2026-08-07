@@ -77,6 +77,7 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/verify/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/batches/search").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/organizations/register").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated()
             )

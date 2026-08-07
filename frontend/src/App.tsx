@@ -26,6 +26,8 @@ const TransactionHistory = lazy(() => import('./pages/TransactionHistory').then(
 const DashboardRouter = lazy(() => import('./pages/DashboardRouter').then(m => ({ default: m.DashboardRouter })));
 const AdminInviteUsers = lazy(() => import('./pages/AdminInviteUsers').then(m => ({ default: m.AdminInviteUsers })));
 const AuditLog = lazy(() => import('./pages/AuditLog').then(m => ({ default: m.AuditLog })));
+const AdminOrganizations = lazy(() => import('./pages/AdminOrganizations').then(m => ({ default: m.AdminOrganizations })));
+const PublicRegisterOrganization = lazy(() => import('./pages/PublicRegisterOrganization').then(m => ({ default: m.PublicRegisterOrganization })));
 const PublicVerify = lazy(() => import('./pages/PublicVerify').then(m => ({ default: m.PublicVerify })));
 const ChangePassword = lazy(() => import('./pages/ChangePassword').then(m => ({ default: m.ChangePassword })));
 
@@ -129,6 +131,14 @@ function App() {
                   </PageShell>
                 </ProtectedRoute>
               } />
+              <Route path="/admin/organizations" element={
+                <ProtectedRoute requiredRoles={['ADMIN']}>
+                  <PageShell title="Organizations">
+                    <AdminOrganizations />
+                  </PageShell>
+                </ProtectedRoute>
+              } />
+              <Route path="/register-organization" element={<PublicRegisterOrganization />} />
               <Route path="/change-password" element={
                 <ProtectedRoute>
                   <PageShell title="Change Password">

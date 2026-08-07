@@ -23,6 +23,7 @@ export const Sidebar = () => {
       { path: '/dashboard', label: 'Dashboard', icon: 'ti ti-home', roles: ['ADMIN', 'MANUFACTURER'] },
       { path: '/admin/invite', label: 'Create User', icon: 'ti ti-user-plus', roles: ['ADMIN'] },
       { path: '/admin/audit', label: 'Audit Log', icon: 'ti ti-shield-lock', roles: ['ADMIN'] },
+      { path: '/admin/organizations', label: 'Organizations', icon: 'ti ti-building', roles: ['ADMIN'] },
       { path: '/products', label: 'Products', icon: 'ti ti-box', roles: ['ADMIN', 'MANUFACTURER', 'SHIPPER', 'RETAILER'] },
       { path: '/products/new', label: 'Create Product', icon: 'ti ti-plus', roles: ['MANUFACTURER'] },
       { path: '/batches/new', label: 'Create Batch', icon: 'ti ti-tag', roles: ['MANUFACTURER'] },

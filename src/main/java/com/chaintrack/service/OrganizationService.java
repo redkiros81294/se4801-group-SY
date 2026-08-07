@@ -117,6 +117,34 @@ public class OrganizationService {
     }
 
     /**
+     * Updates an existing organization.
+     *
+     * @param id    the organization id
+     * @param request validated update payload
+     * @return the updated OrganizationResponse
+     * @throws EntityNotFoundException if the org does not exist
+     */
+    @Transactional
+    public OrganizationResponse updateOrganization(String id, CreateOrganizationRequest request) {
+        if (isBlank(id)) {
+            throw new IllegalArgumentException("Organization id must not be blank");
+        }
+        Organization org = organizationRepository.findById(java.util.UUID.fromString(id))
+            .orElseThrow(() -> new EntityNotFoundException(
+                "Organization with id '" + id + "' not found"));
+        if (isBlank(request.name())) {
+            throw new IllegalArgumentException("Organization name must not be blank");
+        }
+        if (request.orgType() == null) {
+            throw new IllegalArgumentException("orgType must not be null");
+        }
+        org.setName(request.name());
+        org.setOrgType(request.orgType());
+        Organization saved = organizationRepository.save(org);
+        return OrganizationResponse.fromEntity(saved);
+    }
+
+    /**
      * Checks whether an organization with the given id string exists.
      */
     @Transactional(readOnly = true)

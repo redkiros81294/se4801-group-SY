@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useEffect, useState } from 'react';
 import { COLORS, globalStyles } from '../theme';
+import { authService } from '../services/auth';
 import api from '../services/api';
 
 interface Batch {
