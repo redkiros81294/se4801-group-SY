@@ -200,5 +200,4 @@ class BatchServiceTest {
             .generateQR(batch.getId().toString(), otherOrg.getId().toString()))
             .isInstanceOf(com.chaintrack.exception.AccessDeniedException.class);
     }
-    }
 }

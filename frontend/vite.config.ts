@@ -1,11 +1,8 @@
-/// <reference types="vitest/config" />
-import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite';
 
-const base = process.env.VITE_BASE_PATH || '/se4801-group-SY/';
+const base = process.env.VITE_BASE_PATH || '/';
 
 export default defineConfig({
-  plugins: [react()],
   base,
   build: {
     outDir: 'dist',
@@ -16,11 +13,5 @@ export default defineConfig({
   preview: {
     port: 4173,
     host: '0.0.0.0',
-  },
-  test: {
-    environment: 'jsdom',
-    globals: true,
-    setupFiles: './src/test/setup.ts',
-    include: ['src/**/*.test.{ts,tsx}'],
   },
 });

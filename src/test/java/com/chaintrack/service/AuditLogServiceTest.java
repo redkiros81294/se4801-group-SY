@@ -29,9 +29,17 @@ class AuditLogServiceTest {
     @Test
     @DisplayName("record — chains the new entry to the previous hash")
     void record_chainsToPreviousHash() {
-        AuditLog previous = auditLog("admin@test.com", "CREATE", "USER",
-            "11111111-1111-1111-1111-111111111111", "prev-hash", "hash-prev");
-
+        AuditLog previous = AuditLog.builder()
+            .actor("admin@test.com")
+            .action("CREATE")
+            .entityType("USER")
+            .entityId("11111111-1111-1111-1111-111111111111")
+            .summary("test summary")
+            .ipAddress("127.0.0.1")
+            .requestId("req-1")
+            .previousHash("prev-hash")
+            .integrityHash("hash-prev")
+            .build();
         when(auditLogRepository.findTopByOrderByCreatedAtDesc()).thenReturn(Optional.of(previous));
         when(auditLogRepository.save(any(AuditLog.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -65,7 +73,7 @@ class AuditLogServiceTest {
         // Build a real chain through the service, then tamper with the second entry
         when(auditLogRepository.findTopByOrderByCreatedAtDesc())
             .thenReturn(Optional.empty())
-            .thenAnswer(inv -> Optional.of(entryWithHash("h1")));
+            .thenAnswer(inv -> Optional.of(entryWithHash(AuditLogService.GENESIS, "h1")));
         when(auditLogRepository.save(any(AuditLog.class))).thenAnswer(inv -> inv.getArgument(0));
 
         AuditLog first = auditLogService.record("a@test.com", "CREATE", "USER", "u1", "s1", null, null);
@@ -87,12 +95,16 @@ class AuditLogServiceTest {
     @Test
     @DisplayName("verifyIntegrity — intact chain reports intact=true")
     void verifyIntegrity_intactChain() {
-        // Build a small intact chain by actually recording through the service
+        // Build a small intact chain by actually recording through the service.
+        java.util.concurrent.atomic.AtomicReference<AuditLog> latest = new java.util.concurrent.atomic.AtomicReference<>();
         when(auditLogRepository.findTopByOrderByCreatedAtDesc())
-            .thenReturn(Optional.empty())
-            .thenAnswer(inv -> Optional.of(entryWithHash("h1")))
-            .thenAnswer(inv -> Optional.of(entryWithHash("h2")));
-        when(auditLogRepository.save(any(AuditLog.class))).thenAnswer(inv -> inv.getArgument(0));
+            .thenAnswer(inv -> Optional.ofNullable(latest.get()));
+        when(auditLogRepository.save(any(AuditLog.class)))
+            .thenAnswer(inv -> {
+                AuditLog saved = inv.getArgument(0);
+                latest.set(saved);
+                return saved;
+            });
 
         AuditLog first = auditLogService.record("a@test.com", "CREATE", "USER", "u1", null, null, null);
         AuditLog second = auditLogService.record("a@test.com", "UPDATE", "USER", "u1", null, null, null);
@@ -106,9 +118,10 @@ class AuditLogServiceTest {
         assertThat(result.get("entries")).isEqualTo(2);
     }
 
-    private static AuditLog entryWithHash(String hash) {
+    private static AuditLog entryWithHash(String previousHash, String integrityHash) {
         AuditLog e = new AuditLog();
-        e.setIntegrityHash(hash);
+        e.setPreviousHash(previousHash);
+        e.setIntegrityHash(integrityHash);
         return e;
     }
 }

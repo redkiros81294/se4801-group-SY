@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,7 +29,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtBlacklistService jwtBlacklistService;
 
     public JwtAuthFilter(JwtUtils jwtUtils,
-                         UserDetailsService userDetailsService,
+                         @Nullable UserDetailsService userDetailsService,
                          JwtBlacklistService jwtBlacklistService) {
         this.jwtUtils = jwtUtils;
         this.userDetailsService = userDetailsService;
@@ -35,9 +37,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                     HttpServletResponse response,
-                                     FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                     @NonNull HttpServletResponse response,
+                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         // Check if already authenticated (e.g., via @WithMockUser or other test setup)
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);
@@ -65,11 +67,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 String username = jwtUtils.extractUsername(token);
                 if (username != null) {
                     if (jwtUtils.validateToken(token)) {
-                        UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-                        UsernamePasswordAuthenticationToken authToken =
-                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
-                        logger.debug("Authenticated user: {}", username);
+                        if (this.userDetailsService == null) {
+                            logger.warn("Skipping JWT authentication because no UserDetailsService is available");
+                        } else {
+                            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                            UsernamePasswordAuthenticationToken authToken =
+                                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                            SecurityContextHolder.getContext().setAuthentication(authToken);
+                            logger.debug("Authenticated user: {}", username);
+                        }
                     } else {
                         logger.debug("Token validation failed");
                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");

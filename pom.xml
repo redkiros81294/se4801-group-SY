@@ -154,6 +154,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.5</version>
                 <configuration>
+                    <argLine>-Djdk.attach.allowAttachSelf=true -XX:+EnableDynamicAgentLoading</argLine>
                     <excludes>
                         <exclude>**/*AuthInvitationIntegrationTest.java</exclude>
                     </excludes>

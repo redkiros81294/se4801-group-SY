@@ -94,7 +94,8 @@ export const ChangePassword = () => {
   const fieldLabel = 'block text-sm font-medium mb-2 text-[var(--t2)]';
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-lg space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-[var(--t1)]">Change Password</h1>
         <p className="text-[var(--t2)] text-sm mt-1">

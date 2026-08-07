@@ -170,25 +170,6 @@ export const Scan = () => {
             <i className="ti ti-camera mr-2" aria-hidden="true" />
             Start Camera Scanner
           </button>
-          
-          <div className="mt-6 pt-6 border-t border-[var(--border)]/20">
-            <p className="text-[var(--t3)] text-sm mb-3">Or enter the token manually:</p>
-            <form onSubmit={handleManualSubmit} className="flex gap-3 max-w-md mx-auto">
-              <input
-                type="text"
-                value={manualToken}
-                onChange={(e) => setManualToken(e.target.value)}
-                placeholder="Paste QR token here"
-                className="flex-1 px-4 py-3 rounded-lg bg-[var(--bg2)]/50 border border-[var(--border)]/20 text-[var(--t1)] placeholder-[var(--t3)] focus:outline-none focus:ring-2 focus:ring-[var(--cyan)]/50 transition-all duration-200"
-              />
-              <button
-                type="submit"
-                className="px-4 py-3 rounded-lg bg-[var(--blue)] text-[var(--t1)] font-medium hover:bg-[var(--blue)]/90 transition-colors duration-200"
-              >
-                Verify
-              </button>
-            </form>
-          </div>
         </div>
       )}
 

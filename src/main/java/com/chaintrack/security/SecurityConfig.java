@@ -1,6 +1,7 @@
 package com.chaintrack.security;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,6 +12,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -28,7 +31,7 @@ public class SecurityConfig {
                                                    com.chaintrack.security.CorrelationIdFilter correlationIdFilter,
                                                    OidcLoginSuccessHandler oidcLoginSuccessHandler) throws Exception {
         http
-            .addFilterBefore(correlationIdFilter, com.chaintrack.security.rate.RateLimitingFilter.class)
+            .addFilterBefore(correlationIdFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
             .oauth2Login(oauth2 -> oauth2
                 // SSO is opt-in: with no OIDC client configured this simply never matches.
@@ -76,6 +79,17 @@ corsConfig.setAllowedOrigins(java.util.List.of(
             .formLogin(org.springframework.security.config.Customizer.withDefaults());
 
         return http.build();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ClientRegistrationRepository.class)
+    public ClientRegistrationRepository clientRegistrationRepository() {
+        return new ClientRegistrationRepository() {
+            @Override
+            public ClientRegistration findByRegistrationId(String registrationId) {
+                return null;
+            }
+        };
     }
 
     @Bean

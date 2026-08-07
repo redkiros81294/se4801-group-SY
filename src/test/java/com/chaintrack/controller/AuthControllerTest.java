@@ -151,6 +151,12 @@ class AuthControllerTest {
             UserResponse response = UserResponse.fromEntity(user);
 
             when(jwtUtils.extractUsername(any())).thenReturn("user@test.com");
+            when(jwtUtils.validateToken(any())).thenReturn(true);
+            when(userDetailsService.loadUserByUsername("user@test.com"))
+                .thenReturn(org.springframework.security.core.userdetails.User.withUsername("user@test.com")
+                    .password("test")
+                    .roles("SHIPPER")
+                    .build());
             when(userService.changePassword(eq("user@test.com"), eq("OldPass123!"), eq("NewPass456!")))
                 .thenReturn(response);
             when(jwtUtils.getExpirationMillis(any())).thenReturn(86400000L);
@@ -170,6 +176,12 @@ class AuthControllerTest {
         @DisplayName("returns 400 when the current password is wrong")
         void changePassword_wrongCurrentPasswordReturns400() throws Exception {
             when(jwtUtils.extractUsername(any())).thenReturn("user@test.com");
+            when(jwtUtils.validateToken(any())).thenReturn(true);
+            when(userDetailsService.loadUserByUsername("user@test.com"))
+                .thenReturn(org.springframework.security.core.userdetails.User.withUsername("user@test.com")
+                    .password("test")
+                    .roles("SHIPPER")
+                    .build());
             when(userService.changePassword(eq("user@test.com"), eq("WrongPass999!"), eq("NewPass456!")))
                 .thenThrow(new IllegalArgumentException("Current password is incorrect"));
 

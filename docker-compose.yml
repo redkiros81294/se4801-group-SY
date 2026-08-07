@@ -29,12 +29,21 @@ services:
       db:
         condition: service_healthy
     environment:
+      MAIL_USERNAME: test@example.com
+      MAIL_PASSWORD: testpassword
+      MAIL_HOST: smtp.example.com
+      MAIL_PORT: 587
+      MAIL_FROM: noreply@chaintrack.com
+      MAIL_PROTOCOL: smtp
+      MAIL_TLS: true
+      MAIL_AUTH: true
+      MAIL_DEBUG: false
       SPRING_PROFILES_ACTIVE: docker
-      DB_URL: jdbc:postgresql://db:5432/chaintrack
-      DB_USERNAME: chaintrack_user
-      DB_PASSWORD: chaintrack_password
-      JWT_SECRET: ${JWT_SECRET:-chaintrack-super-secret-key-that-is-long-enough-for-hs512-alg}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      DB_USERNAME: chaintrack_user
+      JWT_SECRET: ${JWT_SECRET:-chaintrack-super-secret-key-that-is-long-enough-for-hs512-alg}
+      DB_URL: jdbc:postgresql://db:5432/chaintrack
+      DB_PASSWORD: chaintrack_password
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 10s

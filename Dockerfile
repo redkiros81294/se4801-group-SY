@@ -9,6 +9,10 @@ RUN mvn -B package -DskipTests
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
+# Install curl for the healthcheck probe defined in docker-compose
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
 # Add a non-root user for security
 RUN groupadd -r spring && useradd -r -g spring spring
 USER spring

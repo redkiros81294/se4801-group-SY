@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -35,7 +36,7 @@ public class OidcLoginSuccessHandler implements AuthenticationSuccessHandler {
     private static final Logger log = LoggerFactory.getLogger(OidcLoginSuccessHandler.class);
 
     private final UserRepository userRepository;
-    private final CustomUserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
     private final JwtUtils jwtUtils;
     private final AuditLogService auditLogService;
 
@@ -43,7 +44,7 @@ public class OidcLoginSuccessHandler implements AuthenticationSuccessHandler {
     private String frontendUrl;
 
     public OidcLoginSuccessHandler(UserRepository userRepository,
-                                   CustomUserDetailsService userDetailsService,
+                                   UserDetailsService userDetailsService,
                                    JwtUtils jwtUtils,
                                    AuditLogService auditLogService) {
         this.userRepository = userRepository;

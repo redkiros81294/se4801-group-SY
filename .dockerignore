@@ -1,0 +1,51 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+
+# Build outputs
+target/
+dist/
+build/
+
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# IDE
+.idea/
+.vscode/
+.vscode-server/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+application-local.properties
+application-secrets.properties
+
+# Logs
+*.log
+logs/
+
+# Docker volumes
+postgres-data/
+docker-compose.override.yml
+
+# Kilo configuration
+.kilo/
+
+# Maven wrapper
+.mvn/
+mvnw
+mvnw.cmd
+
+# Test artifacts
+*.class
