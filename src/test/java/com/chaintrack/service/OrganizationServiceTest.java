@@ -141,7 +141,7 @@ class OrganizationServiceTest {
     void createOrganization_shouldPersistAndReturnSavedOrg() {
         CreateOrganizationRequest req = new CreateOrganizationRequest(
             "New Manufacturer",
-            OrgType.MANUFACTURER);
+            "MANUFACTURER");
 
         OrganizationResponse created = organizationService.createOrganization(req);
 
@@ -154,7 +154,7 @@ class OrganizationServiceTest {
     @Test
     @DisplayName("createOrganization — throws IllegalArgumentException when name is blank")
     void createOrganization_shouldThrow_whenNameIsBlank() {
-        CreateOrganizationRequest req = new CreateOrganizationRequest("", OrgType.MANUFACTURER);
+        CreateOrganizationRequest req = new CreateOrganizationRequest("", "MANUFACTURER");
 
         assertThatThrownBy(() -> organizationService.createOrganization(req))
             .isInstanceOf(IllegalArgumentException.class)
@@ -162,9 +162,9 @@ class OrganizationServiceTest {
     }
 
     @Test
-    @DisplayName("createOrganization — throws IllegalArgumentException when orgType is null")
-    void createOrganization_shouldThrow_whenOrgTypeIsNull() {
-        CreateOrganizationRequest req = new CreateOrganizationRequest("Test", null);
+    @DisplayName("createOrganization — throws IllegalArgumentException when orgType is blank")
+    void createOrganization_shouldThrow_whenOrgTypeIsBlank() {
+        CreateOrganizationRequest req = new CreateOrganizationRequest("Test", "");
 
         assertThatThrownBy(() -> organizationService.createOrganization(req))
             .isInstanceOf(IllegalArgumentException.class)

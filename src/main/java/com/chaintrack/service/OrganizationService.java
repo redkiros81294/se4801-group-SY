@@ -87,12 +87,18 @@ public class OrganizationService {
         if (isBlank(request.name())) {
             throw new IllegalArgumentException("Organization name must not be blank");
         }
-        if (request.orgType() == null) {
-            throw new IllegalArgumentException("orgType must not be null");
+        if (isBlank(request.orgType())) {
+            throw new IllegalArgumentException("orgType must not be blank");
+        }
+        Organization.OrgType type;
+        try {
+            type = Organization.OrgType.valueOf(request.orgType().trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid orgType: " + request.orgType());
         }
         Organization org = Organization.builder()
-            .name(request.name())
-            .orgType(request.orgType())
+            .name(request.name().trim())
+            .orgType(type)
             .build();
         Organization saved = organizationRepository.save(org);
         return OrganizationResponse.fromEntity(saved);
@@ -135,11 +141,17 @@ public class OrganizationService {
         if (isBlank(request.name())) {
             throw new IllegalArgumentException("Organization name must not be blank");
         }
-        if (request.orgType() == null) {
-            throw new IllegalArgumentException("orgType must not be null");
+        if (isBlank(request.orgType())) {
+            throw new IllegalArgumentException("orgType must not be blank");
         }
-        org.setName(request.name());
-        org.setOrgType(request.orgType());
+        Organization.OrgType type;
+        try {
+            type = Organization.OrgType.valueOf(request.orgType().trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid orgType: " + request.orgType());
+        }
+        org.setName(request.name().trim());
+        org.setOrgType(type);
         Organization saved = organizationRepository.save(org);
         return OrganizationResponse.fromEntity(saved);
     }

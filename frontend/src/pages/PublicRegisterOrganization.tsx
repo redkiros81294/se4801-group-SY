@@ -3,30 +3,22 @@ import { useFormValidation } from '../hooks/useFormValidation';
 import { clsx } from 'clsx';
 import api from '../lib/api';
 
-interface OrganizationFormData {
-  companyName: string;
-  orgType: string;
-  contactEmail: string;
-  contactName: string;
-  message: string;
-}
-
 export const PublicRegisterOrganization = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
 
-  const { values, errors, handleChange, handleSubmit, resetForm } = useFormValidation<OrganizationFormData>(
+  const { values, errors, handleChange, handleSubmit, resetForm } = useFormValidation(
     { companyName: '', orgType: 'MANUFACTURER', contactEmail: '', contactName: '', message: '' },
     {
-      companyName: (value) => (!value.trim() ? 'Company name is required' : ''),
-      orgType: (value) => (!value ? 'Organization type is required' : ''),
-      contactEmail: (value) => (!value.trim() ? 'Contact email is required' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Invalid email address' : ''),
-      contactName: (value) => (!value.trim() ? 'Contact name is required' : ''),
+      companyName: [(value: string) => !!value.trim()],
+      orgType: [(value: string) => !!value],
+      contactEmail: [(value: string) => !!value.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)],
+      contactName: [(value: string) => !!value.trim()],
     }
   );
 
-  const onSubmit = async (data: OrganizationFormData) => {
+  const onSubmit = async (data: Record<string, any>) => {
     setSubmitLoading(true);
     setSubmitError('');
     setSubmitSuccess('');

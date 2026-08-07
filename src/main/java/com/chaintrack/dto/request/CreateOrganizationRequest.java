@@ -12,6 +12,6 @@ public record CreateOrganizationRequest(
     @NotBlank @Size(max = 255)
     String name,
 
-    @NotNull
-    com.chaintrack.model.Organization.OrgType orgType
+    @NotBlank @Size(max = 50)
+    String orgType
 ) {}

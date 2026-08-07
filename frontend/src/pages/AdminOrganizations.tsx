@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useFormValidation } from '../hooks/useFormValidation';
-import { useAuth } from '../contexts/AuthContext';
 import { clsx } from 'clsx';
 import api from '../lib/api';
 import { EmptyState } from '../components/EmptyState';
@@ -13,13 +12,7 @@ interface Organization {
   updatedAt: string;
 }
 
-interface OrganizationFormData {
-  name: string;
-  orgType: string;
-}
-
 export const AdminOrganizations = () => {
-  const { user } = useAuth();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,10 +22,10 @@ export const AdminOrganizations = () => {
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
 
-  const { values, errors, handleChange, handleSubmit: formHandleSubmit, resetForm } = useFormValidation<OrganizationFormData>(
+  const { values, errors, handleChange, handleSubmit, resetForm } = useFormValidation(
     { name: '', orgType: 'MANUFACTURER' },
     {
-      name: (value) => (!value.trim() ? 'Organization name is required' : ''),
+      name: [(value: string) => !!value.trim()],
     }
   );
 
@@ -52,13 +45,20 @@ export const AdminOrganizations = () => {
         updatedAt: org.updatedAt
       })));
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load organizations');
+      const status = err.response?.status;
+      if (status === 401) {
+        setError('Session expired. Please log in again.');
+      } else if (status === 403) {
+        setError('You do not have permission to view organizations.');
+      } else {
+        setError(err.response?.data?.message || 'Failed to load organizations');
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCreate = async (data: OrganizationFormData) => {
+  const handleCreate = async (data: Record<string, any>) => {
     setSubmitLoading(true);
     setSubmitError('');
     setSubmitSuccess('');
@@ -69,13 +69,21 @@ export const AdminOrganizations = () => {
       resetForm();
       loadOrganizations();
     } catch (err: any) {
-      setSubmitError(err.response?.data?.message || 'Failed to create organization');
+      const status = err.response?.status;
+      const message = err.response?.data?.message || 'Failed to create organization';
+      if (status === 401) {
+        setSubmitError('Session expired. Please refresh the page and try again.');
+      } else if (status === 403) {
+        setSubmitError('You do not have permission to perform this action.');
+      } else {
+        setSubmitError(message);
+      }
     } finally {
       setSubmitLoading(false);
     }
   };
 
-  const handleUpdate = async (data: OrganizationFormData) => {
+  const handleUpdate = async (data: Record<string, any>) => {
     if (!editingId) return;
     setSubmitLoading(true);
     setSubmitError('');
@@ -87,7 +95,15 @@ export const AdminOrganizations = () => {
       resetForm();
       loadOrganizations();
     } catch (err: any) {
-      setSubmitError(err.response?.data?.message || 'Failed to update organization');
+      const status = err.response?.status;
+      const message = err.response?.data?.message || 'Failed to update organization';
+      if (status === 401) {
+        setSubmitError('Session expired. Please refresh the page and try again.');
+      } else if (status === 403) {
+        setSubmitError('You do not have permission to perform this action.');
+      } else {
+        setSubmitError(message);
+      }
     } finally {
       setSubmitLoading(false);
     }
@@ -148,7 +164,7 @@ export const AdminOrganizations = () => {
           <h2 className="text-lg font-semibold text-[var(--t1)] mb-4">
             {editingId ? 'Edit Organization' : 'Create Organization'}
           </h2>
-          <form onSubmit={formHandleSubmit(editingId ? handleUpdate : handleCreate)} className="space-y-4">
+          <form onSubmit={handleSubmit(editingId ? handleUpdate : handleCreate)} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-[var(--t2)] mb-2">Organization Name</label>
               <input
