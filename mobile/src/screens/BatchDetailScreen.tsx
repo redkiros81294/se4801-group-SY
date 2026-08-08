@@ -13,35 +13,87 @@ import api from '../services/api';
 interface ChainEvent {
   eventType: string;
   timestamp: string;
-  fromOrgName?: string;
-  toOrgName?: string;
+  fromOrgId?: string;
+  toOrgId?: string;
   signatureHash?: string;
+  previousHash?: string;
+}
+
+interface BatchInfo {
+  batchNumber?: string;
+  productName?: string;
+  status?: string;
 }
 
 export default function BatchDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [events, setEvents] = useState<ChainEvent[]>([]);
-  const [valid, setValid] = useState(false);
-  const [batch, setBatch] = useState<{ batchNumber?: string; productName?: string; status?: string } | null>(null);
+  const [valid, setValid] = useState<boolean>(false);
+  const [batch, setBatch] = useState<BatchInfo | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!id) return;
-    api.get(`/batches/${id}`)
-      .then((res) => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const [batchRes, historyRes] = await Promise.all([
+          api.get(`/batches/${id}`),
+          api.get(`/transactions/batch/${id}`)
+        ]);
+
+        if (cancelled) return;
+
+        const batchData = batchRes.data;
         setBatch({
-          batchNumber: res.data?.batchNumber,
-          productName: res.data?.productName,
-          status: res.data?.status
+          batchNumber: batchData?.batchNumber,
+          productName: batchData?.productName,
+          status: batchData?.status
         });
-        setEvents(res.data?.transactions ?? []);
-        setValid(res.data?.chainValid ?? false);
-      })
-      .catch(() => {
-        setBatch(null);
-        setEvents([]);
-        setValid(false);
-      });
+
+        const historyData = historyRes.data?.content ?? [];
+        const mapped: ChainEvent[] = historyData.map((tx: any) => ({
+          eventType: tx.eventType,
+          timestamp: tx.timestamp,
+          fromOrgId: tx.fromOrgId,
+          toOrgId: tx.toOrgId,
+          signatureHash: tx.signatureHash,
+          previousHash: tx.previousHash
+        }));
+
+        setEvents(mapped);
+
+        // Compute chain validity client-side by checking hash linkage
+        let chainValid = mapped.length === 0;
+        if (!chainValid) {
+          chainValid = mapped.every((tx, idx) => {
+            if (idx === 0) {
+              return !tx.previousHash || tx.previousHash === '' || tx.previousHash === 'GENESIS';
+            }
+            const prev = mapped[idx - 1];
+            return tx.previousHash === prev.signatureHash;
+          });
+        }
+        setValid(chainValid);
+      } catch (e) {
+        if (!cancelled) {
+          setBatch(null);
+          setEvents([]);
+          setValid(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   const renderItem = ({ item, index }: { item: ChainEvent; index: number }) => (
@@ -51,7 +103,9 @@ export default function BatchDetailScreen() {
         <Text style={styles.timestamp}>{new Date(item.timestamp).toLocaleString()}</Text>
       </View>
       <Text style={styles.org}>
-        {item.fromOrgName ?? 'Genesis'} → {item.toOrgName ?? 'Pending'}
+        {item.fromOrgId ? `From: ${item.fromOrgId}` : 'Genesis'}
+        {' → '}
+        {item.toOrgId ? `To: ${item.toOrgId}` : 'Pending'}
       </Text>
       {item.signatureHash ? (
         <Text style={styles.hash} numberOfLines={1}>
@@ -94,11 +148,7 @@ export default function BatchDetailScreen() {
           </View>
         ) : null}
 
-        <View style={[styles.statusBanner, { backgroundColor: valid ? COLORS.green : COLORS.red }]}>
-          <Text style={styles.statusText}>{valid ? 'VERIFIED' : 'COMPROMISED'}</Text>
-        </View>
-
-        {events.length === 0 ? (
+        {!loading && events.length === 0 ? (
           <Text style={globalStyles.body}>No transactions recorded yet.</Text>
         ) : (
           <FlatList

@@ -15,6 +15,7 @@ public class BatchMapper {
         Product product = batch.getProduct();
         return new BatchResponse(
             batch.getId().toString(),
+            batch.getBatchNumber(),
             product != null ? product.getId().toString() : null,
             product != null ? product.getName() : null,
             batch.getStatus(),

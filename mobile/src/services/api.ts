@@ -1,12 +1,12 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import Constants from 'expo-constants';
 
-// Use your machine's LAN IP here so a physical device on the same network can reach the backend.
-// For emulator/simulator, keep localhost. For physical device, replace with your LAN IP.
-const LAN_API_URL = 'http://192.168.1.3:8080/api';
-const LOCAL_API_URL = 'http://localhost:8080/api';
+const FALLBACK_API_URL = 'http://localhost:8080/api';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || LAN_API_URL;
+const API_URL = Constants.expoConfig?.extra?.apiUrl
+  || process.env.EXPO_PUBLIC_API_URL
+  || FALLBACK_API_URL;
 
 const api = axios.create({
   baseURL: API_URL

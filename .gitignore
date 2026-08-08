@@ -91,3 +91,15 @@ user-b-rules.md
 .kilo/
 .mvn/wrapper/
 node_modules
+.attach_pid80
+.bash_profile
+.bashrc
+.claude/
+        .gitconfig
+        .gitmodules
+        .mcp.json
+        .profile
+        .ripgreprc
+        .zprofile
+        .zshrc
+        mobile/.expo/

@@ -12,6 +12,7 @@ import java.time.Instant;
  */
 public record BatchResponse(
     String id,
+    String batchNumber,
     String productId,
     String productName,
     BatchStatus status,
@@ -24,6 +25,7 @@ public record BatchResponse(
         Organization man = batch.getManufacturer();
         return new BatchResponse(
             batch.getId().toString(),
+            batch.getBatchNumber(),
             product != null ? product.getId().toString() : null,
             product != null ? product.getName() : null,
             batch.getStatus(),

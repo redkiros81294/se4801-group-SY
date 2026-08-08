@@ -24,7 +24,6 @@ export default function LogMovementScreen() {
   const [batches, setBatches] = useState<BatchOption[]>([]);
   const [selectedBatchId, setSelectedBatchId] = useState('');
   const [eventType, setEventType] = useState('SHIPPED');
-  const [quantity, setQuantity] = useState('');
   const [toOrgId, setToOrgId] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingBatches, setLoadingBatches] = useState(true);
@@ -66,12 +65,10 @@ export default function LogMovementScreen() {
       await api.post('/transactions', {
         batchId: selectedBatchId,
         eventType,
-        quantity: Number(quantity),
         toOrgId: toOrgId || null
       });
       setSuccess('Movement logged successfully');
       setSelectedBatchId('');
-      setQuantity('');
       setToOrgId('');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to log movement');
@@ -128,16 +125,6 @@ export default function LogMovementScreen() {
           placeholder="SHIPPED / IN_TRANSIT / RECEIVED"
           placeholderTextColor={COLORS.textMuted}
           autoCapitalize="characters"
-        />
-
-        <Text style={styles.label}>Quantity</Text>
-        <TextInput
-          style={globalStyles.input}
-          value={quantity}
-          onChangeText={setQuantity}
-          placeholder="0"
-          placeholderTextColor={COLORS.textMuted}
-          keyboardType="numeric"
         />
 
         <Text style={styles.label}>To Organization ID (optional)</Text>
