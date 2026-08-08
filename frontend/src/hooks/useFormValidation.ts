@@ -129,10 +129,12 @@ export const useFormValidation = (
     };
   }, [validateAll, values]);
 
-  const resetForm = useCallback((initialValues: Record<string, any> = {}) => {
-    setValues(initialValues);
+  // Defaults to the hook's own initial values (not an empty object) so forms
+  // like AdminOrganizations keep their orgType default after reset/cancel.
+  const resetForm = useCallback((nextValues: Record<string, any> = initialValues) => {
+    setValues(nextValues);
     setErrors({});
-  }, []);
+  }, [initialValues]);
 
   return {
     values,

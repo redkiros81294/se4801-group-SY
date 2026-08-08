@@ -1,7 +1,6 @@
 package com.chaintrack.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -9,9 +8,11 @@ import jakarta.validation.constraints.Size;
  * Only ADMIN may POST /api/organizations.
  */
 public record CreateOrganizationRequest(
-    @NotBlank @Size(max = 255)
+    @NotBlank(message = "Organization name is required")
+    @Size(max = 255, message = "Organization name must be at most 255 characters")
     String name,
 
-    @NotBlank @Size(max = 50)
+    @NotBlank(message = "Organization type is required")
+    @Size(max = 50, message = "Organization type must be at most 50 characters")
     String orgType
 ) {}

@@ -26,8 +26,19 @@ export const AdminOrganizations = () => {
     { name: '', orgType: 'MANUFACTURER' },
     {
       name: [(value: string) => !!value.trim()],
+      orgType: [(value: string) => !!value],
     }
   );
+
+  // The backend returns field-level errors as ProblemDetail errors[] — turn them
+  // into a readable message instead of showing the generic "Validation failed".
+  const formatApiError = (err: any, fallback: string) => {
+    const data = err?.response?.data;
+    if (data?.errors?.length) {
+      return data.errors.map((e: any) => `${e.field}: ${e.message}`).join('; ');
+    }
+    return data?.detail || data?.message || fallback;
+  };
 
   useEffect(() => {
     loadOrganizations();
@@ -70,7 +81,7 @@ export const AdminOrganizations = () => {
       loadOrganizations();
     } catch (err: any) {
       const status = err.response?.status;
-      const message = err.response?.data?.message || 'Failed to create organization';
+      const message = formatApiError(err, 'Failed to create organization');
       if (status === 401) {
         setSubmitError('Session expired. Please refresh the page and try again.');
       } else if (status === 403) {
@@ -96,7 +107,7 @@ export const AdminOrganizations = () => {
       loadOrganizations();
     } catch (err: any) {
       const status = err.response?.status;
-      const message = err.response?.data?.message || 'Failed to update organization';
+      const message = formatApiError(err, 'Failed to update organization');
       if (status === 401) {
         setSubmitError('Session expired. Please refresh the page and try again.');
       } else if (status === 403) {

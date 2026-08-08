@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 import type { ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import api from '../lib/api';
-import { setAccessToken, getAccessToken } from '../lib/authToken';
+import { setAccessToken } from '../lib/authToken';
 
 const ACCESS_TOKEN_KEY = 'chaintrack_access_token';
 
