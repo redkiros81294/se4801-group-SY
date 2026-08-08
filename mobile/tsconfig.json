@@ -2,14 +2,16 @@
   "compilerOptions": {
     "strict": true,
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
     "jsx": "react-native",
     "module": "esnext",
     "moduleResolution": "node",
     "target": "esnext",
-    "lib": ["esnext"],
+    "lib": [
+      "esnext"
+    ],
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "esModuleInterop": true
-  }
+  },
+  "extends": "expo/tsconfig.base"
 }

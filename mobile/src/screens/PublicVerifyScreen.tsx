@@ -1,4 +1,4 @@
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { Camera, CameraType } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useState, useRef } from 'react';
@@ -20,10 +20,19 @@ export default function PublicVerifyScreen() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
-  const [permission, requestPermission] = useCameraPermissions();
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanning, setScanning] = useState(false);
-  const cameraRef = useRef<CameraView>(null);
+  const cameraRef = useRef<Camera>(null);
   const lastScanned = useRef<string | null>(null);
+
+  const requestCameraPermission = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    setHasPermission(status === 'granted');
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'Camera access is needed to scan QR codes.');
+    }
+    return status === 'granted';
+  };
 
   const verifyToken = async (value: string) => {
     const trimmed = value.trim();
@@ -53,11 +62,8 @@ export default function PublicVerifyScreen() {
   };
 
   const startScanning = async () => {
-    const { status } = await requestPermission();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'Camera access is needed to scan QR codes.');
-      return;
-    }
+    const granted = await requestCameraPermission();
+    if (!granted) return;
     lastScanned.current = null;
     setScanning(true);
     setError('');
@@ -65,7 +71,7 @@ export default function PublicVerifyScreen() {
 
   const pickFromGallery = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: false,
       quality: 1
     });
@@ -90,13 +96,13 @@ export default function PublicVerifyScreen() {
 
         {scanning ? (
           <View style={styles.cameraContainer}>
-            <CameraView
+            <Camera
               ref={cameraRef}
               style={styles.camera}
-              facing="back"
-              onBarcodeScanned={handleBarCodeScanned}
-              barcodeScannerSettings={{
-                barcodeTypes: ['qr']
+              type={CameraType.back}
+              onBarCodeScanned={handleBarCodeScanned}
+              barCodeScannerSettings={{
+                barCodeTypes: ['qr']
               }}
             >
               <View style={styles.scanOverlay}>
@@ -105,7 +111,7 @@ export default function PublicVerifyScreen() {
                 <View style={styles.cornerBL} />
                 <View style={styles.cornerBR} />
               </View>
-            </CameraView>
+            </Camera>
             <TouchableOpacity style={styles.stopButton} onPress={() => setScanning(false)}>
               <Text style={styles.stopButtonText}>Stop Scanner</Text>
             </TouchableOpacity>

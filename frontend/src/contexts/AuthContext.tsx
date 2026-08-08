@@ -2,7 +2,9 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 import type { ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import api from '../lib/api';
-import { setAccessToken } from '../lib/authToken';
+import { setAccessToken, getAccessToken } from '../lib/authToken';
+
+const ACCESS_TOKEN_KEY = 'chaintrack_access_token';
 
 interface JwtPayload {
   userId: string;
@@ -42,8 +44,18 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [token, setToken] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem(ACCESS_TOKEN_KEY);
+    }
+    return null;
+  });
+  const [refreshToken, setRefreshToken] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem(TOKEN_KEY);
+    }
+    return null;
+  });
   const [user, setUser] = useState<User | null>(null);
 
   const decodeUser = useCallback((rawToken: string): User | null => {
@@ -91,14 +103,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = useCallback(() => {
     sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(ACCESS_TOKEN_KEY);
     setToken(null);
     setRefreshToken(null);
     setUser(null);
     setAccessToken(null);
   }, []);
 
-  // Attempt silent refresh on boot if a refresh token was persisted.
+  // On boot, prefer a persisted access token if present.
+  // If only a refresh token exists, attempt silent refresh.
   useEffect(() => {
+    const storedAccess = typeof window !== 'undefined' ? sessionStorage.getItem(ACCESS_TOKEN_KEY) : null;
+    if (storedAccess) {
+      const decoded = decodeUser(storedAccess);
+      if (decoded) {
+        setToken(storedAccess);
+        setUser(decoded);
+        setAccessToken(storedAccess);
+        return;
+      }
+    }
+
     const stored = typeof window !== 'undefined' ? sessionStorage.getItem(TOKEN_KEY) : null;
     if (stored) {
       refresh();
