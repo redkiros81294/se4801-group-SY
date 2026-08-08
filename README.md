@@ -5,6 +5,7 @@
 [![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=java&logoColor=white)](https://www.java.com)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
+[![Expo](https://img.shields.io/badge/Expo-SDK%2050-000000?logo=expo&logoColor=white)](https://expo.dev/)
 
 ---
 
@@ -30,9 +31,10 @@ This is the same architecture class used by pharma serialization (DSCSA) and foo
 |---|---|
 | 🔗 **Tamper-evident ledger** | SHA-256 hash chain over every movement; re-verified on every QR scan |
 | 📸 **Public verification portal** | `/verify` -- no login needed; consumers can verify any product QR (network-effect distribution) |
+| 📱 **Mobile app (Expo SDK 50)** | Cross-platform React Native app for scanning, batch tracking, and movement logging |
 | 🔐 **RBAC + multi-org** | ADMIN / MANUFACTURER / SHIPPER / RETAILER, org-scoped data access (BOLA-protected) |
 | 🛡️ **Immutable audit log** | Every CRUD action hash-chained + admin-verifiable (`GET /api/admin/audit/verify`) |
-| 🔑 **Enterprise auth** | JWT (blacklist-enabled logout), rate limiting, change-password, admin-provisioned accounts |
+| 🔑 **Enterprise auth** | JWT (blacklist-enabled logout), refresh tokens, rate limiting, change-password, admin-provisioned accounts |
 | 📊 **Real-time dashboards** | Live supply-chain analytics for admin + manufacturer |
 | 🔍 **Structured logging** | Trace/span/correlation IDs on every log line (Micrometer Tracing + `X-Request-Id`) |
 | ✉️ **Email delivery** | Resend API (branded HTML invites) with automatic SMTP fallback |
@@ -53,6 +55,7 @@ graph TD
     B --> H[Resend API / SMTP]
     B --> I[Micrometer Tracing]
     A --> J[Public Verify Portal - no auth]
+    K[Expo SDK 50 Mobile App] -->|REST /api/v1| B
 ```
 
 Full detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/SECURITY.md`](docs/SECURITY.md)
@@ -68,17 +71,35 @@ Full detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/SECURITY.m
 
 ## 🛠️ Tech Stack
 
-- **Backend**: Java 21, Spring Boot 3.5, Maven, Spring Data JPA, Spring Security 6
+### Backend
+- **Runtime**: Java 21, Spring Boot 3.5, Maven
 - **Database**: PostgreSQL 15, Flyway migrations, Hibernate (UTC, `ddl-auto=none`)
-- **Security**: JJWT 0.12.6 (stateless JWT + blacklist), Bucket4j rate limiting, HSTS/CSP, BOLA checks
+- **Security**: JJWT 0.12.6 (stateless JWT + blacklist + refresh tokens), Bucket4j rate limiting, HSTS/CSP, BOLA checks
 - **Integrity**: SHA-256 hash-chained movement ledger + hash-chained audit log
 - **Observability**: Spring Boot Actuator, Micrometer Tracing (Brave), correlation IDs
 - **Email**: Resend REST API (fallback: SMTP)
 - **QR**: ZXing (generate) + jsQR (browser scan)
 - **API Docs**: SpringDoc OpenAPI 2.8.4 (Swagger UI)
-- **Testing**: JUnit 5, Mockito, Testcontainers, JaCoCo (coverage ~75%)
-- **Frontend**: React 19, Vite, Tailwind CSS, Recharts, React Router (lazy code-split)
-- **CI/CD**: GitHub Actions (backend CI + frontend deploy), Docker multi-stage
+- **Testing**: JUnit 5, Mockito, Testcontainers, JaCoCo
+
+### Frontend (Web)
+- **Framework**: React 19, Vite 8, TypeScript
+- **Styling**: Tailwind CSS, custom CSS variables for dark theme
+- **Charts**: Recharts
+- **Routing**: React Router 7 (lazy code-split)
+- **State**: React Context (JWT in-memory only, never localStorage)
+- **Icons**: Tabler Icons
+
+### Mobile
+- **Framework**: Expo SDK 50, React Native 0.72, TypeScript 5.1
+- **Navigation**: expo-router
+- **Camera**: expo-camera (QR scanning)
+- **Storage**: expo-secure-store (JWT persistence)
+- **Target**: Android API 21+ / iOS 13+
+
+### Infrastructure
+- **Containerization**: Docker Compose (multi-stage builds)
+- **CI/CD**: GitHub Actions (backend CI + frontend deploy)
 
 ---
 
@@ -123,20 +144,38 @@ Full detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/SECURITY.m
 
 ## 🚀 Getting Started
 
+### Prerequisites
+- Docker & Docker Compose
+- Node.js 18+ (for frontend/mobile manual runs)
+- Java 21 (for backend manual runs)
+- Expo CLI: `npm install -g expo-cli` (for mobile)
+
 ### Docker (easiest)
 ```bash
 docker-compose up --build
 ```
 - Backend: `http://localhost:8080` · Swagger: `http://localhost:8080/swagger-ui.html`
 - Frontend: `http://localhost:5173`
+- Database: `localhost:5536` (PostgreSQL 15)
 
-### Manual
+### Manual - Backend
 ```bash
-# backend
 mvn clean install && mvn spring-boot:run
-# frontend
+```
+
+### Manual - Frontend
+```bash
 cd frontend && npm install && npm run dev
 ```
+
+### Mobile (Expo Go - no native build needed)
+```bash
+cd mobile && npm install
+npx expo start
+```
+Scan the QR code with the **Expo Go** app on your phone (Android/iOS). Make sure your phone is on the same Wi-Fi network as your development machine.
+
+**Note**: The mobile app targets **Expo SDK 50** for maximum device compatibility (Android API 21+ / iOS 13+).
 
 ---
 
@@ -171,6 +210,11 @@ cd frontend && npm install && npm run dev
 | `VITE_API_URL` | Backend base URL (falls back to hosted API) |
 | `VITE_API_FALLBACK_URL` | Secondary backend URL |
 
+**Mobile**
+| Var | Purpose |
+|---|---|
+| `EXPO_PUBLIC_API_URL` | Backend base URL for the mobile app |
+
 ---
 
 ## 🧪 Quality
@@ -178,6 +222,7 @@ cd frontend && npm install && npm run dev
 - `mvn test` -- backend unit + integration tests (JaCoCo report: `target/site/jacoco/index.html`)
 - `cd frontend && npx vitest run` -- component tests (jsdom)
 - `cd frontend && npx tsc -b --noEmit` -- TypeScript check
+- `cd mobile && npx tsc --noEmit` -- TypeScript check
 
 ---
 
@@ -186,3 +231,51 @@ cd frontend && npm install && npm run dev
 - [`docs/PITCH.md`](docs/PITCH.md) -- investor one-pager: problem, market, product, roadmap
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) -- system design, data model, hash-chain math
 - [`docs/SECURITY.md`](docs/SECURITY.md) -- threat model, security controls, SOC 2 readiness
+- [`frontend/README.md`](frontend/README.md) -- frontend setup and conventions
+- [`mobile/README.md`](mobile/README.md) -- mobile app setup and usage
+
+---
+
+## 📦 Project Structure
+
+```
+chaintrack/
+├── src/main/java/com/chaintrack/   # Backend source
+│   ├── controller/                  # REST controllers
+│   ├── service/                     # Business logic
+│   ├── repository/                  # Data access
+│   ├── model/                       # JPA entities
+│   ├── dto/                         # Request/response DTOs
+│   ├── security/                    # JWT, RBAC, rate limiting
+│   └── config/                      # Spring configs
+├── frontend/                        # React 19 web app (Vite)
+│   ├── src/
+│   │   ├── pages/                   # Route pages
+│   │   ├── components/              # Shared UI components
+│   │   ├── contexts/                # React Context (Auth)
+│   │   ├── hooks/                   # Custom hooks
+│   │   └── lib/                     # API client, auth token
+│   └── ...
+├── mobile/                          # Expo SDK 50 React Native app
+│   ├── app/                         # expo-router screens
+│   ├── src/
+│   │   ├── screens/                 # Screen components
+│   │   ├── services/                # API + auth
+│   │   └── theme/                   # Design tokens
+│   └── ...
+├── docker-compose.yml               # Backend + frontend + db
+├── Dockerfile                       # Backend multi-stage build
+└── frontend/Dockerfile              # Frontend nginx build
+```
+
+---
+
+## 🤝 Contributing
+
+This is a course project (SECT-4221 · Enterprise Application Development). See `USER_A_RULES.md` and `USER_B_RULES.md` for member responsibilities and commit protocol.
+
+---
+
+## 📜 License
+
+Academic use only -- see course instructor for redistribution rights.
